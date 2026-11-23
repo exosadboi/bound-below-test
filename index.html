@@ -2548,6 +2548,16 @@ body.calm #fx{z-index:0} /* dust drifts behind the text, not over it */
 .cgrid .cback2{position:relative} .cgrid .cback2 .cb-arch{position:absolute;left:50%;top:50%;margin:0!important;transform:translate(-50%,-50%)!important} .cgrid .gcard.cback2:not(.hinted){border-image:none!important;border:2px solid #4a3f36!important;box-shadow:inset 0 0 0 2px #15111a,0 4px 0 rgba(0,0,0,.6)!important}
 #app .dtabs.wrap4{flex-wrap:wrap;row-gap:6px;height:auto!important} #app .dtabs.wrap4 .dtab{font-size:16px!important;flex:1 1 calc(33.333% - 6px)!important;padding:9px 2px!important;min-width:0}
 .news{display:flex;flex-direction:column;gap:12px;max-height:56vh;overflow:auto;text-align:left} .newsh{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 4px;color:#e8d9b0} .newsh small{color:#9a8f80} .newsv ul{margin:0;padding-left:18px} .newsv li{margin:3px 0;line-height:1.3}
+/* v0.113.4: iPhone Safari draws a filtered child of a filtered, transformed card shifted (the hand cards 'dropped' when energy ran out).
+   In the hand every effect now lives on ONE element (.acb), combined from two parts: --g (a glow) and --d (dimming); the card itself has no filter. */
+#app .hand .card.acard,#app .hand .card.acard.no,#app .hand .card.acard.keep,#app .hand .card.acard.armd,#app .hand .card.chained{filter:none!important}
+#app .hand .card.acard .acb{filter:var(--g,drop-shadow(0 0 0 transparent)) var(--d,brightness(1))!important}
+#app .hand .acard.nf.r-epic{--g:drop-shadow(0 0 4px rgba(172,110,240,.55))} #app .hand .acard.nf.r-legendary{--g:drop-shadow(0 0 6px rgba(255,170,60,.7))}
+#app .hand .card.acard.echo{--g:drop-shadow(0 0 4px #9be8a6)}
+#app .hand .card.acard.keep{--g:drop-shadow(0 0 6px var(--form))}
+#app .hand .card.acard.armd{--g:drop-shadow(0 0 6px rgba(255,226,150,.85))}
+#app .hand .card.acard.no{--d:saturate(.55) brightness(.75)} #app .hand .card.acard.no.echo{--g:drop-shadow(0 0 0 transparent)}
+#app .hand .card.chained{--d:grayscale(1) brightness(.55)}
 #holdz.zoom{background:rgba(4,3,6,.98)}
 .hand .card.armd{translate:0 -26px;z-index:6;filter:drop-shadow(0 0 6px rgba(255,226,150,.85))} #app .biomel{font-size:12px}
 .field.stg .en .bar em{font-size:13.333px!important;line-height:13px!important} #app .dstrip .chip,#app .chips .chip{min-height:44px}
@@ -2703,7 +2713,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy health and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.113.3-test'; // bump for every build you send to testers
+const VERSION = '0.113.4-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -8437,7 +8447,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
-  {v: '0.113', d: '23 Nov', n: ["Enemies no longer blink out for a moment when hit (iPhone)", "Chests no longer jump down the screen as they open", "A first-time tip explains the green glow on cards (your companion's echo)", "The game now shares anonymous play stats (runs, picks, what beats you) so we can balance it. No names or emails. Turn it off in Options any time"]},
+  {v: '0.113', d: '23 Nov', n: ["Enemies no longer blink out for a moment when hit (iPhone)", "Chests no longer jump down the screen as they open", "A first-time tip explains the green glow on cards (your companion's echo)", "Glowing cards no longer drop down when your energy runs out (iPhone)", "The game now shares anonymous play stats (runs, picks, what beats you) so we can balance it. No names or emails. Turn it off in Options any time"]},
   {v: '0.112', d: '23 Nov', n: ["Sharpening a card at the fire or the Merchant gets its own moment", "Bigger Codex tabs", "A new Black Market icon", "The daily offering now waits for you to tap Claim", "Undiscovered cards sit properly in the Codex", "This list. It shows once per update"]},
   {v: '0.110', d: '23 Nov', n: ["Mirror of Souls and Mirror of Sins now replay your last card this turn"]},
   {v: '0.109', d: '23 Nov', n: ["Gear: curios, companion gear and your satchel in one tent, with Equip, Upgrade and Salvage together"]},
