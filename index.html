@@ -2703,7 +2703,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy health and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.113.2-test'; // bump for every build you send to testers
+const VERSION = '0.113.3-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -8437,7 +8437,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
-  {v: '0.113', d: '23 Nov', n: ["Enemies no longer blink out for a moment when hit (iPhone)", "Chests no longer jump down the screen as they open", "The game now shares anonymous play stats (runs, picks, what beats you) so we can balance it. No names or emails. Turn it off in Options any time"]},
+  {v: '0.113', d: '23 Nov', n: ["Enemies no longer blink out for a moment when hit (iPhone)", "Chests no longer jump down the screen as they open", "A first-time tip explains the green glow on cards (your companion's echo)", "The game now shares anonymous play stats (runs, picks, what beats you) so we can balance it. No names or emails. Turn it off in Options any time"]},
   {v: '0.112', d: '23 Nov', n: ["Sharpening a card at the fire or the Merchant gets its own moment", "Bigger Codex tabs", "A new Black Market icon", "The daily offering now waits for you to tap Claim", "Undiscovered cards sit properly in the Codex", "This list. It shows once per update"]},
   {v: '0.110', d: '23 Nov', n: ["Mirror of Souls and Mirror of Sins now replay your last card this turn"]},
   {v: '0.109', d: '23 Nov', n: ["Gear: curios, companion gear and your satchel in one tent, with Equip, Upgrade and Salvage together"]},
@@ -9653,12 +9653,13 @@ const Stats = (() => { const QK = 'bound-below-stats-q', t0 = Date.now();
   function send(ev, data) { try { if (!on()) return; const row = Object.assign({ev, at: new Date().toISOString(), v: VERSION, pid: pid(), sid, duo: META.duoSel || 'fallen', runs: META.runs || 0, wins: META.wins || 0, mob: /Mobi|Android|iPhone/i.test(navigator.userAgent) ? 1 : 0}, data || {});
       setQ(q().concat([row])); flush(); } catch (e) {} }
   addEventListener('online', flush);
-  addEventListener('pagehide', () => send('leave', {mins: Math.round((Date.now() - t0) / 6e3) / 10, scr: S && S.screen}));
+  let lastLeave = 0; const leave = () => { if (Date.now() - lastLeave < 15000) return; lastLeave = Date.now(); send('leave', {mins: Math.round((Date.now() - t0) / 6e3) / 10, scr: S && S.screen}); };
+  addEventListener('pagehide', leave); document.addEventListener('visibilitychange', () => { if (document.hidden) leave(); }); // iPhone home-screen apps rarely fire pagehide
   return {send, flush}; })();
 // what a run looks like right now, for the run and fight rows
 const runInfo = () => S && S.p ? {mode: S.daily ? 'daily' : S.endless ? 'endless' : 'campaign', act: S.act || 1, acts: S.runLen || 1, step: S.step || 0, dread: S.heat || 0, pen: (S.pen || []).join(' '), hp: S.p.hp, maxHp: S.p.maxHp, gold: S.gold || 0, comp: S.comp || '', boons: (S.boons || []).join(' '), deck: S.p.deck.length, form: S.p.form, mins: S.tStart ? Math.round((Date.now() - S.tStart) / 6e3) / 10 : ''} : {};
 { const nr = newRun; newRun = function () { const out = nr.apply(this, arguments); if (S && S.p) { S.tStart = Date.now(); Stats.send('run_start', Object.assign(runInfo(), {deckIds: S.p.deck.map(c => c.id + ':' + c.lv).join(' ')})); } return out; }; }
-{ const er = endRun; endRun = function (won) { try { const f = S.f, h = S.hurt || {}; Stats.send('run_end', Object.assign(runInfo(), {won: won ? 1 : 0, killer: won ? '' : (h.by || S.lastFoe || ''), why: won ? '' : String(h.why || '').slice(0, 60), fight: f ? f.kind : '', foes: f ? f.en.map(e => e.id).join(' ') : '', turn: f ? f.turn : '', fights: S.rs ? Object.values(S.rs).reduce((a, b) => a + (+b || 0), 0) : '', deckIds: S.p ? S.p.deck.map(c => c.id + ':' + c.lv).join(' ') : ''})); } catch (e) {} return er.apply(this, arguments); }; }
+{ const er = endRun; endRun = function (won) { try { const f = S.f, h = S.hurt || {}; const how = won ? 'won' : S.p && S.p.hp > 0 ? 'quit' : 'died'; Stats.send('run_end', Object.assign(runInfo(), {won: won ? 1 : 0, how, killer: how === 'died' ? (h.by || S.lastFoe || '') : '', why: how === 'died' ? String(h.why || '').slice(0, 60) : '', fight: f ? f.kind : '', foes: f ? f.en.map(e => e.id).join(' ') : '', turn: f ? f.turn : '', fights: S.rs ? Object.values(S.rs).reduce((a, b) => a + (+b || 0), 0) : '', deckIds: S.p ? S.p.deck.map(c => c.id + ':' + c.lv).join(' ') : ''})); } catch (e) {} return er.apply(this, arguments); }; }
 { const wf = winFight; winFight = function () { try { const f = F(); Stats.send('fight', Object.assign(runInfo(), {kind: f.kind, foes: f.en.map(e => e.id).join(' '), turns: f.turn, hpLost: f.hp0 != null ? f.hp0 - P().hp : ''})); } catch (e) {} return wf.apply(this, arguments); }; }
 { const sf = startFight; startFight = function () { const out = sf.apply(this, arguments); try { if (S.f) S.f.hp0 = P().hp; } catch (e) {} return out; }; }
 { const td = takeDraft; takeDraft = function (i, forge) { try { Stats.send('pick', {kind: 'card', offered: (S.draft || []).join(' '), took: (S.draft || [])[i] || '', forge: forge ? 1 : 0, act: S.act || 1, step: S.step || 0}); } catch (e) {} return td.apply(this, arguments); }; }
@@ -9691,6 +9692,7 @@ const FTIPS = [
   ['chill', () => S.screen === 'fight' && HEATD() && alive().some(e => stOn(e, 'chill')), '<b>Chill</b>: chilled foes hit softer, and Ember hits them harder.'],
   ['frozen', () => S.screen === 'fight' && alive().some(e => e.frozen), '<b>Frozen</b> foes skip their turn.'],
   ['fury', () => S.screen === 'fight' && !!$app.querySelector('.furyc'), 'Long fights turn ugly: soon every foe hits 3 harder each turn.'],
+  ['echo', () => S.screen === 'fight' && !!$app.querySelector('.hand .card.echo'), '<b>Green glow</b>: play that card and your companion echoes its other side, weaker.'],
   ['streak', () => S.screen === 'fight' && (P().chain || 0) >= 2, '<b>Streak</b>: keep playing cards in one turn and later hits land harder.'],
   ['doorhold', () => S.screen === 'doors' && S.doors && S.doors.length > 1, 'Hold a door to read its signs. Hold a foe to read it.'],
   ['gold', () => S.screen === 'doors' && S.gold > 0, '<b>Gold</b> is for this run. Spend it at the Merchant; what is left becomes souls.'],
