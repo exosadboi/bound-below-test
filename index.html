@@ -2703,7 +2703,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy health and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.113.1-test'; // bump for every build you send to testers
+const VERSION = '0.113.2-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -5579,8 +5579,9 @@ function vFight() {
   const eMax = Math.max(5, p.ap), pOn = ARCH.pips(1, 1, []).url, pOff = ARCH.pips(1, 0, []).url;
   const epips = tipBtn('ap', `<span class="epip" aria-label="Energy ${p.ap} of ${eMax}">${Array.from({length: eMax}, (_, k) => `<img src="${k < p.ap ? pOn : pOff}"${k < p.ap ? '' : ' class="off"'} alt="">`).join('')}</span>`);
   const heat = HEATD() ? hudStats(p, false).replace(/^<div class="stats">[\s\S]*?<\/button>/, '<div class="stats">') : jsMeters(p);
+  if (S.chest === 'drop') { const o = Stage.back('chest1_' + (S.chestT || 0)); if (o && !o.pre) { o.pre = new Image(); o.pre.src = o.url; if (o.pre.decode) o.pre.decode().catch(() => {}); } } // the open chest is decoded before the tap, so it can't pop
   if (S.chest) return `${topBar()}<div class="field stg ch">${stageHero(fm, false, false)}${stageComp(fm)}
-      <button class="chest2 ${S.chest} t${S.chestT || 0} rr-${topRar(S.preLoot)}" data-act="chest" aria-label="Open the chest" style="--cc:${RRGB[topRar(S.preLoot)]}"><span class="crays"></span><span class="cglow"></span><img src="${Stage.back('chest' + (S.chest === 'open' ? 1 : 0) + '_' + (S.chestT || 0)).url}" alt=""></button></div>
+      <button class="chest2 ${S.chest} t${S.chestT || 0} rr-${topRar(S.preLoot)}" data-act="chest" aria-label="Open the chest" style="--cc:${RRGB[topRar(S.preLoot)]}"><span class="crays"></span><span class="cglow"></span>${(c => `<img src="${c.url}" width="${c.w || 41}" height="${c.h || 44}" style="aspect-ratio:${c.w || 41}/${c.h || 44};height:auto" alt="">`)(Stage.back('chest' + (S.chest === 'open' ? 1 : 0) + '_' + (S.chestT || 0)))}</button></div>
     <div class="chestcap"><h2>Victory</h2>${S.chest === 'open' ? '<p>Spoils!</p>' : ''}</div>`;
   return `${topBar()}<div class="field stg" style="--rim:${biome().glow || '214,206,255'}"><div class="foes${f.en.filter(x => x.hp > 0).length >= 3 ? ' crowd' : ''}">${foes}</div><div class="log${coach() || S.info ? ' info' : ''}">${coach() || S.info || S.log.slice(-1).join('')}</div>
       <div class="stl">${ult}<div class="spdots">${sp}</div></div>${stageHero(fm, morph, fx)}${stageComp(fm)}${S.chain != null && !S.chHide ? `<div class="crail ${railCls(S.chain)}" role="button" data-act="chinfo" aria-label="The chain: ${chZone(S.chain)}">${chainRail(S.chain, f.bound ? null : chMove(f, S.chain))}</div>` : ''}</div>
@@ -8436,7 +8437,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
-  {v: '0.113', d: '23 Nov', n: ["Enemies no longer blink out for a moment when hit (iPhone)", "The game now shares anonymous play stats (runs, picks, what beats you) so we can balance it. No names or emails. Turn it off in Options any time"]},
+  {v: '0.113', d: '23 Nov', n: ["Enemies no longer blink out for a moment when hit (iPhone)", "Chests no longer jump down the screen as they open", "The game now shares anonymous play stats (runs, picks, what beats you) so we can balance it. No names or emails. Turn it off in Options any time"]},
   {v: '0.112', d: '23 Nov', n: ["Sharpening a card at the fire or the Merchant gets its own moment", "Bigger Codex tabs", "A new Black Market icon", "The daily offering now waits for you to tap Claim", "Undiscovered cards sit properly in the Codex", "This list. It shows once per update"]},
   {v: '0.110', d: '23 Nov', n: ["Mirror of Souls and Mirror of Sins now replay your last card this turn"]},
   {v: '0.109', d: '23 Nov', n: ["Gear: curios, companion gear and your satchel in one tent, with Equip, Upgrade and Salvage together"]},
