@@ -2703,7 +2703,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy health and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.112.1-test'; // bump for every build you send to testers
+const VERSION = '0.113.0-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -8436,6 +8436,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
+  {v: '0.113', d: '23 Nov', n: ["The game now shares anonymous play stats (runs, picks, what beats you) so we can balance it. No names or emails. Turn it off in Options any time"]},
   {v: '0.112', d: '23 Nov', n: ["Sharpening a card at the fire or the Merchant gets its own moment", "Bigger Codex tabs", "A new Black Market icon", "The daily offering now waits for you to tap Claim", "Undiscovered cards sit properly in the Codex", "This list. It shows once per update"]},
   {v: '0.110', d: '23 Nov', n: ["Mirror of Souls and Mirror of Sins now replay your last card this turn"]},
   {v: '0.109', d: '23 Nov', n: ["Gear: curios, companion gear and your satchel in one tent, with Equip, Upgrade and Salvage together"]},
@@ -8453,7 +8454,7 @@ function vOptions() {
     <section class="psec"><p class="psec-h">Help</p>
       <button class="orow" data-act="tutreplay"><span class="otxt"><b>Replay tutorial</b></span><span class="otag${META.tut ? '' : ' on'}">${META.tut ? 'Replay' : 'Queued'}</span></button>
       <button class="orow" data-act="help"><span class="otxt"><b>Rules</b><small>How forms, cards and damage work</small></span><span class="ochev">›</span></button></section>
-    <section class="psec"><p class="psec-h">Testing</p>
+    <section class="psec"><p class="psec-h">Testing</p>${optRow('stats', 'Share anonymous play stats', 'Helps balance the game. No names or emails')}
       <button class="orow" data-act="fbopen"><span class="otxt"><b>Send feedback</b><small>Report a bug or an idea${(META.errs || []).length ? ' · ' + META.errs.length + ' error' + (META.errs.length > 1 ? 's' : '') + ' logged' : ''}</small></span><span class="ochev">›</span></button>
       <button class="orow" data-act="codeopen"><span class="otxt"><b>Save code</b></span><span class="ochev">›</span></button>
       <button class="orow" data-act="newsall"><span class="otxt"><b>What's new</b><small>v${CHANGELOG[0].v}</small></span><span class="ochev">›</span></button></section>
@@ -9637,6 +9638,35 @@ ACT.testsouls = () => { META.souls = (META.souls || 0) + 5000; META.marks = (MET
 if (location.hash === '#souls') { META.souls = (META.souls || 0) + 5000; META.marks = (META.marks || 0) + 20; save(); history.replaceState(null, '', location.pathname); }
 // TESTING ONLY: open the game with #unlock on the address to own every duo. Remove before launch.
 if (location.hash === '#unlock') { Object.keys(DUOS).forEach(id => { (META.duosOwned = META.duosOwned || {})[id] = 1; }); save(); history.replaceState(null, '', location.pathname); }
+// ---------- play stats: anonymous events sent to the tester Google Sheet (tools/stats/sheet-script.js). Off when STATS_URL is empty,
+// in headless test tools (navigator.webdriver) and when the player turns it off in Options. No names, no emails: a random id per device.
+var STATS_URL = 'https://script.google.com/macros/s/AKfycbzBoQ3yKAitFBUCKD69y6WfDnmLXK37T-YpL_kw0h1xCmzswDYlCRsXm5Z-XkVKOUlkDQ/exec';
+if (META.opt.stats == null) META.opt.stats = true; // on unless the player turns it off
+const Stats = (() => { const QK = 'bound-below-stats-q', t0 = Date.now();
+  const on = () => !!STATS_URL && !FAST && !navigator.webdriver && META.opt.stats !== false;
+  const pid = () => META.pid || (META.pid = Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4));
+  const sid = Math.random().toString(36).slice(2, 8);
+  const q = () => { try { return JSON.parse(localStorage.getItem(QK) || '[]'); } catch (e) { return []; } }, setQ = a => { try { localStorage.setItem(QK, JSON.stringify(a.slice(-200))); } catch (e) {} };
+  const post = rows => fetch(STATS_URL, {method: 'POST', mode: 'no-cors', keepalive: true, headers: {'Content-Type': 'text/plain'}, body: JSON.stringify(rows)});
+  function flush() { if (!on() || !navigator.onLine) return; const a = q(); if (!a.length) return; setQ([]); post(a).catch(() => setQ(q().concat(a))); }
+  function send(ev, data) { try { if (!on()) return; const row = Object.assign({ev, at: new Date().toISOString(), v: VERSION, pid: pid(), sid, duo: META.duoSel || 'fallen', runs: META.runs || 0, wins: META.wins || 0, mob: /Mobi|Android|iPhone/i.test(navigator.userAgent) ? 1 : 0}, data || {});
+      setQ(q().concat([row])); flush(); } catch (e) {} }
+  addEventListener('online', flush);
+  addEventListener('pagehide', () => send('leave', {mins: Math.round((Date.now() - t0) / 6e3) / 10, scr: S && S.screen}));
+  return {send, flush}; })();
+// what a run looks like right now, for the run and fight rows
+const runInfo = () => S && S.p ? {mode: S.daily ? 'daily' : S.endless ? 'endless' : 'campaign', act: S.act || 1, acts: S.runLen || 1, step: S.step || 0, dread: S.heat || 0, pen: (S.pen || []).join(' '), hp: S.p.hp, maxHp: S.p.maxHp, gold: S.gold || 0, comp: S.comp || '', boons: (S.boons || []).join(' '), deck: S.p.deck.length, form: S.p.form, mins: S.tStart ? Math.round((Date.now() - S.tStart) / 6e3) / 10 : ''} : {};
+{ const nr = newRun; newRun = function () { const out = nr.apply(this, arguments); if (S && S.p) { S.tStart = Date.now(); Stats.send('run_start', Object.assign(runInfo(), {deckIds: S.p.deck.map(c => c.id + ':' + c.lv).join(' ')})); } return out; }; }
+{ const er = endRun; endRun = function (won) { try { const f = S.f, h = S.hurt || {}; Stats.send('run_end', Object.assign(runInfo(), {won: won ? 1 : 0, killer: won ? '' : (h.by || S.lastFoe || ''), why: won ? '' : String(h.why || '').slice(0, 60), fight: f ? f.kind : '', foes: f ? f.en.map(e => e.id).join(' ') : '', turn: f ? f.turn : '', fights: S.rs ? Object.values(S.rs).reduce((a, b) => a + (+b || 0), 0) : '', deckIds: S.p ? S.p.deck.map(c => c.id + ':' + c.lv).join(' ') : ''})); } catch (e) {} return er.apply(this, arguments); }; }
+{ const wf = winFight; winFight = function () { try { const f = F(); Stats.send('fight', Object.assign(runInfo(), {kind: f.kind, foes: f.en.map(e => e.id).join(' '), turns: f.turn, hpLost: f.hp0 != null ? f.hp0 - P().hp : ''})); } catch (e) {} return wf.apply(this, arguments); }; }
+{ const sf = startFight; startFight = function () { const out = sf.apply(this, arguments); try { if (S.f) S.f.hp0 = P().hp; } catch (e) {} return out; }; }
+{ const td = takeDraft; takeDraft = function (i, forge) { try { Stats.send('pick', {kind: 'card', offered: (S.draft || []).join(' '), took: (S.draft || [])[i] || '', forge: forge ? 1 : 0, act: S.act || 1, step: S.step || 0}); } catch (e) {} return td.apply(this, arguments); }; }
+{ const ds = ACT.drftskip; if (ds) ACT.drftskip = function () { try { Stats.send('pick', {kind: 'card', offered: (S.draft || []).join(' '), took: '', act: S.act || 1, step: S.step || 0}); } catch (e) {} return ds.apply(this, arguments); }; }
+{ const tb = takeBoon; takeBoon = function (id) { try { Stats.send('pick', {kind: 'boon', offered: (S.boonPick || []).join(' '), took: id, act: S.act || 1, step: S.step || 0}); } catch (e) {} return tb.apply(this, arguments); }; }
+{ const tk = ACT.tutskip; ACT.tutskip = function () { try { Stats.send('tutorial', {done: 0, step: S.tut || 0}); } catch (e) {} return tk.apply(this, arguments); }; }
+{ const tdn = tutDone; tutDone = function () { try { if (S.tut) Stats.send('tutorial', {done: 1, step: S.tut}); } catch (e) {} return tdn.apply(this, arguments); }; }
+{ const le = logErr; logErr = function (msg, where) { try { Stats.send('error', {msg: String(msg).slice(0, 200), where: String(where || '').slice(0, 120), scr: S && S.screen}); } catch (e) {} return le.apply(this, arguments); }; }
+Stats.send('open', {w: innerWidth, h: innerHeight, standalone: matchMedia('(display-mode: standalone)').matches ? 1 : 0, level: (() => { try { return duoLevel(DUO().xp).L; } catch (e) { return ''; } })()});
 // a run in progress is kept on every screen it settles on, so closing the app, a call or the phone dropping the page never loses it.
 // It lives beside the save, not in it: a broken run can be thrown away without touching progress.
 const RUN_KEY = 'fallen-grace-run';
