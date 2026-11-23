@@ -2703,7 +2703,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy health and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.113.0-test'; // bump for every build you send to testers
+const VERSION = '0.113.1-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -8436,7 +8436,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
-  {v: '0.113', d: '23 Nov', n: ["The game now shares anonymous play stats (runs, picks, what beats you) so we can balance it. No names or emails. Turn it off in Options any time"]},
+  {v: '0.113', d: '23 Nov', n: ["Enemies no longer blink out for a moment when hit (iPhone)", "The game now shares anonymous play stats (runs, picks, what beats you) so we can balance it. No names or emails. Turn it off in Options any time"]},
   {v: '0.112', d: '23 Nov', n: ["Sharpening a card at the fire or the Merchant gets its own moment", "Bigger Codex tabs", "A new Black Market icon", "The daily offering now waits for you to tap Claim", "Undiscovered cards sit properly in the Codex", "This list. It shows once per update"]},
   {v: '0.110', d: '23 Nov', n: ["Mirror of Souls and Mirror of Sins now replay your last card this turn"]},
   {v: '0.109', d: '23 Nov', n: ["Gear: curios, companion gear and your satchel in one tent, with Equip, Upgrade and Salvage together"]},
@@ -9703,6 +9703,14 @@ const FTIPS = [
       const t = FTIPS.find(([k, ok]) => !seen[k] && ok()); if (!t) return out;
       seen[t[0]] = 1; save(); if (!el) { el = document.createElement('div'); el.id = 'ftip'; document.body.appendChild(el); }
       el.innerHTML = typeof t[2] === 'function' ? t[2]() : t[2]; el.classList.remove('on'); void el.offsetWidth; el.classList.add('on'); shown = t[0]; scr = S.screen; tm = setTimeout(hideTip, 7000); } catch (e) {}
+    return out; }; }
+// iPhone Safari can show an empty frame while it decodes a freshly created <img>, so a redraw made enemies blink out.
+// The field's pictures are kept between redraws: a new <img> with the same picture is swapped for the old, already-decoded one.
+{ const r0 = render; render = function () {
+    const keep = new Map(); if (S && S.screen === 'fight') $app.querySelectorAll('.field img, .hudrow img').forEach(im => { const k = im.getAttribute('src'); if (!k) return; (keep.get(k) || keep.set(k, []).get(k)).push(im); });
+    const out = r0.apply(this, arguments);
+    if (keep.size) $app.querySelectorAll('.field img, .hudrow img').forEach(im => { const L = keep.get(im.getAttribute('src')); if (!L || !L.length) return; const old = L.shift(); if (old.isConnected) return;
+      for (const a of [...old.attributes]) if (!im.hasAttribute(a.name)) old.removeAttribute(a.name); for (const a of [...im.attributes]) if (old.getAttribute(a.name) !== a.value) old.setAttribute(a.name, a.value); im.replaceWith(old); });
     return out; }; }
 // the camp's arrival moments, decided before it draws: a newly opened place first, then what's new since your last visit
 { const r0 = render; render = function () { if (S && S.screen === 'camp' && !S.p && !S.sheet && !S.confirm) {
