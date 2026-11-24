@@ -2579,6 +2579,27 @@ body.calm #fx{z-index:0} /* dust drifts behind the text, not over it */
 .title .tfig{height:150px;image-rendering:pixelated} .title .tduo .tfig:last-child{transform:scaleX(-1)}
 .title .tchain{width:70px;height:14px;margin:0 -8px 46px;background:var(--k-chain) center/auto 100% repeat-x;image-rendering:pixelated;filter:drop-shadow(0 0 6px rgba(212,80,42,.6))}
 .title .tdoor{filter:drop-shadow(0 0 30px rgba(212,80,42,.5));animation:tdoorg 3s ease-in-out infinite} .title .tdoor img{display:block;width:150px;height:225px;image-rendering:pixelated} @keyframes tdoorg{50%{filter:drop-shadow(0 0 44px rgba(212,80,42,.75))}}
+/* meeting a duo */
+.dintro{position:fixed;inset:0;z-index:95;background:radial-gradient(ellipse at 50% 50%,#16111c,#050407 75%);text-align:center;overflow:hidden;cursor:pointer} .dintro .di-l1,.dintro .di-l2{position:absolute;left:24px;right:24px} .dintro .di-l1{top:20%} .dintro .di-l2{top:63%} .dintro .di-stage{position:absolute!important;left:50%;top:30%;transform:translateX(-50%)}
+.dintro p{margin:0;font:400 17px/1.35 var(--body);color:#d8cfbc;text-shadow:0 2px 0 #000}
+.dintro .di-l1{opacity:0;animation:diin .8s ease-out .2s forwards,diout .6s ease-in 3.6s forwards}
+.dintro .di-stage{display:flex;align-items:flex-end;justify-content:center;width:100%;max-width:380px;min-height:210px;position:relative}
+.dintro .di-fig{display:flex;flex-direction:column;align-items:center;gap:2px;width:44%;opacity:0}
+.dintro .di-im{position:relative;display:block;width:120px;height:130px} .dintro .di-im img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:bottom;image-rendering:pixelated}
+.dintro .di-fig b{font:400 22px/1 var(--title);margin-top:6px} .dintro .di-fig small{font:400 13px/1.2 var(--body);color:#a69cad}
+.dintro .di-a{animation:dia 1s cubic-bezier(.2,.8,.3,1) 1.2s forwards} .dintro .di-a b{color:rgb(var(--ca))} .dintro .di-a .di-im{filter:drop-shadow(0 0 18px rgba(var(--ca),.6))}
+.dintro .di-b{animation:dib 1s cubic-bezier(.2,.8,.3,1) 2.4s forwards} .dintro .di-b b{color:rgb(var(--cb))} .dintro .di-b .di-im{filter:drop-shadow(0 0 18px rgba(var(--cb),.6))} .dintro .di-b .di-im img{transform:scaleX(-1)}
+.dintro .di-chain{position:absolute;left:50%;bottom:118px;width:0;height:14px;transform:translateX(-50%);background:var(--k-chain) center/auto 100% repeat-x;image-rendering:pixelated;filter:drop-shadow(0 0 8px rgba(212,80,42,.8));animation:dich .35s steps(6) 3.9s forwards}
+.dintro .di-l2{opacity:0;animation:diin .7s ease-out 4.3s forwards}
+.dintro .di-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;animation:diflash .5s ease-out 3.95s}
+.dintro .di-end{position:absolute;left:0;right:0;bottom:max(28px,env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;gap:8px;padding:0 24px;opacity:0;animation:diin .8s ease-out 5.3s forwards}
+.dintro .di-end h1{margin:0;font:400 44px/1 var(--title);color:var(--gold);text-shadow:0 3px 0 #000,0 0 24px rgba(201,169,90,.35)}
+.dintro .di-go{width:100%;max-width:320px;margin-top:8px;font-size:18px;padding:13px 0;letter-spacing:.14em}
+@keyframes diin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}} @keyframes diout{to{opacity:0}}
+@keyframes dia{from{opacity:0;transform:translateX(-60px)}to{opacity:1;transform:none}} @keyframes dib{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:none}}
+@keyframes dich{to{width:34%}} @keyframes diflash{0%{opacity:.55}100%{opacity:0}}
+.dintro.done *{animation-delay:0s!important;animation-duration:.01s!important} .dintro.done .di-l1{display:none} .dintro.done .di-flash{display:none}
+@media (prefers-reduced-motion:reduce){.dintro *{animation-delay:0s!important;animation-duration:.01s!important}}
 #holdz.zoom{background:rgba(4,3,6,.98)}
 .hand .card.armd{translate:0 -26px;z-index:6;filter:drop-shadow(0 0 6px rgba(255,226,150,.85))} #app .biomel{font-size:12px}
 .field.stg .en .bar em{font-size:13.333px!important;line-height:13px!important} #app .dstrip .chip,#app .chips .chip{min-height:44px}
@@ -2734,7 +2755,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy health and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.114.0-test'; // bump for every build you send to testers
+const VERSION = '0.114.1-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -3130,7 +3151,7 @@ const owns = id => !!COS().owned[id] || (() => { const c = COSMETICS.find(x => x
 const duoOwned = id => !DUO_STORE.some(x => x.id === id) || !!(META.duosOwned || {})[id] || !!((DUO_STORE.find(x => x.id === id).ok || (() => false))());
 function grant(sku) { const pk = SOUL_PACKS.find(x => x.id === sku); if (pk) { META.souls = (META.souls || 0) + pk.souls; save(); render(); return; } if (sku.startsWith('duo-')) { (META.duosOwned = META.duosOwned || {})[sku.slice(4)] = 1; return duoJoin(sku.slice(4)); } else COS().owned[sku] = 1; save(); render(); }
 // a new duo walks into the camp: it is selected, the fire flares, and one line says who they are
-function duoJoin(id) { const x = DUO_STORE.find(y => y.id === id) || {}, n = x.n || (DUOS[id] && DUOS[id].n) || 'A new pair'; META.duoSel = id; save(); sfx('chime'); buzz([20, 40, 20]); S = {screen: 'camp', sheet: {msg: n + ' join the fire', body: 'Chained like you. They descend when you are ready.'}}; render(); }
+function duoJoin(id) { const x = DUO_STORE.find(y => y.id === id) || {}, n = x.n || (DUOS[id] && DUOS[id].n) || 'A new pair'; save(); S = {screen: 'camp'}; if (DUO_INTRO[id] && !duoMet(id)) return playIntro(id); META.duoSel = id; save(); sfx('chime'); buzz([20, 40, 20]); S = {screen: 'camp', sheet: {msg: n + ' join the fire', body: 'Chained like you. They descend when you are ready.'}}; render(); }
 window.fallenGrant = grant; // for the payment integration
 function purchase(sku) { S.sheet = {msg: 'The store opens at launch', body: 'Purchases are not connected in this build. When they are, this item unlocks right away and stays yours.'}; render(); }
 function wear(id) { const c = COSMETICS.find(x => x.id === id); if (!c || !owns(id)) return;
@@ -7114,7 +7135,7 @@ function vCamp() {
   if (!META.campSeen) { META.campSeen = {}; Object.keys(CAMP_PLACES).forEach(id => { if (CAMP_PLACES[id].ok()) META.campSeen[id] = 1; }); save(); }
   const locked = {}, alert = {};
   Object.keys(CAMP_PLACES).forEach(id => { if (!CAMP_PLACES[id].ok()) locked[id] = 1; else if (!META.campSeen[id]) alert[id] = 1; });
-  if (!duoOwned('ember')) locked[2] = 1;
+  if (!duoOwned('ember')) locked[2] = 1; const unmet = {}; [1, 2].forEach(k => { const d = Camp.SEAT[k]; if (duoOwned(d) && !duoMet(d)) { unmet[k] = 1; locked[k] = 1; alert[k] = 1; } }); // an unmet duo sits dark with a marker until you tap it
   if (canTal) alert[13] = 1; if (wallDue() >= 0) alert[14] = 1;
   if (UI().dealSeen !== dayKey()) alert[10] = 1; // new deals today
   if (CURIO_SLOTS.some(sl => !META.arm.eq[sl] && ARM.some(x => x.s === sl && META.arm.own[x.id]))) alert[11] = 1; // a curio you own sits unequipped in an empty slot
@@ -7126,7 +7147,7 @@ function vCamp() {
   const sub = {10: META.souls + ' souls', 11: CURIO_SLOTS.filter(sl => META.arm.eq[sl]).length + ' of 6 equipped', 12: ncomp + ' / ' + Object.keys(COMPANIONS).length + ' found', 13: META.marks + ' marks' + (canTal ? ' · ready' : ''),
     14: owned + ' / ' + total + ' cards', 15: 'Deck ' + (DUO().deckSel + 1), 17: (META.dust || 0) + ' bone dust' + (canUp ? ' · forge ready' : ''), 16: 'Begin a run', 1: 'Level ' + lvOf('fallen'), 2: 'Level ' + lvOf('ember'), 3: 'Coming soon'};
   const nm = id => id < 10 ? (id === 3 ? 'Paladin & Necromancer' : DUOS[Camp.SEAT[id]].n) : CAMP_PLACES[id].n;
-  CAMP_NAMES = {}; [1, 2, 3, 10, 11, 12, 13, 14, 15, 16, 17].forEach(id => { CAMP_NAMES[id] = locked[id] ? `🔒 ${nm(id)}<small>${id === 2 ? 'Not yet yours' : 'Locked'}</small>` : `${nm(id)}<small>${sub[id]}</small>`; });
+  CAMP_NAMES = {}; [1, 2, 3, 10, 11, 12, 13, 14, 15, 16, 17].forEach(id => { CAMP_NAMES[id] = unmet[id] ? `${nm(id)}<small>Tap to meet them</small>` : locked[id] ? `🔒 ${nm(id)}<small>${id === 2 ? 'Not yet yours' : 'Locked'}</small>` : `${nm(id)}<small>${sub[id]}</small>`; });
   return `<div class="screen camp-screen camp2">
     <div class="top hubtop">${kpill()}<span class="kpill kmarks" aria-label="${META.marks} marks">${pxi('marks')}<b>${META.marks}</b></span><span class="grow"></span>
       <button class="mini icon jbtn kib" data-act="journal" aria-label="Journal">${sprite('art-tome-angel')}${achUnclaimed().length + bountyUnclaimed().length ? '<i class="alert">' + (achUnclaimed().length + bountyUnclaimed().length) + '</i>' : ''}</button><button class="mini icon kib" data-act="help" aria-label="Rules">?</button><button class="mini icon kib" data-act="options" aria-label="Options">${pxi('gear')}</button></div>
@@ -7145,6 +7166,7 @@ function campToday() { const gift = offerDue() ? `<button class="tpill kchip hot
 function campTap(id) {
   if (id < 10) { const duo = Camp.SEAT[id];
     if (id === 3) { S.sheet = {msg: 'Paladin & Necromancer', body: 'Coming soon. Holy steel by day, the raised dead by night.'}; return render(); }
+    if (duoOwned(duo) && !duoMet(duo)) return playIntro(duo); // first touch: meet them
     if (!duoOwned(duo)) { const st = DUO_STORE.find(x => x.id === duo); S.sheet = {msg: '🔒 ' + DUOS[duo].n, body: st ? `${st.free} to earn them, or find them at the Black Market for ${st.souls} souls.` : 'Not yet yours.'}; return render(); }
     if (META.duoSel !== duo) { META.duoSel = duo; save(); render(); return campTalk(); }
     S.duo = true; return render(); }
@@ -7173,6 +7195,21 @@ function vReveal() { const d = S.reveal; if (!d) return ''; const fm = S.p ? S.p
 // the title page: shown on every fresh launch (tester builds), before the camp or a saved run. Enter goes on.
 // Three looks while we choose one: 'camp' (over the live camp), 'chain' (the two heroes chained), 'door' (the last door).
 var TITLE_LOOK = 'camp';
+// ---------- meeting a duo: a short cinematic the first time you take up their chain (tap to skip) ----------
+const DUO_INTRO = {
+  fallen: {a: 'fallenangel', b: 'fallendemon', an: 'The Angel', as: 'A soldier of heaven', bn: 'The Demon', bs: 'A creature of the pit', ca: '255,226,150', cb: '212,80,42', tag: 'Holy and Shadow. Switch to survive.'},
+  ember: {a: 'emberangel', b: 'emberdemon', an: 'Ember', as: 'A wildfire that cannot stop', bn: 'Rime', bs: 'A winter that cannot thaw', ca: '255,140,60', cb: '150,210,255', tag: 'Fire and Frost. Switch to survive.'}};
+const duoMet = id => !!(META.met || {})[id];
+if (!META.met) { META.met = {}; Object.keys(DUOS).forEach(id => { if (duoOwned(id) && (META.duo[id].xp > 0 || (META.runs || 0) > 0 && id === 'fallen')) META.met[id] = 1; }); } // a save from before the meeting keeps the duos it has played
+function vIntro() { const I = S.intro; if (!I) return ''; const D = DUO_INTRO[I.id] || DUO_INTRO.fallen;
+  const fig = k => { const A = IDLE_ANIM['front-' + k]; return A ? animImgs(A, '') : ''; };
+  return `<div class="dintro${I.done ? ' done' : ''}" data-act="introskip" style="--ca:${D.ca};--cb:${D.cb}" role="dialog" aria-label="Meet ${DUOS[I.id].n}">
+    <p class="di-l1">Two souls who hated each other.</p>
+    <div class="di-stage"><div class="di-fig di-a"><span class="di-im">${fig(D.a)}</span><b>${D.an}</b><small>${D.as}</small></div><i class="di-chain"></i><div class="di-fig di-b"><span class="di-im">${fig(D.b)}</span><b>${D.bn}</b><small>${D.bs}</small></div></div>
+    <p class="di-l2">The Binder chained them together.</p><i class="di-flash"></i>
+    <div class="di-end"><h1>${DUOS[I.id].n}</h1><p>${D.tag}</p><button class="btn pri di-go" data-act="introgo">Take up the chain</button></div></div>`; }
+function playIntro(id) { S.intro = {id, t: performance.now()}; S.sheet = null; render(); sfx('legend');
+  setTimeout(() => { if (S.intro && S.intro.id === id && !S.intro.done) { sfx('hit'); buzz([40, 30, 80]); S.shake = true; } }, 4000); }
 function vTitle() { const v = S.title; if (!v) return ''; const look = typeof v === 'string' ? v : TITLE_LOOK;
   const fig = k => { const A = IDLE_ANIM['front-' + k]; return A ? `<img class="tfig" src="${A.f[0]}" alt="">` : ''; };
   const art = look === 'chain' ? `<div class="tduo">${fig('fallenangel')}<i class="tchain"></i>${fig('fallendemon')}</div>` : look === 'door' ? `<div class="tdoor"><img src="${DOOR_PIC.boss}" alt=""></div>` : '';
@@ -7528,7 +7565,7 @@ const Talk = {q: [], t: 0, duo: null,
     this.t = setTimeout(() => this.next(), 2300 + txt.length * 45); },
   stop() { clearTimeout(this.t); this.q = []; Camp.bubble(0, 0, ''); }};
 function campTalk() {
-  const id = META.duoSel, T = TALK[id]; if (!T || !duoOwned(id) || S.sheet) return;
+  const id = META.duoSel, T = TALK[id]; if (!T || !duoOwned(id) || S.sheet || !duoMet(id)) return;
   const D = META.duo[id], tier = talkTier(id), seen = (META.talk = META.talk || {})[id] = (META.talk[id] || {}), rnd = a => a[Math.floor(MR() * a.length)];
   let pick = null;
   if (D.lastOut === 'lost' && !D.reacted) { D.reacted = 1; pick = rnd(tier >= 3 ? T.lost.hi : T.lost.lo); }
@@ -8480,7 +8517,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
-  {v: '0.114', d: '24 Nov', n: ["A title page greets you each time you open the game, with the version and What's new"]},
+  {v: '0.114', d: '24 Nov', n: ["Meet each duo: a short scene plays the first time you take up their chain", "A title page greets you each time you open the game, with the version and What's new"]},
   {v: '0.113', d: '23 Nov', n: ["Enemies no longer blink out for a moment when hit (iPhone)", "Chests no longer jump down the screen as they open", "A first-time tip explains the green glow on cards (your companion's echo)", "Glowing cards no longer drop down when your energy runs out (iPhone)", "The game now shares anonymous play stats (runs, picks, what beats you) so we can balance it. No names or emails. Turn it off in Options any time"]},
   {v: '0.112', d: '23 Nov', n: ["Sharpening a card at the fire or the Merchant gets its own moment", "Bigger Codex tabs", "A new Black Market icon", "The daily offering now waits for you to tap Claim", "Undiscovered cards sit properly in the Codex", "This list. It shows once per update"]},
   {v: '0.110', d: '23 Nov', n: ["Mirror of Souls and Mirror of Sins now replay your last card this turn"]},
@@ -8697,7 +8734,7 @@ function render() {
   // continuous CSS animations restart when innerHTML is replaced; a shared negative delay keeps them in phase
   $app.style.setProperty('--now', (-performance.now() / 1000).toFixed(3) + 's');
   $app.classList.remove('enter');
-  checkReveal(); $app.innerHTML = html + vDuo() + vSheet() + vConfirm() + vVow() + vForge() + vCacheOpen() + vReveal() + vTitle();
+  checkReveal(); $app.innerHTML = html + vDuo() + vSheet() + vConfirm() + vVow() + vForge() + vCacheOpen() + vReveal() + vIntro() + vTitle();
   $app.querySelectorAll('.screen, .sheet>div').forEach(paginate);
   $app.querySelectorAll('.screen .ahead').forEach(h => { if (!h.querySelector('.msouls,.kpill')) h.insertAdjacentHTML('beforeend', kpill()); });
   CardFX.sync();
@@ -9393,6 +9430,8 @@ const ACT = {
   eslot: d => { S.eslot = d.i; S.sellArm = null; render(); },
   bclaim: d => { const b = bounties().find(x => x.id === d.i), B = BOUNTIES.find(x => x.id === d.i); if (!b || b.c || b.p < B.g) return; b.c = 1; META.souls = (META.souls || 0) + B.sl; toast(`Bounty claimed · +${soul()}${B.sl}`, 'buy'); sfx('coin'); buzz(20); save(); render(); },
   todaydaily: () => ACT.pdaily(), drftreroll: () => { if (S.rrAct === S.act || !S.draft) return; S.rrAct = S.act; S.draft = draftPicks(); S.draft.rv = true; render(); }, sharerun: () => shareRun(), giftopen: () => { if (!offerDue()) return; S.sheet = {offer: offerNext(), pend: 1}; render(); }, // the gift opens first and waits for a Claim tap, like bounties and achievements
+  introskip: () => { if (!S.intro || S.intro.done) return; S.intro.done = true; render(); }, // a tap jumps to the end card
+  introgo: () => { const id = S.intro && S.intro.id; if (!id) return; (META.met = META.met || {})[id] = 1; META.duoSel = id; save(); S = {screen: 'camp'}; render(); setTimeout(campTalk, 600); },
   enter: () => { S.title = null; audio(); render(); },
   newsall: () => { S.sheet = {news: 'all'}; render(); },
   offerclaim: () => { const d = claimOffer(); if (!d) return; buzz([20, 40, 20]); S.sheet = {offer: d, just: 1}; render(); },
@@ -9412,7 +9451,7 @@ const ACT = {
     const own = ids.filter(duoOwned); if (own.length < 2) { S.sheet = {msg: 'More duos are coming'}; return render(); }
     META.duoSel = own[(own.indexOf(META.duoSel) + +d.i + own.length) % own.length]; S.dsel = null; if (S.heatSel) S.heatSel = Math.min(S.heatSel, heatCap()); save(); render(); }, duoX: () => { S.duo = false; render(); },
   soon: d => { S.sheet = {msg: d.i}; render(); },
-  descent: () => { S.duo = false; S.dailySel = S.endSel = false; if (!META.runs) return ACT.deckcheck(); S.screen = 'descent'; render(); },
+  descent: () => { if (!duoMet(META.duoSel || 'fallen') && DUO_INTRO[META.duoSel || 'fallen']) return playIntro(META.duoSel || 'fallen'); S.duo = false; S.dailySel = S.endSel = false; if (!META.runs) return ACT.deckcheck(); S.screen = 'descent'; render(); },
   pcamp: () => { S.dailySel = S.endSel = false; S.lenSel = defLen(); S.heatSel = Math.min((META.lastRun || {}).heat || 0, heatCap()); S.penSel = ((META.lastRun || {}).pen || []).filter(id => penIds().includes(id)); if (hasRunSel()) ACT.heatsel(); else ACT.deckcheck(); }, heatsel: () => { S.screen = 'heatsel'; S.actView = S.lenSel || defLen(); render(); },
   pdaily: () => { S.dailySel = true; S.endSel = false; S.heatSel = 0; ACT.deckcheck(); }, pend: () => { if (!endlessOpen()) return; S.endSel = true; S.dailySel = false; S.heatSel = 0; ACT.deckcheck(); },
   dstep: d => { const n = DUO().decks.length; S.dsel = ((S.dsel != null ? S.dsel : DUO().deckSel) + +d.i + n) % n; render(); },
@@ -9747,7 +9786,7 @@ const FTIPS = [
 { let el = null, shown = null, scr = null, tm = 0; const hideTip = () => { clearTimeout(tm); if (el && shown) { el.classList.remove('on'); shown = null; } };
   addEventListener('pointerdown', hideTip, true);
   const r0 = render; render = function () { const out = r0.apply(this, arguments);
-    try { if (shown && S.screen !== scr) hideTip(); if (shown || FAST || S.tut || S.sheet || S.confirm || busy || (S.f && S.f.eTurn)) return out; const seen = META.ftip = META.ftip || {};
+    try { if (shown && S.screen !== scr) hideTip(); if (shown || FAST || S.tut || S.sheet || S.confirm || S.intro || S.title || busy || (S.f && S.f.eTurn)) return out; const seen = META.ftip = META.ftip || {};
       const t = FTIPS.find(([k, ok]) => !seen[k] && ok()); if (!t) return out;
       seen[t[0]] = 1; save(); if (!el) { el = document.createElement('div'); el.id = 'ftip'; document.body.appendChild(el); }
       el.innerHTML = typeof t[2] === 'function' ? t[2]() : t[2]; el.classList.remove('on'); void el.offsetWidth; el.classList.add('on'); shown = t[0]; scr = S.screen; tm = setTimeout(hideTip, 7000); } catch (e) {}
