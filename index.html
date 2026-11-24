@@ -2561,7 +2561,7 @@ body.calm #fx{z-index:0} /* dust drifts behind the text, not over it */
 /* title page */
 .title{position:fixed;inset:0;z-index:90;display:flex;flex-direction:column;justify-content:space-between;align-items:center;padding:max(18px,env(safe-area-inset-top)) 20px max(22px,env(safe-area-inset-bottom));text-align:center;color:var(--ink);animation:tfade .6s ease-out}
 @keyframes tfade{from{opacity:0}}
-.title.t-camp{background:radial-gradient(ellipse at 50% 62%,rgba(6,5,9,.15),rgba(6,5,9,.55) 55%),linear-gradient(rgba(6,5,9,.9),rgba(6,5,9,.45) 34%,rgba(6,5,9,.35) 60%,rgba(6,5,9,.92) 84%);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)} body:has(.title) #app>:not(.title),body:has(.title) .cbub,body:has(.title) .bubble{visibility:hidden}
+.title.t-camp{background:radial-gradient(ellipse at 50% 62%,rgba(6,5,9,.15),rgba(6,5,9,.55) 55%),linear-gradient(rgba(6,5,9,.9),rgba(6,5,9,.45) 34%,rgba(6,5,9,.35) 60%,rgba(6,5,9,.92) 84%);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)} body:has(#titlepg) #app>.screen,body:has(#titlepg) .cbub,body:has(#titlepg) .bubble,body:has(#titlepg) #ftip{visibility:hidden} body:has(#titlepg) #app>.sheet{z-index:96;position:fixed}
 .title.t-chain,.title.t-door{background:radial-gradient(ellipse at 50% 46%,rgba(120,30,24,.35),rgba(10,8,14,0) 60%),radial-gradient(ellipse at 50% 30%,#1a1420,#07060a 75%)}
 .title .ttop{width:100%;display:flex;justify-content:center}
 .title .tbadge{font:400 12px/1 var(--display);letter-spacing:.2em;text-transform:uppercase;color:#f0d070;padding:6px 10px;box-shadow:inset 0 0 0 1px rgba(240,208,112,.45);background:rgba(20,14,8,.6)}
@@ -2601,6 +2601,7 @@ body.calm #fx{z-index:0} /* dust drifts behind the text, not over it */
 .dintro.done .di-fig,.dintro.done .di-chain,.dintro.done .di-l2,.dintro.done .di-end{animation-delay:0s!important;animation-duration:.01s!important} .dintro.done .di-l1{display:none} .dintro.done .di-flash{display:none}
 @media (prefers-reduced-motion:reduce){.dintro .di-fig,.dintro .di-chain,.dintro .di-l1,.dintro .di-l2,.dintro .di-end{animation-delay:0s!important;animation-duration:.01s!important}}
 .dintro .di-stage{align-items:flex-start!important} .dintro .di-fig{position:relative;z-index:2} .dintro .di-chain{z-index:1} .dintro .di-fig small{min-height:2.4em}
+body:has(#app>.sheet) #titlepg{visibility:hidden}
 #holdz.zoom{background:rgba(4,3,6,.98)}
 .hand .card.armd{translate:0 -26px;z-index:6;filter:drop-shadow(0 0 6px rgba(255,226,150,.85))} #app .biomel{font-size:12px}
 .field.stg .en .bar em{font-size:13.333px!important;line-height:13px!important} #app .dstrip .chip,#app .chips .chip{min-height:44px}
@@ -2756,7 +2757,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy health and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.114.2-test'; // bump for every build you send to testers
+const VERSION = '0.114.3-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -8518,7 +8519,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
-  {v: '0.114', d: '24 Nov', n: ["Meet each duo: a short scene plays the first time you take up their chain", "A title page greets you each time you open the game, with the version and What's new"]},
+  {v: '0.114', d: '24 Nov', n: ["The title page no longer stutters as the game loads", "Meet each duo: a short scene plays the first time you take up their chain", "A title page greets you each time you open the game, with the version and What's new"]},
   {v: '0.113', d: '23 Nov', n: ["Enemies no longer blink out for a moment when hit (iPhone)", "Chests no longer jump down the screen as they open", "A first-time tip explains the green glow on cards (your companion's echo)", "Glowing cards no longer drop down when your energy runs out (iPhone)", "The game now shares anonymous play stats (runs, picks, what beats you) so we can balance it. No names or emails. Turn it off in Options any time"]},
   {v: '0.112', d: '23 Nov', n: ["Sharpening a card at the fire or the Merchant gets its own moment", "Bigger Codex tabs", "A new Black Market icon", "The daily offering now waits for you to tap Claim", "Undiscovered cards sit properly in the Codex", "This list. It shows once per update"]},
   {v: '0.110', d: '23 Nov', n: ["Mirror of Souls and Mirror of Sins now replay your last card this turn"]},
@@ -8735,7 +8736,7 @@ function render() {
   // continuous CSS animations restart when innerHTML is replaced; a shared negative delay keeps them in phase
   $app.style.setProperty('--now', (-performance.now() / 1000).toFixed(3) + 's');
   $app.classList.remove('enter');
-  checkReveal(); $app.innerHTML = html + vDuo() + vSheet() + vConfirm() + vVow() + vForge() + vCacheOpen() + vReveal() + vIntro() + vTitle();
+  checkReveal(); $app.innerHTML = html + vDuo() + vSheet() + vConfirm() + vVow() + vForge() + vCacheOpen() + vReveal() + vIntro();
   $app.querySelectorAll('.screen, .sheet>div').forEach(paginate);
   $app.querySelectorAll('.screen .ahead').forEach(h => { if (!h.querySelector('.msouls,.kpill')) h.insertAdjacentHTML('beforeend', kpill()); });
   CardFX.sync();
@@ -9799,6 +9800,12 @@ const FTIPS = [
     const out = r0.apply(this, arguments);
     if (keep.size) $app.querySelectorAll('.field img, .hudrow img').forEach(im => { const L = keep.get(im.getAttribute('src')); if (!L || !L.length) return; const old = L.shift(); if (old.isConnected) return;
       for (const a of [...old.attributes]) if (!im.hasAttribute(a.name)) old.removeAttribute(a.name); for (const a of [...im.attributes]) if (old.getAttribute(a.name) !== a.value) old.setAttribute(a.name, a.value); im.replaceWith(old); });
+    return out; }; }
+// the title page lives outside the redraws: built once, so the art and fonts loading underneath never restart its fade
+{ let tp = null; const r0 = render; render = function () { const out = r0.apply(this, arguments);
+    if (S && S.title && !tp) { tp = document.createElement('div'); tp.id = 'titlepg'; tp.innerHTML = vTitle(); document.body.appendChild(tp);
+      tp.addEventListener('click', ev => { const el = ev.target.closest('[data-act]'); if (el && ACT[el.dataset.act]) { audio(); ACT[el.dataset.act](el.dataset); } }); }
+    else if (tp && !(S && S.title)) { tp.remove(); tp = null; }
     return out; }; }
 // the camp's arrival moments, decided before it draws: a newly opened place first, then what's new since your last visit
 { const r0 = render; render = function () { if (S && S.screen === 'camp' && !S.p && !S.sheet && !S.confirm) {
