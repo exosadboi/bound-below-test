@@ -2767,7 +2767,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy health and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.116.0-test'; // bump for every build you send to testers
+const VERSION = '0.116.1-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -4853,6 +4853,7 @@ function openDoor(i) {
   const k = S.doors[i];
   if (S.tut === 1) { if (k !== 'fight') return; tutEvent('door'); }
   S.doorBon = S.doorRew && S.doorRew[i] || null;
+  if (!['fight', 'elite', 'bound', 'guardian', 'boss'].includes(k)) S.lastKind = k; // a breather door clears the after-a-hard-fight rest, so rests can't chain
   if (boon('deeptoll')) { if ((S.gold || 0) >= 10) S.gold -= 10; else { const p = P(); p.hp = Math.max(1, p.hp - 5); toast('The toll takes 5 health'); } }
   if (k === 'rest' && boon('wilting')) { S.boons = S.boons.filter(b => b !== 'wilting'); toast('The Wilting Crown crumbles'); }
   if (k === 'fight' || k === 'elite' || k === 'guardian' || k === 'boss') return startFight(k, S.doorIds && S.doorIds[i]);
@@ -8541,7 +8542,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
-  {v: '0.116', d: '25 Nov', n: ["New art for the rest site", "Act dots no longer get cut off in Acts II and III", "Plainer, shorter wording on boons, tips and card notes", "The enemy's next-hit label fits on screen", "6+ energy wraps instead of running into the mana vial", "Spells you can't take are greyed out, no 'No' button", "Ember & Rime use the new Heat icon everywhere"]},
+  {v: '0.116', d: '25 Nov', n: ["New art for the rest site", "No more long chains of rest doors in a row", "Act dots no longer get cut off in Acts II and III", "Plainer, shorter wording on boons, tips and card notes", "The enemy's next-hit label fits on screen", "6+ energy wraps instead of running into the mana vial", "Spells you can't take are greyed out, no 'No' button", "Ember & Rime use the new Heat icon everywhere"]},
   {v: '0.115', d: '24 Nov', n: ["Potions work in fights again", "All three potion slots always show", "Passives get their own row under the three talent trees", "The talent confirm bar no longer hides the last talent", "The town on the hill is no longer lost in fog", "Legendary cards in the shop show in full", "Companions are smaller and stay by your side in boss fights", "Red dots show what's new: gear slots, companions, new cards, bounties and talents to spend", "The win and loss screens scroll again", "The Forge only calls you over when a card is ready"]},
   {v: '0.114', d: '24 Nov', n: ["In boss fights your companion stands clear of the boss", "The title page no longer stutters as the game loads", "Meet each duo: a short scene plays the first time you take up their chain", "A title page greets you each time you open the game, with the version and What's new"]},
   {v: '0.113', d: '23 Nov', n: ["Enemies no longer blink out for a moment when hit (iPhone)", "Chests no longer jump down the screen as they open", "A first-time tip explains the green glow on cards (your companion's echo)", "Glowing cards no longer drop down when your energy runs out (iPhone)", "The game now shares anonymous play stats (runs, picks, what beats you) so we can balance it. No names or emails. Turn it off in Options any time"]},
