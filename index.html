@@ -2767,7 +2767,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy health and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.116.1-test'; // bump for every build you send to testers
+const VERSION = '0.116.2-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -4201,6 +4201,7 @@ function rollDoors() {
     if (pen('hunter') && S.step === 5) d = ['elite'];
   }
   if ((S.lastKind === 'elite' || S.lastKind === 'guardian') && !S.endless && d.length > 1 && d.every(k => ['fight', 'elite', 'bound'].includes(k))) d[d.length - 1] = hz(5) ? 'chance' : 'rest'; // after a hard fight, one door is always a breather
+  if (S.rested && d.includes('rest')) { const alt = ['chance', 'hood', 'scales', 'shop'].filter(x => !d.includes(x) && (x !== 'shop' || EVENT_STEPS.includes(S.step))); d[d.indexOf('rest')] = alt.length ? alt[rnd(alt.length)] : 'fight'; } // two rests need a fight between them
   S.doors = shuffle(d);
   S.doorRew = S.doors.map(k => k === 'fight' || k === 'bound' ? ['gold', 'pot', 'spell', 'rare'][rnd(4)] : null); // each fight door shows what it adds to the chest
   const seen = []; S.doorIds = S.doors.map(k => { if (k === 'bound') k = 'fight'; if (k !== 'fight' && k !== 'elite') return null; let ids = foeIds(k); for (let n = 0; n < 4 && seen.includes(ids.join()); n++) ids = foeIds(k); seen.push(ids.join()); return ids; }); // two doors of a kind should differ
@@ -4217,7 +4218,7 @@ function foeIds(kind) { const B = biome(), grp = S.step > GUARD_STEP ? B.b : B.a
   if (kind === 'fight' && !META.runs && S.step <= 2 && ids.length > 2) { const easy = grp.filter(g => g.length <= 2); ids = easy[rnd(easy.length)].slice(); } // a brand-new player's first fights stay readable
   if (kind === 'fight' && mut('swarm')) ids = ids.concat([B.a[0][0]]).slice(0, 3);
   return ids; }
-function startFight(kind, pre) { S.lastKind = arguments[0]; if (S.p) S.p.lastEff = null; // the Mirror only ever looks inside this fight
+function startFight(kind, pre) { S.lastKind = arguments[0]; S.rested = false; if (S.p) S.p.lastEff = null; // the Mirror only ever looks inside this fight
   P().swF = 0; P().keepBlk = false; const p = P(), scale = (1 + 0.06 * (S.step - 1)) * actHp();
   const ids = pre ? pre.slice() : foeIds(kind);
   const hm = (1 + .08 * (S.tolls || 0)) * (mut('thick') ? 1.25 : 1) * (hz(1) ? 1.1 : 1) * (hz(10) ? 1.2 : 1) * heatHp();
@@ -4854,6 +4855,7 @@ function openDoor(i) {
   if (S.tut === 1) { if (k !== 'fight') return; tutEvent('door'); }
   S.doorBon = S.doorRew && S.doorRew[i] || null;
   if (!['fight', 'elite', 'bound', 'guardian', 'boss'].includes(k)) S.lastKind = k; // a breather door clears the after-a-hard-fight rest, so rests can't chain
+  if (k === 'rest') S.rested = true; // no second rest until you have fought again
   if (boon('deeptoll')) { if ((S.gold || 0) >= 10) S.gold -= 10; else { const p = P(); p.hp = Math.max(1, p.hp - 5); toast('The toll takes 5 health'); } }
   if (k === 'rest' && boon('wilting')) { S.boons = S.boons.filter(b => b !== 'wilting'); toast('The Wilting Crown crumbles'); }
   if (k === 'fight' || k === 'elite' || k === 'guardian' || k === 'boss') return startFight(k, S.doorIds && S.doorIds[i]);
@@ -8542,7 +8544,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
-  {v: '0.116', d: '25 Nov', n: ["New art for the rest site", "No more long chains of rest doors in a row", "Act dots no longer get cut off in Acts II and III", "Plainer, shorter wording on boons, tips and card notes", "The enemy's next-hit label fits on screen", "6+ energy wraps instead of running into the mana vial", "Spells you can't take are greyed out, no 'No' button", "Ember & Rime use the new Heat icon everywhere"]},
+  {v: '0.116', d: '25 Nov', n: ["New art for the rest site", "Two rests always have a fight between them", "Act dots no longer get cut off in Acts II and III", "Plainer, shorter wording on boons, tips and card notes", "The enemy's next-hit label fits on screen", "6+ energy wraps instead of running into the mana vial", "Spells you can't take are greyed out, no 'No' button", "Ember & Rime use the new Heat icon everywhere"]},
   {v: '0.115', d: '24 Nov', n: ["Potions work in fights again", "All three potion slots always show", "Passives get their own row under the three talent trees", "The talent confirm bar no longer hides the last talent", "The town on the hill is no longer lost in fog", "Legendary cards in the shop show in full", "Companions are smaller and stay by your side in boss fights", "Red dots show what's new: gear slots, companions, new cards, bounties and talents to spend", "The win and loss screens scroll again", "The Forge only calls you over when a card is ready"]},
   {v: '0.114', d: '24 Nov', n: ["In boss fights your companion stands clear of the boss", "The title page no longer stutters as the game loads", "Meet each duo: a short scene plays the first time you take up their chain", "A title page greets you each time you open the game, with the version and What's new"]},
   {v: '0.113', d: '23 Nov', n: ["Enemies no longer blink out for a moment when hit (iPhone)", "Chests no longer jump down the screen as they open", "A first-time tip explains the green glow on cards (your companion's echo)", "Glowing cards no longer drop down when your energy runs out (iPhone)", "The game now shares anonymous play stats (runs, picks, what beats you) so we can balance it. No names or emails. Turn it off in Options any time"]},
