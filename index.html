@@ -2558,6 +2558,27 @@ body.calm #fx{z-index:0} /* dust drifts behind the text, not over it */
 #app .hand .card.acard.armd{--g:drop-shadow(0 0 6px rgba(255,226,150,.85))}
 #app .hand .card.acard.no{--d:saturate(.55) brightness(.75)} #app .hand .card.acard.no.echo{--g:drop-shadow(0 0 0 transparent)}
 #app .hand .card.chained{--d:grayscale(1) brightness(.55)}
+/* title page */
+.title{position:fixed;inset:0;z-index:90;display:flex;flex-direction:column;justify-content:space-between;align-items:center;padding:max(18px,env(safe-area-inset-top)) 20px max(22px,env(safe-area-inset-bottom));text-align:center;color:var(--ink);animation:tfade .6s ease-out}
+@keyframes tfade{from{opacity:0}}
+.title.t-camp{background:radial-gradient(ellipse at 50% 62%,rgba(6,5,9,.15),rgba(6,5,9,.55) 55%),linear-gradient(rgba(6,5,9,.9),rgba(6,5,9,.45) 34%,rgba(6,5,9,.35) 60%,rgba(6,5,9,.92) 84%);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)} body:has(.title) #app>:not(.title),body:has(.title) .cbub,body:has(.title) .bubble{visibility:hidden}
+.title.t-chain,.title.t-door{background:radial-gradient(ellipse at 50% 46%,rgba(120,30,24,.35),rgba(10,8,14,0) 60%),radial-gradient(ellipse at 50% 30%,#1a1420,#07060a 75%)}
+.title .ttop{width:100%;display:flex;justify-content:center}
+.title .tbadge{font:400 12px/1 var(--display);letter-spacing:.2em;text-transform:uppercase;color:#f0d070;padding:6px 10px;box-shadow:inset 0 0 0 1px rgba(240,208,112,.45);background:rgba(20,14,8,.6)}
+.title .tmid{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:-4vh}
+.title .tname{margin:0;font:400 58px/0.95 var(--title);color:var(--gold);text-shadow:0 3px 0 #000,0 0 24px rgba(201,169,90,.35);letter-spacing:.02em}
+.title .tname span{display:block;color:#d4502a;text-shadow:0 3px 0 #000,0 0 26px rgba(212,80,42,.45)}
+.title .tline{margin:4px 0 0;max-width:280px;font:400 15px/1.35 var(--body);color:#c8bca8;text-shadow:0 1px 0 #000}
+.title .tbot{width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.title .tenter{width:100%;font-size:20px;padding:14px 0;letter-spacing:.24em;animation:tpulse 2.4s ease-in-out infinite}
+@keyframes tpulse{50%{filter:brightness(1.18)}}
+.title .twarn{margin:0;font:400 13px/1.35 var(--body);color:#a69cad}
+.title .trow{display:flex;gap:16px;justify-content:center}
+.title .tver{background:none;border:0;padding:6px 2px;font:400 13px/1 var(--body);color:#c9a95a;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.title .tduo{display:flex;align-items:flex-end;justify-content:center;gap:0;margin-top:14px}
+.title .tfig{height:150px;image-rendering:pixelated} .title .tduo .tfig:last-child{transform:scaleX(-1)}
+.title .tchain{width:70px;height:14px;margin:0 -8px 46px;background:var(--k-chain) center/auto 100% repeat-x;image-rendering:pixelated;filter:drop-shadow(0 0 6px rgba(212,80,42,.6))}
+.title .tdoor{filter:drop-shadow(0 0 30px rgba(212,80,42,.5));animation:tdoorg 3s ease-in-out infinite} .title .tdoor img{display:block;width:150px;height:225px;image-rendering:pixelated} @keyframes tdoorg{50%{filter:drop-shadow(0 0 44px rgba(212,80,42,.75))}}
 #holdz.zoom{background:rgba(4,3,6,.98)}
 .hand .card.armd{translate:0 -26px;z-index:6;filter:drop-shadow(0 0 6px rgba(255,226,150,.85))} #app .biomel{font-size:12px}
 .field.stg .en .bar em{font-size:13.333px!important;line-height:13px!important} #app .dstrip .chip,#app .chips .chip{min-height:44px}
@@ -2713,7 +2734,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy health and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.113.4-test'; // bump for every build you send to testers
+const VERSION = '0.114.0-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -7149,6 +7170,18 @@ function vReveal() { const d = S.reveal; if (!d) return ''; const fm = S.p ? S.p
   const obj = c ? archCard(lvl(fm === 'demon' ? c.d : c.a, cLv(d.v)), fm, false, {}) : `<span class="rvpic">${dropArt(d)}</span>`;
   return `<div class="reveal" data-act="revx" role="dialog" aria-label="Legendary: ${name}"><i class="rvglow"></i><i class="rvrays"></i><i class="rvseed"></i><i class="rvring"></i><i class="rvflash"></i>
     <div class="rvobj">${obj}</div><p class="rvlab">Legendary</p><h2 class="rvname">${name}</h2><p class="rvsub">${c ? 'Card' : m ? 'Companion' : 'Equipment'}</p><p class="rvtap">Tap to continue</p></div>`; }
+// the title page: shown on every fresh launch (tester builds), before the camp or a saved run. Enter goes on.
+// Three looks while we choose one: 'camp' (over the live camp), 'chain' (the two heroes chained), 'door' (the last door).
+var TITLE_LOOK = 'camp';
+function vTitle() { const v = S.title; if (!v) return ''; const look = typeof v === 'string' ? v : TITLE_LOOK;
+  const fig = k => { const A = IDLE_ANIM['front-' + k]; return A ? `<img class="tfig" src="${A.f[0]}" alt="">` : ''; };
+  const art = look === 'chain' ? `<div class="tduo">${fig('fallenangel')}<i class="tchain"></i>${fig('fallendemon')}</div>` : look === 'door' ? `<div class="tdoor"><img src="${DOOR_PIC.boss}" alt=""></div>` : '';
+  return `<div class="title t-${look}" role="dialog" aria-label="Bound Below">
+    <div class="ttop"><span class="tbadge">Test build</span></div>
+    <div class="tmid">${look === 'chain' ? '' : art}<h1 class="tname">Bound <span>Below</span></h1><p class="tline">Two souls, one chain. The only way out is down.</p>${look === 'chain' ? art : ''}</div>
+    <div class="tbot"><button class="btn pri tenter" data-act="enter">Enter</button>
+      <p class="twarn">This is an early test. Expect bugs, and your progress may be reset.</p>
+      <div class="trow"><button class="tver" data-act="newsall">v${VERSION.replace('-test', '')} · What's new</button><button class="tver" data-act="fbopen">Send feedback</button></div></div></div>`; }
 function vForge() { const F2 = S.forge; if (!F2) return ''; const face = S.p ? S.p.form : S.face || 'angel', e = faceOf(F2.id, F2.lv || cLv(F2.id), face).e, r = cardRar(e);
   return `<div class="forge r-${r}" data-act="forgex" role="dialog" aria-label="Forged: ${e.n} is now ${F2.to}"><i class="fgrays"></i><i class="fgflash"></i>
     <p class="fgtop">${F2.top || 'The Forge'}</p><div class="fgcard">${archCard(e, face, false, {})}</div>
@@ -8447,6 +8480,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
+  {v: '0.114', d: '24 Nov', n: ["A title page greets you each time you open the game, with the version and What's new"]},
   {v: '0.113', d: '23 Nov', n: ["Enemies no longer blink out for a moment when hit (iPhone)", "Chests no longer jump down the screen as they open", "A first-time tip explains the green glow on cards (your companion's echo)", "Glowing cards no longer drop down when your energy runs out (iPhone)", "The game now shares anonymous play stats (runs, picks, what beats you) so we can balance it. No names or emails. Turn it off in Options any time"]},
   {v: '0.112', d: '23 Nov', n: ["Sharpening a card at the fire or the Merchant gets its own moment", "Bigger Codex tabs", "A new Black Market icon", "The daily offering now waits for you to tap Claim", "Undiscovered cards sit properly in the Codex", "This list. It shows once per update"]},
   {v: '0.110', d: '23 Nov', n: ["Mirror of Souls and Mirror of Sins now replay your last card this turn"]},
@@ -8663,7 +8697,7 @@ function render() {
   // continuous CSS animations restart when innerHTML is replaced; a shared negative delay keeps them in phase
   $app.style.setProperty('--now', (-performance.now() / 1000).toFixed(3) + 's');
   $app.classList.remove('enter');
-  checkReveal(); $app.innerHTML = html + vDuo() + vSheet() + vConfirm() + vVow() + vForge() + vCacheOpen() + vReveal();
+  checkReveal(); $app.innerHTML = html + vDuo() + vSheet() + vConfirm() + vVow() + vForge() + vCacheOpen() + vReveal() + vTitle();
   $app.querySelectorAll('.screen, .sheet>div').forEach(paginate);
   $app.querySelectorAll('.screen .ahead').forEach(h => { if (!h.querySelector('.msouls,.kpill')) h.insertAdjacentHTML('beforeend', kpill()); });
   CardFX.sync();
@@ -9359,6 +9393,7 @@ const ACT = {
   eslot: d => { S.eslot = d.i; S.sellArm = null; render(); },
   bclaim: d => { const b = bounties().find(x => x.id === d.i), B = BOUNTIES.find(x => x.id === d.i); if (!b || b.c || b.p < B.g) return; b.c = 1; META.souls = (META.souls || 0) + B.sl; toast(`Bounty claimed · +${soul()}${B.sl}`, 'buy'); sfx('coin'); buzz(20); save(); render(); },
   todaydaily: () => ACT.pdaily(), drftreroll: () => { if (S.rrAct === S.act || !S.draft) return; S.rrAct = S.act; S.draft = draftPicks(); S.draft.rv = true; render(); }, sharerun: () => shareRun(), giftopen: () => { if (!offerDue()) return; S.sheet = {offer: offerNext(), pend: 1}; render(); }, // the gift opens first and waits for a Claim tap, like bounties and achievements
+  enter: () => { S.title = null; audio(); render(); },
   newsall: () => { S.sheet = {news: 'all'}; render(); },
   offerclaim: () => { const d = claimOffer(); if (!d) return; buzz([20, 40, 20]); S.sheet = {offer: d, just: 1}; render(); },
   getsouls: () => { if (typeof TDRAFT !== 'undefined' && TDRAFT) { tdApply(); toast('Talents kept'); } const from = S.screen === 'market' || S.p ? null : S.screen; S = {screen: 'market', mtab: 'souls', soulsFrom: from}; render(); }, // the souls page returns to wherever it was opened from
@@ -9737,6 +9772,7 @@ addEventListener('pagehide', saveRun); document.addEventListener('visibilitychan
   if (r && r.S && r.S.p) { S = r.S; uid = Math.max(uid, r.uid || 0); if (r.duo && DUOS[r.duo]) META.duoSel = r.duo; busy = false; S.opening = false;
     if (S.daily && r.rs != null) Math.random = seeded(r.rs);
     try { render(); } catch (e) { logErr(String(e && e.message || e), 'resume'); dropRun(); Math.random = NATIVE_RANDOM; S = {screen:'camp'}; } } }
+if (!FAST && !navigator.webdriver) S.title = true; // the title page on every fresh launch (headless tests and the sim skip it)
 render();
 // pixel fonts are only sharp at whole multiples of their grid on the real screen. Once at start (and on resize),
 // every font size in the stylesheets is snapped: small text to the 8-pixel font, the rest to the 16-pixel font.
