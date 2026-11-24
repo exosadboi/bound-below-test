@@ -2598,8 +2598,9 @@ body.calm #fx{z-index:0} /* dust drifts behind the text, not over it */
 @keyframes diin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}} @keyframes diout{to{opacity:0}}
 @keyframes dia{from{opacity:0;transform:translateX(-60px)}to{opacity:1;transform:none}} @keyframes dib{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:none}}
 @keyframes dich{to{width:34%}} @keyframes diflash{0%{opacity:.55}100%{opacity:0}}
-.dintro.done *{animation-delay:0s!important;animation-duration:.01s!important} .dintro.done .di-l1{display:none} .dintro.done .di-flash{display:none}
-@media (prefers-reduced-motion:reduce){.dintro *{animation-delay:0s!important;animation-duration:.01s!important}}
+.dintro.done .di-fig,.dintro.done .di-chain,.dintro.done .di-l2,.dintro.done .di-end{animation-delay:0s!important;animation-duration:.01s!important} .dintro.done .di-l1{display:none} .dintro.done .di-flash{display:none}
+@media (prefers-reduced-motion:reduce){.dintro .di-fig,.dintro .di-chain,.dintro .di-l1,.dintro .di-l2,.dintro .di-end{animation-delay:0s!important;animation-duration:.01s!important}}
+.dintro .di-stage{align-items:flex-start!important} .dintro .di-fig{position:relative;z-index:2} .dintro .di-chain{z-index:1} .dintro .di-fig small{min-height:2.4em}
 #holdz.zoom{background:rgba(4,3,6,.98)}
 .hand .card.armd{translate:0 -26px;z-index:6;filter:drop-shadow(0 0 6px rgba(255,226,150,.85))} #app .biomel{font-size:12px}
 .field.stg .en .bar em{font-size:13.333px!important;line-height:13px!important} #app .dstrip .chip,#app .chips .chip{min-height:44px}
@@ -2755,7 +2756,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy health and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.114.1-test'; // bump for every build you send to testers
+const VERSION = '0.114.2-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
