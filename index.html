@@ -2608,6 +2608,7 @@ body:has(#app>.sheet) #titlepg{visibility:hidden}
 #app .cgrid.shopc{overflow:visible!important;padding:16px 6px 0}
 #app .field .comp2 img{width:calc(var(--bw) * var(--k,1.3) * .82px)!important} #app .field .comp2.fly .cfly,#app .field .comp2[data-i=wisp] .cfly,#app .field .comp2[data-i=vesper] .cfly,#app .field .comp2[data-i=ashwing] .cfly{margin-bottom:calc(var(--k,1.3) * 9px)}
 #app .pot.pslot{box-shadow:none!important;border-image:var(--k-inset) 10 fill / 10px stretch!important;pointer-events:none;cursor:default} #app .pot.pslot img{opacity:.16;filter:grayscale(1) brightness(.7)} #app .foot .pot,#app .row .pot{min-width:42px!important}
+#app .pot,#app .foot .pot,#app .row .pot{width:50px!important;height:50px!important;min-width:50px!important;max-width:50px!important;flex:0 0 50px!important;box-sizing:border-box!important;padding:0!important;margin:0!important} #app .pot img,#app .foot .pot img,#app .row .pot img{width:30px!important;height:30px!important}
 #holdz.zoom{background:rgba(4,3,6,.98)}
 .hand .card.armd{translate:0 -26px;z-index:6;filter:drop-shadow(0 0 6px rgba(255,226,150,.85))} #app .biomel{font-size:12px}
 .field.stg .en .bar em{font-size:13.333px!important;line-height:13px!important} #app .dstrip .chip,#app .chips .chip{min-height:44px}
@@ -2763,7 +2764,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy health and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.115.3-test'; // bump for every build you send to testers
+const VERSION = '0.115.4-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
