@@ -2757,7 +2757,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy health and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.114.4-test'; // bump for every build you send to testers
+const VERSION = '0.114.5-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -5675,7 +5675,7 @@ function stageComp(fm) { const cp = COMPANIONS[S.comp]; if (!cp) return '';
   const fly = S.comp === 'imp' || S.comp === 'crow' || S.comp === 'fledgling', CA = idleA('cb-' + S.comp), sp = Stage.back(S.comp), sp2 = fly ? Stage.back(S.comp + '2') : COMP_PIC[S.comp + 'b'] ? Stage.back(S.comp + 'b') : null, echoed = S.echoed; S.echoed = false;
   const n = P().echoes || 0, on = n > 0, max = echoCap();
   const pips = true ? `<span class="epips" aria-label="${n} echoes">${Array.from({length: max}, (_, k) => `<i class="${k < n ? 'full' : ''}"></i>`).join('')}</span>` : '';
-  return `<button class="comp2 ${on ? 'on' : 'rest'}${echoed ? ' echo' : ''}${fly ? ' fly' : ''}${CA ? ' anim' + (petFly(S.comp) ? '' : ' slow') : ''}" data-act="compinfo" data-i="${S.comp}" aria-label="${cp.n}" style="left:${COMP_AT[0]}%;top:${COMP_AT[1]}%">
+  return `<button class="comp2 ${on ? 'on' : 'rest'}${echoed ? ' echo' : ''}${fly ? ' fly' : ''}${CA ? ' anim' + (petFly(S.comp) ? '' : ' slow') : ''}" data-act="compinfo" data-i="${S.comp}" aria-label="${cp.n}" style="left:${S.f && (S.f.kind === 'boss' || S.f.kind === 'guardian') ? 76 : COMP_AT[0]}%;top:${S.f && (S.f.kind === 'boss' || S.f.kind === 'guardian') ? 101 : COMP_AT[1]}%">
     <span class="cfly">${CA ? animImgs(CA, '') : !sp ? '' : `<img src="${sp.url}" alt="" style="--bw:${sp.w}">${sp2 && sp2.url ? `<img class="${fly ? 'f2' : 'b2'}" src="${sp2.url}" alt="" style="--bw:${sp2.w}">` : ''}`}</span>${pips}</button>`; }
 // enemy art: drawn in a 100x100 box, feet near y 96. The pixel pipeline adds lighting, outline and palette.
 const FOE_ART = {
@@ -8519,7 +8519,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
-  {v: '0.114', d: '24 Nov', n: ["The title page no longer stutters as the game loads", "Meet each duo: a short scene plays the first time you take up their chain", "A title page greets you each time you open the game, with the version and What's new"]},
+  {v: '0.114', d: '24 Nov', n: ["In boss fights your companion stands clear of the boss", "The title page no longer stutters as the game loads", "Meet each duo: a short scene plays the first time you take up their chain", "A title page greets you each time you open the game, with the version and What's new"]},
   {v: '0.113', d: '23 Nov', n: ["Enemies no longer blink out for a moment when hit (iPhone)", "Chests no longer jump down the screen as they open", "A first-time tip explains the green glow on cards (your companion's echo)", "Glowing cards no longer drop down when your energy runs out (iPhone)", "The game now shares anonymous play stats (runs, picks, what beats you) so we can balance it. No names or emails. Turn it off in Options any time"]},
   {v: '0.112', d: '23 Nov', n: ["Sharpening a card at the fire or the Merchant gets its own moment", "Bigger Codex tabs", "A new Black Market icon", "The daily offering now waits for you to tap Claim", "Undiscovered cards sit properly in the Codex", "This list. It shows once per update"]},
   {v: '0.110', d: '23 Nov', n: ["Mirror of Souls and Mirror of Sins now replay your last card this turn"]},
