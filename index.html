@@ -2606,7 +2606,7 @@ body:has(#app>.sheet) #titlepg{visibility:hidden}
 #app .tpasrow{display:flex;align-items:center;gap:10px;width:100%;margin:10px 0 4px;padding:12px 14px;border:3px solid transparent;border-image:var(--k-inset) 10 fill / 10px stretch;background:none;color:var(--ink);text-align:left;cursor:pointer} #app .tpasrow b{font:400 16px/1 var(--display);letter-spacing:.08em;text-transform:uppercase;color:#e8d9b0} #app .tpasrow small{flex:1;font:400 13px/1.2 var(--body);color:var(--dim)} #app .tpasrow.on{border-image:var(--k-pri) 10 fill / 10px stretch} #app .tpasrow.on b,#app .tpasrow.on small{color:#1a1208} #app .tpasrow .ochev{color:var(--dim)}
 #app:has(.tdbar) .pg-body{padding-bottom:110px!important}
 #app .cgrid.shopc{overflow:visible!important;padding:16px 6px 0}
-#app .field .comp2 img{width:calc(var(--bw) * var(--k,1.3) * 1px)!important} #app .field .comp2.fly .cfly,#app .field .comp2[data-i=wisp] .cfly,#app .field .comp2[data-i=vesper] .cfly,#app .field .comp2[data-i=ashwing] .cfly{margin-bottom:calc(var(--k,1.3) * 9px)}
+#app .field .comp2 img{width:calc(var(--bw) * var(--k,1.3) * .82px)!important} #app .field .comp2.fly .cfly,#app .field .comp2[data-i=wisp] .cfly,#app .field .comp2[data-i=vesper] .cfly,#app .field .comp2[data-i=ashwing] .cfly{margin-bottom:calc(var(--k,1.3) * 9px)}
 #holdz.zoom{background:rgba(4,3,6,.98)}
 .hand .card.armd{translate:0 -26px;z-index:6;filter:drop-shadow(0 0 6px rgba(255,226,150,.85))} #app .biomel{font-size:12px}
 .field.stg .en .bar em{font-size:13.333px!important;line-height:13px!important} #app .dstrip .chip,#app .chips .chip{min-height:44px}
@@ -2762,7 +2762,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy health and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.115.1-test'; // bump for every build you send to testers
+const VERSION = '0.115.2-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -5663,7 +5663,7 @@ function spotOf(e, i, f) { if (e.spot) return e.spot; const n = f.en.length, big
 function foeSpot(i, n, e) { const big = x => { const d = FOES[x.id] || {}; return x.boss || d.final || d.guard; }; if (n === 1 || (S.f && S.f.en.some(big))) return n === 1 ? [62, 52] : [[52, 52], [86, 76], [34, 40]][i] || [70, 56];
   const L = {2: [[58, 43], [83, 60]], 3: [[37, 28], [63, 56], [86, 78]], 4: [[40, 28], [72, 34], [54, 58], [86, 68]]}[Math.min(4, n)];
   return L[i] || [60 + i * 6, 50 + i * 4]; }
-const HERO_AT = [24, 92], COMP_AT = [56, 93];
+const HERO_AT = [24, 92], COMP_AT = [43, 90];
 function backKey(fm) { return HEATD() ? (fm === 'demon' ? 'rime' : 'ember') : fm; }
 const heroAnim = fm => typeof HERO_ANIM === 'object' && HERO_ANIM[DUO_DEF().id + fm] || null; // 8-frame idle (tools/duoart/anim.py)
 const idleA = k => typeof IDLE_ANIM === 'object' && IDLE_ANIM[k] || null; // 8-frame idles for fronts + companions (tools/duoart/idleanim.py)
@@ -5680,7 +5680,7 @@ function stageComp(fm) { const cp = COMPANIONS[S.comp]; if (!cp) return '';
   const fly = S.comp === 'imp' || S.comp === 'crow' || S.comp === 'fledgling', CA = idleA('cb-' + S.comp), sp = Stage.back(S.comp), sp2 = fly ? Stage.back(S.comp + '2') : COMP_PIC[S.comp + 'b'] ? Stage.back(S.comp + 'b') : null, echoed = S.echoed; S.echoed = false;
   const n = P().echoes || 0, on = n > 0, max = echoCap();
   const pips = true ? `<span class="epips" aria-label="${n} echoes">${Array.from({length: max}, (_, k) => `<i class="${k < n ? 'full' : ''}"></i>`).join('')}</span>` : '';
-  return `<button class="comp2 ${on ? 'on' : 'rest'}${echoed ? ' echo' : ''}${fly ? ' fly' : ''}${CA ? ' anim' + (petFly(S.comp) ? '' : ' slow') : ''}" data-act="compinfo" data-i="${S.comp}" aria-label="${cp.n}" style="left:${COMP_AT[0]}%;top:${COMP_AT[1] + (S.f && (S.f.kind === 'boss' || S.f.kind === 'guardian') ? 4 : 0)}%">
+  return `<button class="comp2 ${on ? 'on' : 'rest'}${echoed ? ' echo' : ''}${fly ? ' fly' : ''}${CA ? ' anim' + (petFly(S.comp) ? '' : ' slow') : ''}" data-act="compinfo" data-i="${S.comp}" aria-label="${cp.n}" style="left:${COMP_AT[0]}%;top:${COMP_AT[1]}%">
     <span class="cfly">${CA ? animImgs(CA, '') : !sp ? '' : `<img src="${sp.url}" alt="" style="--bw:${sp.w}">${sp2 && sp2.url ? `<img class="${fly ? 'f2' : 'b2'}" src="${sp2.url}" alt="" style="--bw:${sp2.w}">` : ''}`}</span>${pips}</button>`; }
 // enemy art: drawn in a 100x100 box, feet near y 96. The pixel pipeline adds lighting, outline and palette.
 const FOE_ART = {
