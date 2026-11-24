@@ -2563,7 +2563,7 @@ body.calm #fx{z-index:0} /* dust drifts behind the text, not over it */
 @keyframes tfade{from{opacity:0}}
 .title.t-camp{background:radial-gradient(ellipse at 50% 62%,rgba(6,5,9,.15),rgba(6,5,9,.55) 55%),linear-gradient(rgba(6,5,9,.9),rgba(6,5,9,.45) 34%,rgba(6,5,9,.35) 60%,rgba(6,5,9,.92) 84%);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)} body:has(#titlepg) #app>.screen,body:has(#titlepg) .cbub,body:has(#titlepg) .bubble,body:has(#titlepg) #ftip{visibility:hidden} body:has(#titlepg) #app>.sheet{z-index:96;position:fixed}
 .title.t-chain,.title.t-door{background:radial-gradient(ellipse at 50% 46%,rgba(120,30,24,.35),rgba(10,8,14,0) 60%),radial-gradient(ellipse at 50% 30%,#1a1420,#07060a 75%)}
-.title .ttop{width:100%;display:flex;justify-content:center}
+.title .ttop{width:100%;display:flex;flex-direction:column;align-items:center;gap:8px} .title .tstat{margin:0;max-width:300px;font:400 12.5px/1.35 var(--body);color:#8f8699}
 .title .tbadge{font:400 12px/1 var(--display);letter-spacing:.2em;text-transform:uppercase;color:#f0d070;padding:6px 10px;box-shadow:inset 0 0 0 1px rgba(240,208,112,.45);background:rgba(20,14,8,.6)}
 .title .tmid{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:-4vh}
 .title .tname{margin:0;font:400 58px/0.95 var(--title);color:var(--gold);text-shadow:0 3px 0 #000,0 0 24px rgba(201,169,90,.35);letter-spacing:.02em}
@@ -2757,7 +2757,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy health and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.114.3-test'; // bump for every build you send to testers
+const VERSION = '0.114.4-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -7216,7 +7216,7 @@ function vTitle() { const v = S.title; if (!v) return ''; const look = typeof v 
   const fig = k => { const A = IDLE_ANIM['front-' + k]; return A ? `<img class="tfig" src="${A.f[0]}" alt="">` : ''; };
   const art = look === 'chain' ? `<div class="tduo">${fig('fallenangel')}<i class="tchain"></i>${fig('fallendemon')}</div>` : look === 'door' ? `<div class="tdoor"><img src="${DOOR_PIC.boss}" alt=""></div>` : '';
   return `<div class="title t-${look}" role="dialog" aria-label="Bound Below">
-    <div class="ttop"><span class="tbadge">Test build</span></div>
+    <div class="ttop"><span class="tbadge">Test build</span>${META.opt.stats !== false ? '<p class="tstat">We log anonymous play stats to balance the game. No names or emails. Turn it off in Options.</p>' : ''}</div>
     <div class="tmid">${look === 'chain' ? '' : art}<h1 class="tname">Bound <span>Below</span></h1><p class="tline">Two souls, one chain. The only way out is down.</p>${look === 'chain' ? art : ''}</div>
     <div class="tbot"><button class="btn pri tenter" data-act="enter">Enter</button>
       <p class="twarn">This is an early test. Expect bugs, and your progress may be reset.</p>
