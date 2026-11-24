@@ -2559,26 +2559,26 @@ body.calm #fx{z-index:0} /* dust drifts behind the text, not over it */
 #app .hand .card.acard.no{--d:saturate(.55) brightness(.75)} #app .hand .card.acard.no.echo{--g:drop-shadow(0 0 0 transparent)}
 #app .hand .card.chained{--d:grayscale(1) brightness(.55)}
 /* title page */
-.title{position:fixed;inset:0;z-index:90;display:flex;flex-direction:column;justify-content:space-between;align-items:center;padding:max(18px,env(safe-area-inset-top)) 20px max(22px,env(safe-area-inset-bottom));text-align:center;color:var(--ink);animation:tfade .6s ease-out}
+.tpage{position:fixed;inset:0;z-index:90;display:flex;flex-direction:column;justify-content:space-between;align-items:center;padding:max(18px,env(safe-area-inset-top)) 20px max(22px,env(safe-area-inset-bottom));text-align:center;color:var(--ink);animation:tfade .6s ease-out}
 @keyframes tfade{from{opacity:0}}
-.title.t-camp{background:radial-gradient(ellipse at 50% 62%,rgba(6,5,9,.15),rgba(6,5,9,.55) 55%),linear-gradient(rgba(6,5,9,.9),rgba(6,5,9,.45) 34%,rgba(6,5,9,.35) 60%,rgba(6,5,9,.92) 84%);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)} body:has(#titlepg) #app>.screen,body:has(#titlepg) .cbub,body:has(#titlepg) .bubble,body:has(#titlepg) #ftip{visibility:hidden} body:has(#titlepg) #app>.sheet{z-index:96;position:fixed}
-.title.t-chain,.title.t-door{background:radial-gradient(ellipse at 50% 46%,rgba(120,30,24,.35),rgba(10,8,14,0) 60%),radial-gradient(ellipse at 50% 30%,#1a1420,#07060a 75%)}
-.title .ttop{width:100%;display:flex;flex-direction:column;align-items:center;gap:8px} .title .tstat{margin:0;max-width:300px;font:400 12.5px/1.35 var(--body);color:#8f8699}
-.title .tbadge{font:400 12px/1 var(--display);letter-spacing:.2em;text-transform:uppercase;color:#f0d070;padding:6px 10px;box-shadow:inset 0 0 0 1px rgba(240,208,112,.45);background:rgba(20,14,8,.6)}
-.title .tmid{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:-4vh}
-.title .tname{margin:0;font:400 58px/0.95 var(--title);color:var(--gold);text-shadow:0 3px 0 #000,0 0 24px rgba(201,169,90,.35);letter-spacing:.02em}
-.title .tname span{display:block;color:#d4502a;text-shadow:0 3px 0 #000,0 0 26px rgba(212,80,42,.45)}
-.title .tline{margin:4px 0 0;max-width:280px;font:400 15px/1.35 var(--body);color:#c8bca8;text-shadow:0 1px 0 #000}
-.title .tbot{width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:10px}
-.title .tenter{width:100%;font-size:20px;padding:14px 0;letter-spacing:.24em;animation:tpulse 2.4s ease-in-out infinite}
+.tpage.t-camp{background:radial-gradient(ellipse at 50% 62%,rgba(6,5,9,.15),rgba(6,5,9,.55) 55%),linear-gradient(rgba(6,5,9,.9),rgba(6,5,9,.45) 34%,rgba(6,5,9,.35) 60%,rgba(6,5,9,.92) 84%);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)} body:has(#titlepg) #app>.screen,body:has(#titlepg) .cbub,body:has(#titlepg) .bubble,body:has(#titlepg) #ftip{visibility:hidden} body:has(#titlepg) #app>.sheet{z-index:96;position:fixed}
+.tpage.t-chain,.tpage.t-door{background:radial-gradient(ellipse at 50% 46%,rgba(120,30,24,.35),rgba(10,8,14,0) 60%),radial-gradient(ellipse at 50% 30%,#1a1420,#07060a 75%)}
+.tpage .ttop{width:100%;display:flex;flex-direction:column;align-items:center;gap:8px} .tpage .tstat{margin:0;max-width:300px;font:400 12.5px/1.35 var(--body);color:#8f8699}
+.tpage .tbadge{font:400 12px/1 var(--display);letter-spacing:.2em;text-transform:uppercase;color:#f0d070;padding:6px 10px;box-shadow:inset 0 0 0 1px rgba(240,208,112,.45);background:rgba(20,14,8,.6)}
+.tpage .tmid{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:-4vh}
+.tpage .tname{margin:0;font:400 58px/0.95 var(--title);color:var(--gold);text-shadow:0 3px 0 #000,0 0 24px rgba(201,169,90,.35);letter-spacing:.02em}
+.tpage .tname span{display:block;color:#d4502a;text-shadow:0 3px 0 #000,0 0 26px rgba(212,80,42,.45)}
+.tpage .tline{margin:4px 0 0;max-width:280px;font:400 15px/1.35 var(--body);color:#c8bca8;text-shadow:0 1px 0 #000}
+.tpage .tbot{width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.tpage .tenter{width:100%;font-size:20px;padding:14px 0;letter-spacing:.24em;animation:tpulse 2.4s ease-in-out infinite}
 @keyframes tpulse{50%{filter:brightness(1.18)}}
-.title .twarn{margin:0;font:400 13px/1.35 var(--body);color:#a69cad}
-.title .trow{display:flex;gap:16px;justify-content:center}
-.title .tver{background:none;border:0;padding:6px 2px;font:400 13px/1 var(--body);color:#c9a95a;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
-.title .tduo{display:flex;align-items:flex-end;justify-content:center;gap:0;margin-top:14px}
-.title .tfig{height:150px;image-rendering:pixelated} .title .tduo .tfig:last-child{transform:scaleX(-1)}
-.title .tchain{width:70px;height:14px;margin:0 -8px 46px;background:var(--k-chain) center/auto 100% repeat-x;image-rendering:pixelated;filter:drop-shadow(0 0 6px rgba(212,80,42,.6))}
-.title .tdoor{filter:drop-shadow(0 0 30px rgba(212,80,42,.5));animation:tdoorg 3s ease-in-out infinite} .title .tdoor img{display:block;width:150px;height:225px;image-rendering:pixelated} @keyframes tdoorg{50%{filter:drop-shadow(0 0 44px rgba(212,80,42,.75))}}
+.tpage .twarn{margin:0;font:400 13px/1.35 var(--body);color:#a69cad}
+.tpage .trow{display:flex;gap:16px;justify-content:center}
+.tpage .tver{background:none;border:0;padding:6px 2px;font:400 13px/1 var(--body);color:#c9a95a;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.tpage .tduo{display:flex;align-items:flex-end;justify-content:center;gap:0;margin-top:14px}
+.tpage .tfig{height:150px;image-rendering:pixelated} .tpage .tduo .tfig:last-child{transform:scaleX(-1)}
+.tpage .tchain{width:70px;height:14px;margin:0 -8px 46px;background:var(--k-chain) center/auto 100% repeat-x;image-rendering:pixelated;filter:drop-shadow(0 0 6px rgba(212,80,42,.6))}
+.tpage .tdoor{filter:drop-shadow(0 0 30px rgba(212,80,42,.5));animation:tdoorg 3s ease-in-out infinite} .tpage .tdoor img{display:block;width:150px;height:225px;image-rendering:pixelated} @keyframes tdoorg{50%{filter:drop-shadow(0 0 44px rgba(212,80,42,.75))}}
 /* meeting a duo */
 .dintro{position:fixed;inset:0;z-index:95;background:radial-gradient(ellipse at 50% 50%,#16111c,#050407 75%);text-align:center;overflow:hidden;cursor:pointer} .dintro .di-l1,.dintro .di-l2{position:absolute;left:24px;right:24px} .dintro .di-l1{top:20%} .dintro .di-l2{top:63%} .dintro .di-stage{position:absolute!important;left:50%;top:30%;transform:translateX(-50%)}
 .dintro p{margin:0;font:400 17px/1.35 var(--body);color:#d8cfbc;text-shadow:0 2px 0 #000}
@@ -2602,6 +2602,7 @@ body.calm #fx{z-index:0} /* dust drifts behind the text, not over it */
 @media (prefers-reduced-motion:reduce){.dintro .di-fig,.dintro .di-chain,.dintro .di-l1,.dintro .di-l2,.dintro .di-end{animation-delay:0s!important;animation-duration:.01s!important}}
 .dintro .di-stage{align-items:flex-start!important} .dintro .di-fig{position:relative;z-index:2} .dintro .di-chain{z-index:1} .dintro .di-fig small{min-height:2.4em}
 body:has(#app>.sheet) #titlepg{visibility:hidden}
+.ndot{display:inline-block;width:8px;height:8px;margin-left:5px;vertical-align:top;background:#e0443a;box-shadow:0 0 0 1px #2a0a08,0 0 6px rgba(224,68,58,.8);border-radius:50%} .cslot2 .cbox{position:relative} .cslot2 .ndot,.ccfig>.ndot{position:absolute;top:4px;left:4px;margin:0;z-index:3} .ccfig{position:relative} .dtab{position:relative} .gnew{font:400 11px/1 var(--display);font-style:normal;letter-spacing:.1em;text-transform:uppercase;color:#e0443a;margin-left:4px}
 #holdz.zoom{background:rgba(4,3,6,.98)}
 .hand .card.armd{translate:0 -26px;z-index:6;filter:drop-shadow(0 0 6px rgba(255,226,150,.85))} #app .biomel{font-size:12px}
 .field.stg .en .bar em{font-size:13.333px!important;line-height:13px!important} #app .dstrip .chip,#app .chips .chip{min-height:44px}
@@ -2757,7 +2758,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy health and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.114.5-test'; // bump for every build you send to testers
+const VERSION = '0.115.0-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -6533,7 +6534,7 @@ function checkAch() { const got = META.ach || (META.ach = {}), out = [];
   ACH.forEach(a => { if (!got[a.id] && achDone(a)) { got[a.id] = Date.now(); META.achNew = (META.achNew || 0) + 1; out.push(a); } });
   if (out.length) { save(); sfx('chime'); } return out; }
 function vJournal() { const t = S.jtab || 'bty', got = META.ach || {}, n = ACH.filter(a => got[a.id]).length;
-  const tabs = [['bty', 'Bounties'], ['ach', 'Achievements'], ['hist', 'History'], ['stats', 'Stats']].map(([k, nm]) => `<button class="dtab ${k === t ? 'on' : ''}" data-act="jtab" data-i="${k}">${nm}</button>`).join('');
+  const tabs = [['bty', 'Bounties'], ['ach', 'Achievements'], ['hist', 'History'], ['stats', 'Stats']].map(([k, nm]) => `<button class="dtab ${k === t ? 'on' : ''}" data-act="jtab" data-i="${k}">${nm}${rdot(k === 'bty' ? bountyUnclaimed().length > 0 : k === 'ach' ? achUnclaimed().length > 0 : false)}</button>`).join('');
   let body = '';
   const pct = a => got[a.id] ? (achClaimed(a.id) ? -2 : 2) : a.p ? Math.min(1, a.p()[0] / a.p()[1]) : 0, order = ACH.slice().sort((x, y) => pct(y) - pct(x));
   const un = achUnclaimed(), unS = un.reduce((x, a) => x + (a.sl || 0), 0), unM = un.reduce((x, a) => x + (a.mk || 0), 0);
@@ -7143,7 +7144,8 @@ function vCamp() {
   if (CURIO_SLOTS.some(sl => !META.arm.eq[sl] && ARM.some(x => x.s === sl && META.arm.own[x.id]))) alert[11] = 1; // a curio you own sits unequipped in an empty slot
   if (COMP_SLOTS.some(sl => !META.arm.eq[sl] && COMP_GEAR.some(x => x.s === sl && META.arm.own[x.id])) || (!META.comp && Object.keys(META.comps).length)) alert[12] = 1;
   const seat = +Object.keys(Camp.SEAT).find(k => Camp.SEAT[k] === META.duoSel) || 1;
-  if (canUp || Object.keys(DUO().coll).some(vowDue) || ALL_GEAR().some(x => META.arm.own[x.id] && ilv(x.id) < IL_MAX && (META.dust || 0) >= dustUp(ilv(x.id)))) alert[17] = 1;
+  if (canUp || Object.keys(DUO().coll).some(vowDue)) alert[17] = 1; // the Forge is for cards now; gear upgrades live in Gear
+  if (ALL_GEAR().some(gearNew)) alert[11] = 1; if (compNew()) alert[12] = 1; if (cardsNew()) alert[14] = 1;
   CAMP_ST = {locked, alert, sel: seat, tags: Object.fromEntries([10, 11, 12, 13, 14, 15, 17].map(id => [id, CAMP_PLACES[id].n]))};
   const ncomp = Object.keys(COMPANIONS).filter(id => META.comps[id]).length, lvOf = id => META.duo[id] ? duoLevel(META.duo[id].xp).L : 1;
   const sub = {10: META.souls + ' souls', 11: CURIO_SLOTS.filter(sl => META.arm.eq[sl]).length + ' of 6 equipped', 12: ncomp + ' / ' + Object.keys(COMPANIONS).length + ' found', 13: META.marks + ' marks' + (canTal ? ' · ready' : ''),
@@ -7215,7 +7217,7 @@ function playIntro(id) { S.intro = {id, t: performance.now()}; S.sheet = null; r
 function vTitle() { const v = S.title; if (!v) return ''; const look = typeof v === 'string' ? v : TITLE_LOOK;
   const fig = k => { const A = IDLE_ANIM['front-' + k]; return A ? `<img class="tfig" src="${A.f[0]}" alt="">` : ''; };
   const art = look === 'chain' ? `<div class="tduo">${fig('fallenangel')}<i class="tchain"></i>${fig('fallendemon')}</div>` : look === 'door' ? `<div class="tdoor"><img src="${DOOR_PIC.boss}" alt=""></div>` : '';
-  return `<div class="title t-${look}" role="dialog" aria-label="Bound Below">
+  return `<div class="tpage t-${look}" role="dialog" aria-label="Bound Below">
     <div class="ttop"><span class="tbadge">Test build</span>${META.opt.stats !== false ? '<p class="tstat">We log anonymous play stats to balance the game. No names or emails. Turn it off in Options.</p>' : ''}</div>
     <div class="tmid">${look === 'chain' ? '' : art}<h1 class="tname">Bound <span>Below</span></h1><p class="tline">Two souls, one chain. The only way out is down.</p>${look === 'chain' ? art : ''}</div>
     <div class="tbot"><button class="btn pri tenter" data-act="enter">Enter</button>
@@ -7250,13 +7252,22 @@ const gTile = (x, cls) => `<span class="gtile r-${gRar(x.id)}${META.arm.eq[x.s] 
 // a slot's own emblem (PixelLab), falling back to the old drawn one
 const slotArt = (sl, cls) => sprite(Pix.get('gear-slot-' + sl) ? 'gear-slot-' + sl : 'item-' + GEAR_ART[sl], cls);
 // the slot picker on Curios and the Den: worn piece or the slot's emblem, how many you own for it
+// red dots: something new or waiting inside a menu. The camp keeps its own "!" markers.
+const rdot = on => on ? '<i class="ndot" aria-label="New"></i>' : '';
+if (!META.arm.seen) { META.arm.seen = {}; Object.keys(META.arm.own || {}).forEach(id => { if (META.arm.own[id]) META.arm.seen[id] = 1; }); } // what you owned before this counts as seen
+if (!META.compSeen) { META.compSeen = {}; Object.keys(META.comps || {}).forEach(id => { META.compSeen[id] = 1; }); }
+if (!META.cardSeen) { META.cardSeen = {}; Object.keys(META.duo || {}).forEach(d => Object.keys(META.duo[d].coll || {}).forEach(id => { META.cardSeen[id] = 1; })); }
+const gearNew = x => !!META.arm.own[x.id] && gearFits(x) && !META.arm.seen[x.id];
+const slotNew = (list, sl) => list.some(x => x.s === sl && gearNew(x));
+const compNew = () => Object.keys(META.comps || {}).some(id => !META.compSeen[id]);
+const cardsNew = () => Object.keys(DUO().coll || {}).some(id => !META.cardSeen[id]);
 function slotGrid(list, slots, sel, act) { return slots.map(sl => { const id = META.arm.eq[sl], it = id && list.find(x => x.id === id), n = list.filter(x => x.s === sl && META.arm.own[x.id]).length;
-  return `<button class="cslot2${it ? ' full' : ''}${sl === sel ? ' on' : ''}" data-act="${act}" data-i="${sl}" aria-label="${sl}: ${it ? it.n : 'empty'}, ${n} owned"><span class="cbox">${it ? sprite(gearIcon(it)) : slotArt(sl, 'ghost')}${n ? `<i class="scnt">${n}</i>` : ''}</span><b>${sl}</b><small>${it ? it.n : 'Empty'}</small></button>`; }).join(''); }
+  return `<button class="cslot2${it ? ' full' : ''}${sl === sel ? ' on' : ''}" data-act="${act}" data-i="${sl}" aria-label="${sl}: ${it ? it.n : 'empty'}, ${n} owned"><span class="cbox">${it ? sprite(gearIcon(it)) : slotArt(sl, 'ghost')}${n ? `<i class="scnt">${n}</i>` : ''}${rdot(slotNew(list, sl))}</span><b>${sl}</b><small>${it ? it.n : 'Empty'}</small></button>`; }).join(''); }
 // one slot's gear as rows: art, name, what it does, and Equip / Take off; tap the row for the full sheet
 function equipList(list, sl, empty) { const mine = list.filter(x => x.s === sl && META.arm.own[x.id]).sort((a, b) => (META.arm.eq[sl] === b.id) - (META.arm.eq[sl] === a.id) || ilv(b.id) - ilv(a.id));
   if (!mine.length) return `<div class="aempty">${empty}</div>`;
   return `<div class="glist">${mine.map(x => { const on = META.arm.eq[sl] === x.id;
-    return `<div class="grow eq${on ? ' worn' : ''}"><button class="gpick" data-act="gearsel" data-i="${x.id}">${gTile(x)}<span class="gtx"><b class="gn rn-${gRar(x.id)}">${x.n}</b><small>${fw(gT(x, ilv(x.id)))}</small></span></button>${S.p ? '' : `<button class="gbtn${on ? ' goff' : ' pri'}" data-act="equip" data-i="${x.id}">${on ? 'Take off' : 'Equip'}</button>`}</div>`; }).join('')}</div>`; }
+    return `<div class="grow eq${on ? ' worn' : ''}"><button class="gpick" data-act="gearsel" data-i="${x.id}">${gTile(x)}<span class="gtx"><b class="gn rn-${gRar(x.id)}">${x.n}${gearNew(x) ? ' <em class="gnew">New</em>' : ''}</b><small>${fw(gT(x, ilv(x.id)))}</small></span></button>${S.p ? '' : `<button class="gbtn${on ? ' goff' : ' pri'}" data-act="equip" data-i="${x.id}">${on ? 'Take off' : 'Equip'}</button>`}</div>`; }).join('')}</div>`; }
 // gear at the Forge: pick what you want to do first (Upgrade or Salvage), then the list for it; plain view shows every effect
 function gearHub(list, slots) { const mine = list.filter(x => META.arm.own[x.id] && gearFits(x)), m = S.gmode || 'view', dn = META.dust || 0;
   if (!mine.length) return '<div class="aempty">Nothing yet. Gear drops from chests and the Black Market.</div>';
@@ -7623,7 +7634,7 @@ function vWall(prog) { const w = wallSets(), [n, t] = wallCount(), got = DUO().w
     + `<h3 class="cxh">Companions <small>${w.comps.filter(id => META.comps[id]).length}/${w.comps.length}</small></h3><div class="wgrid">${w.comps.map(id => tile(compFig(id), META.comps[id], COMPANIONS[id].n, 'A rare Legendary drop, or sold at the Black Market')).join('')}</div>`
     + `<h3 class="cxh">Curios <small>${w.gear.filter(x => META.arm.own[x.id]).length}/${w.gear.length}</small></h3><div class="wgrid small">${w.gear.map(x => tile(sprite(gearIcon(x)), META.arm.own[x.id], x.n, 'Found in fights, or sold at the Black Market')).join('')}</div>`; }
 function vCodex() {
-  const t = S.ctab || 'cards', tabs = [['cards', 'Cards'], ['wall', 'Relics'], ['spells', 'Spells'], ['enemies', 'Enemies'], ['lore', 'Lore'], ['gloss', 'Terms']].map(([k, n]) => `<button class="dtab ${k === t ? 'on' : ''}" data-act="ctab" data-i="${k}">${n}${k === 'wall' && wallDue() >= 0 ? ' !' : ''}</button>`).join('');
+  const t = S.ctab || 'cards', tabs = [['cards', 'Cards'], ['wall', 'Relics'], ['spells', 'Spells'], ['enemies', 'Enemies'], ['lore', 'Lore'], ['gloss', 'Terms']].map(([k, n]) => `<button class="dtab ${k === t ? 'on' : ''}" data-act="ctab" data-i="${k}">${n}${rdot(k === 'wall' ? wallDue() >= 0 : k === 'cards' ? cardsNew() : false)}</button>`).join('');
   const nC = DUO_DEF().cards.filter(id => DUO().coll[id]).length, tC = DUO_DEF().cards.length;
   const nS = DUO_DEF().spells.filter(x => META.seen.sp[x.id]).length, nE = Object.keys(FOES).filter(id => META.seen.en[id]).length, tE = Object.keys(FOES).length;
   const prog = (n, tot, lab) => `<div class="cprog"><span>${lab}</span><span class="cbar"><i style="width:${100 * n / tot}%"></i></span><b>${n} / ${tot}</b></div>`;
@@ -8285,7 +8296,7 @@ const artK = f => HEATD() ? (f === 'demon' ? 'frost' : 'fire') : f;
 const talIcon = (art, f) => sprite('art-' + art + '-' + artK(f === 'twin' ? 'angel' : f));
 function vTalents() {
   const t = S.ttab || 'account', lv = duoLevel(DUO().xp);
-  const tabs = `<button class="dtab ${t === 'account' ? 'on' : ''}" data-act="ttab" data-i="account">Account</button>` + Object.keys(DUOS).filter(duoOwned).map(id => `<button class="dtab ${t === 'duo' && id === META.duoSel ? 'on' : ''}" data-act="ttab" data-i="duo" data-d="${id}">${DUOS[id].n}</button>`).join('');
+  const tabs = `<button class="dtab ${t === 'account' ? 'on' : ''}" data-act="ttab" data-i="account">Account${rdot(ACCT.some(x => META.marks >= acctCost(AT(x.id))))}</button>` + Object.keys(DUOS).filter(duoOwned).map(id => `<button class="dtab ${t === 'duo' && id === META.duoSel ? 'on' : ''}" data-act="ttab" data-i="duo" data-d="${id}">${DUOS[id].n}${rdot(id === META.duoSel && (dtPoints() > 0 || psPoints() > 0))}</button>`).join('');
   let body = '';
   if (t === 'account') body = `<i class="pg-split"></i>
     <div class="atl2">${ACCT.map(x => { const r = AT(x.id), c = acctCost(r), nw = tdNew(r, x.id, 'a');
@@ -8353,12 +8364,13 @@ function wareRows(list, slots) {
 }
 function vArmory() {
   // one home for gear: your curios, your companion's gear and the satchel. Each gear tab equips, upgrades and salvages in place
-  const t = ['you', 'pet', 'sup'].includes(S.atab) ? S.atab : 'you', tabs = [['you', 'Hero'], ['pet', 'Companion'], ['sup', 'Satchel']].map(([k, n]) => `<button class="dtab ${k === t ? 'on' : ''}" data-act="atab" data-i="${k}">${n}</button>`).join('');
+  const t = ['you', 'pet', 'sup'].includes(S.atab) ? S.atab : 'you', tabs = [['you', 'Hero'], ['pet', 'Companion'], ['sup', 'Satchel']].map(([k, n]) => `<button class="dtab ${k === t ? 'on' : ''}" data-act="atab" data-i="${k}">${n}${rdot(k === 'you' ? ARM.some(gearNew) : k === 'pet' ? COMP_GEAR.some(gearNew) : false)}</button>`).join('');
   let body;
   if (t === 'you' || t === 'pet') { const hero = t === 'you', L = hero ? ARM : COMP_GEAR, SL = hero ? CURIO_SLOTS : COMP_SLOTS, m = S.gmode === 'up' || S.gmode === 'salv' ? S.gmode : 'view';
     const mb = (k, icn, n) => `<button class="gmb${m === k ? ' on' : ''}" data-act="gmode" data-i="${k}">${pxi(icn)}<b>${n}</b></button>`;
     const bar = `<div class="gmodes g3">${mb('view', 'gear', 'Equip')}${mb('up', 'star', 'Upgrade')}${mb('salv', 'skull', 'Salvage')}</div>`;
     if (m === 'view') { const sl = hero ? (CURIO_SLOTS.includes(S.aslot) ? S.aslot : 'Relic') : (COMP_SLOTS.includes(S.eslot) ? S.eslot : 'Collar');
+      S.seenNow = L.filter(x => x.s === sl && gearNew(x)).map(x => x.id); // shown with its dot this once, then seen
       body = `${bar}${hero ? '' : '<p class="mintro">Helps any companion</p>'}<div class="cslots big${hero ? '' : ' four'}">${slotGrid(L, SL, sl, hero ? 'aslot' : 'eslot')}</div><div class="mksec"><span>${sl}</span></div>
         ${equipList(L, sl, hero ? 'None yet. Find curios in chests or the <button class="alink" data-act="market">Black Market</button>.' : 'Nothing for this slot yet. Find pet gear in fights or the <button class="alink" data-act="market">Black Market</button>.')}`; }
     else body = bar + gearHub(L, SL).replace(/^<div class="gmodes">[\s\S]*?<\/div>/, ''); }
@@ -8507,7 +8519,7 @@ function vCompanions() {
   const rows = Object.entries(COMPANIONS).map(([id, c]) => { const own = META.comps[id], on = cs === id;
     const act = (own ? `<button class="abtn ${on ? 'eqd' : 'eq'}" data-act="comp" data-i="${on ? 'none' : id}">${on ? '✓ Coming' : 'Bring'}</button>` : '<span class="alock">Locked</span>') + `<button class="alink" data-act="compinfo" data-i="${id}" aria-label="About ${own ? c.n : 'this companion'}">Info</button>`;
     // a collection card: big figure in a frame, name, and one action; tap the figure to read about it
-    return `<div class="ccard${on ? ' on' : ''}${own ? '' : ' lk'}" data-comp="${id}"><button class="ccfig ktile ${on ? 'r-legendary' : own ? 'r-epic' : ''}" data-act="compinfo" data-i="${id}" aria-label="About ${own ? c.n : 'this companion'}">${compFig(id, own ? '' : 'unseen')}${own ? '' : `<span class="cclock">${pxi('lock')}</span>`}</button>
+    return `<div class="ccard${on ? ' on' : ''}${own ? '' : ' lk'}" data-comp="${id}"><button class="ccfig ktile ${on ? 'r-legendary' : own ? 'r-epic' : ''}" data-act="compinfo" data-i="${id}" aria-label="About ${own ? c.n : 'this companion'}">${rdot(own && !META.compSeen[id])}${compFig(id, own ? '' : 'unseen')}${own ? '' : `<span class="cclock">${pxi('lock')}</span>`}</button>
       <b>${own ? c.n : '???'}</b><small>${own ? c.kind : ''}</small>${own ? `<button class="btn${on ? '' : ' pri'} ccbtn" data-act="comp" data-i="${on ? 'none' : id}">${on ? 'With you' : 'Bring'}</button>` : ''}</div>`; }).join('');
   return `<div class="screen armory"><div class="ahead">${hback('camp')}${sprite('gear-den', 'arack')}<div><h2>The Den</h2></div></div>
     <i class="pg-split"></i>${true ? `<div class="ccards">${rows}</div><p class="mintro"><button class="alink" data-act="petgear">Companion gear is on the Gear screen</button></p>`
@@ -8519,6 +8531,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
+  {v: '0.115', d: '24 Nov', n: ["Red dots show what's new: gear slots, companions, new cards, bounties and talents to spend", "The win and loss screens scroll again", "The Forge only calls you over when a card is ready"]},
   {v: '0.114', d: '24 Nov', n: ["In boss fights your companion stands clear of the boss", "The title page no longer stutters as the game loads", "Meet each duo: a short scene plays the first time you take up their chain", "A title page greets you each time you open the game, with the version and What's new"]},
   {v: '0.113', d: '23 Nov', n: ["Enemies no longer blink out for a moment when hit (iPhone)", "Chests no longer jump down the screen as they open", "A first-time tip explains the green glow on cards (your companion's echo)", "Glowing cards no longer drop down when your energy runs out (iPhone)", "The game now shares anonymous play stats (runs, picks, what beats you) so we can balance it. No names or emails. Turn it off in Options any time"]},
   {v: '0.112', d: '23 Nov', n: ["Sharpening a card at the fire or the Merchant gets its own moment", "Bigger Codex tabs", "A new Black Market icon", "The daily offering now waits for you to tap Claim", "Undiscovered cards sit properly in the Codex", "This list. It shows once per update"]},
@@ -9806,6 +9819,12 @@ const FTIPS = [
     if (S && S.title && !tp) { tp = document.createElement('div'); tp.id = 'titlepg'; tp.innerHTML = vTitle(); document.body.appendChild(tp);
       tp.addEventListener('click', ev => { const el = ev.target.closest('[data-act]'); if (el && ACT[el.dataset.act]) { audio(); ACT[el.dataset.act](el.dataset); } }); }
     else if (tp && !(S && S.title)) { tp.remove(); tp = null; }
+    return out; }; }
+// what a red dot pointed at counts as seen once its screen has been drawn
+{ const r0 = render; render = function () { const out = r0.apply(this, arguments);
+    if (S && S.seenNow) { S.seenNow.forEach(id => { META.arm.seen[id] = 1; }); S.seenNow = null; save(); }
+    if (S && S.screen === 'companions' && compNew()) { Object.keys(META.comps).forEach(id => { META.compSeen[id] = 1; }); save(); }
+    if (S && S.screen === 'codex' && (S.ctab || 'cards') === 'cards' && cardsNew()) { Object.keys(DUO().coll).forEach(id => { META.cardSeen[id] = 1; }); save(); }
     return out; }; }
 // the camp's arrival moments, decided before it draws: a newly opened place first, then what's new since your last visit
 { const r0 = render; render = function () { if (S && S.screen === 'camp' && !S.p && !S.sheet && !S.confirm) {
