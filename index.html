@@ -2603,6 +2603,10 @@ body.calm #fx{z-index:0} /* dust drifts behind the text, not over it */
 .dintro .di-stage{align-items:flex-start!important} .dintro .di-fig{position:relative;z-index:2} .dintro .di-chain{z-index:1} .dintro .di-fig small{min-height:2.4em}
 body:has(#app>.sheet) #titlepg{visibility:hidden}
 .ndot{display:inline-block;width:8px;height:8px;margin-left:5px;vertical-align:top;background:#e0443a;box-shadow:0 0 0 1px #2a0a08,0 0 6px rgba(224,68,58,.8);border-radius:50%} .cslot2 .cbox{position:relative} .cslot2 .ndot,.ccfig>.ndot{position:absolute;top:4px;left:4px;margin:0;z-index:3} .ccfig{position:relative} .dtab{position:relative} .gnew{font:400 11px/1 var(--display);font-style:normal;letter-spacing:.1em;text-transform:uppercase;color:#e0443a;margin-left:4px}
+#app .tpasrow{display:flex;align-items:center;gap:10px;width:100%;margin:10px 0 4px;padding:12px 14px;border:3px solid transparent;border-image:var(--k-inset) 10 fill / 10px stretch;background:none;color:var(--ink);text-align:left;cursor:pointer} #app .tpasrow b{font:400 16px/1 var(--display);letter-spacing:.08em;text-transform:uppercase;color:#e8d9b0} #app .tpasrow small{flex:1;font:400 13px/1.2 var(--body);color:var(--dim)} #app .tpasrow.on{border-image:var(--k-pri) 10 fill / 10px stretch} #app .tpasrow.on b,#app .tpasrow.on small{color:#1a1208} #app .tpasrow .ochev{color:var(--dim)}
+#app:has(.tdbar) .pg-body{padding-bottom:110px!important}
+#app .cgrid.shopc{overflow:visible!important;padding:16px 6px 0}
+#app .field .comp2 img{width:calc(var(--bw) * var(--k,1.3) * 1px)!important} #app .field .comp2.fly .cfly,#app .field .comp2[data-i=wisp] .cfly,#app .field .comp2[data-i=vesper] .cfly,#app .field .comp2[data-i=ashwing] .cfly{margin-bottom:calc(var(--k,1.3) * 9px)}
 #holdz.zoom{background:rgba(4,3,6,.98)}
 .hand .card.armd{translate:0 -26px;z-index:6;filter:drop-shadow(0 0 6px rgba(255,226,150,.85))} #app .biomel{font-size:12px}
 .field.stg .en .bar em{font-size:13.333px!important;line-height:13px!important} #app .dstrip .chip,#app .chips .chip{min-height:44px}
@@ -2758,7 +2762,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy health and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.115.0-test'; // bump for every build you send to testers
+const VERSION = '0.115.1-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -5676,7 +5680,7 @@ function stageComp(fm) { const cp = COMPANIONS[S.comp]; if (!cp) return '';
   const fly = S.comp === 'imp' || S.comp === 'crow' || S.comp === 'fledgling', CA = idleA('cb-' + S.comp), sp = Stage.back(S.comp), sp2 = fly ? Stage.back(S.comp + '2') : COMP_PIC[S.comp + 'b'] ? Stage.back(S.comp + 'b') : null, echoed = S.echoed; S.echoed = false;
   const n = P().echoes || 0, on = n > 0, max = echoCap();
   const pips = true ? `<span class="epips" aria-label="${n} echoes">${Array.from({length: max}, (_, k) => `<i class="${k < n ? 'full' : ''}"></i>`).join('')}</span>` : '';
-  return `<button class="comp2 ${on ? 'on' : 'rest'}${echoed ? ' echo' : ''}${fly ? ' fly' : ''}${CA ? ' anim' + (petFly(S.comp) ? '' : ' slow') : ''}" data-act="compinfo" data-i="${S.comp}" aria-label="${cp.n}" style="left:${S.f && (S.f.kind === 'boss' || S.f.kind === 'guardian') ? 76 : COMP_AT[0]}%;top:${S.f && (S.f.kind === 'boss' || S.f.kind === 'guardian') ? 101 : COMP_AT[1]}%">
+  return `<button class="comp2 ${on ? 'on' : 'rest'}${echoed ? ' echo' : ''}${fly ? ' fly' : ''}${CA ? ' anim' + (petFly(S.comp) ? '' : ' slow') : ''}" data-act="compinfo" data-i="${S.comp}" aria-label="${cp.n}" style="left:${COMP_AT[0]}%;top:${COMP_AT[1] + (S.f && (S.f.kind === 'boss' || S.f.kind === 'guardian') ? 4 : 0)}%">
     <span class="cfly">${CA ? animImgs(CA, '') : !sp ? '' : `<img src="${sp.url}" alt="" style="--bw:${sp.w}">${sp2 && sp2.url ? `<img class="${fly ? 'f2' : 'b2'}" src="${sp2.url}" alt="" style="--bw:${sp2.w}">` : ''}`}</span>${pips}</button>`; }
 // enemy art: drawn in a 100x100 box, feet near y 96. The pixel pipeline adds lighting, outline and palette.
 const FOE_ART = {
@@ -7812,7 +7816,7 @@ function paint() {
       else if (rnd() < .5) { px(x, y, ['#9a7ac8', '#d8c870', '#c86a6a'][Math.floor(rnd() * 3)]); px(x, y + 1, '#2c4028'); } }
     else if (d < .9) { const r = rnd(); if (r < .35) { px(x, y, '#6a6070'); px(x + 1, y, '#4a4452'); px(x, y - 1, '#8a8090'); } else if (r < .6) px(x, y, ['#8a4a20', '#a86a28', '#6a3018'][Math.floor(rnd() * 3)]); else if (r < .7) { px(x, y, '#3c5432'); px(x + 1, y - 1, '#3c5432'); } } }
   // ---- the town on the hill (Black Market) ----
-  begin(); for (let y = 80; y < 112; y++) for (let x = 20; x < 176; x++) { const d = ((x - 98) / 74) ** 2 + ((y - 104) / 22) ** 2; if (d < 1 && y > 88 - (1 - Math.abs(x - 98) / 80) * 8) px(x, y, pick(['#141a18', '#1a221e', '#212b24', '#2a3428'], fbm(x / 7, y / 5) * .9 + (y - 90) / 60, x, y)); }
+  begin(); if (!ART[10]) for (let y = 80; y < 112; y++) for (let x = 20; x < 176; x++) { const d = ((x - 98) / 74) ** 2 + ((y - 104) / 22) ** 2; if (d < 1 && y > 88 - (1 - Math.abs(x - 98) / 80) * 8) px(x, y, pick(['#141a18', '#1a221e', '#212b24', '#2a3428'], fbm(x / 7, y / 5) * .9 + (y - 90) / 60, x, y)); }
   const house = (x, yb, w, h, roof, gable) => { begin(10); const top = yb - h;
     rect(x, top, w, h, '#6a5848'); rect(x + w, top, 2, h, '#43372e');
     for (let j = top; j < yb; j++) { px(x, j, '#2e2218'); px(x + w - 1, j, '#2e2218'); } rect(x, top + Math.floor(h / 2), w, 1, '#3a2c20');
@@ -7933,14 +7937,14 @@ function paint() {
 // ---------- light: a static map for lamps and moon, plus the flickering fire and torches ----------
 const LS = new Float32Array(W * H * 3), LF = new Float32Array(W * H), LT = new Float32Array(W * H), FOG = new Float32Array(W * H), FN = new Float32Array(W * 2 * H), VIG = new Float32Array(W * H);
 function bake() { const lamps = [[34, 160, 30, .7, [1, .78, .45]], [48, 148, 22, .45, [1, .8, .5]], [117, 147, 24, .55, [1, .8, .5]], [160, 152, 34, locked(13) ? 0 : .8, [.8, .55, 1]], [49, 282, 22, .55, [1, .8, .45]],
-    [175, 278, 20, .5, [1, .8, .45]], [98, 82, 78, locked(10) ? .05 : .95, [1, .78, .48]], [98, 66, 30, locked(10) ? 0 : .5, [1, .85, .6]], [98, 340 + GDROP, 26, .8, [1, .25, .15]], [18, 302, 10, .3, [.3, .9, .8]], [182, 312, 10, .3, [.3, .9, .8]]];
+    [175, 278, 20, .5, [1, .8, .45]], [98, 82, 88, locked(10) ? .05 : 1.5, [1, .8, .52]], [98, 66, 30, locked(10) ? 0 : .6, [1, .85, .6]], [98, 104, 70, locked(10) ? 0 : 1.05, [1, .82, .58]], [98, 340 + GDROP, 26, .8, [1, .25, .15]], [18, 302, 10, .3, [.3, .9, .8]], [182, 312, 10, .3, [.3, .9, .8]]];
   if (locked(11)) lamps[0][3] = lamps[1][3] = 0;
-  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const i = y * W + x; let r = .38, gg = .42, b = .62; if (y < 60) { r += .1; gg += .1; b += .12; }
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const i = y * W + x; let r = .38, gg = .42, b = .62; { const sk = y < 60 ? 1 : y < 116 ? 1 - (y - 60) / 56 : 0; r += .1 * sk; gg += .1 * sk; b += .12 * sk; } // the sky's light fades down through the town instead of stopping at a hard line
     for (const [lx, ly, rad, k, c] of lamps) { const d = Math.hypot(x - lx, (y - ly) * 1.25); if (d < rad) { const f = (1 - d / rad) ** 1.5 * k; r += f * c[0]; gg += f * c[1]; b += f * c[2]; } }
     LS[i * 3] = r; LS[i * 3 + 1] = gg; LS[i * 3 + 2] = b;
     const fd = Math.hypot(x - FIRE[0], (y - FIRE[1]) * 1.25); LF[i] = (fd < 112 ? (1 - fd / 112) ** 1.5 * 1.3 : 0) + rim[i];
     let t = 0; SPOTS.torch.forEach(([tx, ty]) => { const d = Math.hypot(x - tx, (y - ty) * 1.25); if (d < 28) t += (1 - d / 28) ** 1.5 * .9; }); LT[i] = t;
-    const cl = ((x - 98) / 80) ** 2 + ((y - 246) / 80) ** 2; FOG[i] = Math.max(0, Math.min(1, (y > 108 && y < 160 ? 1 - Math.abs(y - 134) / 26 : 0) + (cl > 1 ? (cl - 1) * .5 : 0))) * (y < 90 ? 0 : .32);
+    const cl = ((x - 98) / 80) ** 2 + ((y - 246) / 80) ** 2; FOG[i] = Math.max(0, Math.min(1, (y > 108 && y < 160 ? 1 - Math.abs(y - 134) / 26 : 0) + (cl > 1 ? (cl - 1) * .5 : 0))) * (y < 108 ? 0 : y < 128 ? .32 * (y - 108) / 20 : .32); // fog fades in below the town walls, so the town on the hill stays clear
     VIG[i] = 1 - .45 * Math.min(1, ((x - 98) / 110) ** 2 + ((y - 240) / 230) ** 2); }
   const L = W * 2; for (let y = 0; y < H; y++) for (let x = 0; x < L; x++) FN[y * L + x] = ((L - x) * fbm(x / 22, y / 9) + x * fbm((x - L) / 22, y / 9)) / L; }
 const out = new ImageData(W, H);
@@ -8305,7 +8309,8 @@ function vTalents() {
   else {
     const sub = S.dsub === 'passives' ? 'passives' : 'track', k = CH_TR.includes(S.trk) ? S.trk : 'bound', f = k === 'bound' ? 'twin' : k;
     const head = `<div class="dlv tlv"><span class="dlvn">Level <b>${lv.L}</b></span><span class="dlvb kbar"><i style="width:${Math.round(100 * lv.into / Math.max(1, lv.need))}%"></i></span><span class="dlvx">${lv.into} / ${lv.need}</span></div>`;
-    const pp = psPoints(), tabs = `<div class="ttrees four">${CH_TR.map(x => `<button class="ttree ${x === 'bound' ? 'twin' : x}${sub === 'track' && x === k ? ' on' : ''}" data-act="trk" data-i="${x}"><b>${trName(x)}</b><small>${trLv(x)} / ${CH_CAP}</small></button>`).join('')}<button class="ttree pas${sub === 'passives' ? ' on' : ''}" data-act="dsub" data-i="passives"><b>Passives</b><small>${pp ? pp + ' to spend' : psEarned() ? 'All spent' : 'Locked'}</small></button></div>`;
+    const pp = psPoints(), tabs = `<div class="ttrees four">${CH_TR.map(x => `<button class="ttree ${x === 'bound' ? 'twin' : x}${sub === 'track' && x === k ? ' on' : ''}" data-act="trk" data-i="${x}"><b>${trName(x)}</b><small>${trLv(x)} / ${CH_CAP}</small></button>`).join('')}</div>
+      <button class="tpasrow${sub === 'passives' ? ' on' : ''}${pp ? ' can' : ''}" data-act="dsub" data-i="passives"><b>Passives</b><small>${pp ? pp + ' to spend' : psEarned() ? 'All spent' : 'Open at 35 on any tree'}</small>${rdot(pp > 0)}<span class="ochev">›</span></button>`;
     if (sub === 'track') {
       const L = trLv(k), T = trRows()[k], P0 = CHS().p[k], sel = S.chSel && S.chSel.k === k ? S.chSel : null;
       const pc = (i, j) => { const d = chDef(T[i][j][0]), open = L >= CH_STEP * (i + 1), on = P0[i] === j, can = open && P0[i] == null;
@@ -8531,7 +8536,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
-  {v: '0.115', d: '24 Nov', n: ["Red dots show what's new: gear slots, companions, new cards, bounties and talents to spend", "The win and loss screens scroll again", "The Forge only calls you over when a card is ready"]},
+  {v: '0.115', d: '24 Nov', n: ["Passives get their own row under the three talent trees", "The talent confirm bar no longer hides the last talent", "The town on the hill is no longer lost in fog", "Legendary cards in the shop show in full", "Companions are smaller and stay by your side in boss fights", "Red dots show what's new: gear slots, companions, new cards, bounties and talents to spend", "The win and loss screens scroll again", "The Forge only calls you over when a card is ready"]},
   {v: '0.114', d: '24 Nov', n: ["In boss fights your companion stands clear of the boss", "The title page no longer stutters as the game loads", "Meet each duo: a short scene plays the first time you take up their chain", "A title page greets you each time you open the game, with the version and What's new"]},
   {v: '0.113', d: '23 Nov', n: ["Enemies no longer blink out for a moment when hit (iPhone)", "Chests no longer jump down the screen as they open", "A first-time tip explains the green glow on cards (your companion's echo)", "Glowing cards no longer drop down when your energy runs out (iPhone)", "The game now shares anonymous play stats (runs, picks, what beats you) so we can balance it. No names or emails. Turn it off in Options any time"]},
   {v: '0.112', d: '23 Nov', n: ["Sharpening a card at the fire or the Merchant gets its own moment", "Bigger Codex tabs", "A new Black Market icon", "The daily offering now waits for you to tap Claim", "Undiscovered cards sit properly in the Codex", "This list. It shows once per update"]},
