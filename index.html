@@ -2767,7 +2767,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy health and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.116.3-test'; // bump for every build you send to testers
+const VERSION = '0.116.4-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -7453,7 +7453,7 @@ const cardTags = id => CARD_TAGS[id] || [];
 function deckBuilds(d) { const n = {}; d.forEach(id => cardTags(id).forEach(t => { n[t] = (n[t] || 0) + 1; })); return Object.entries(n).sort((a, b) => b[1] - a[1]); }
 const buildChip = (t, n, on, act) => `<button class="bchip${on ? ' on' : ''}" ${act ? `data-act="${act}" data-i="${t}"` : 'tabindex="-1"'} style="--bc:${t === 'all' ? '#a89cb8' : BUILDS[t].c}"><i></i>${t === 'all' ? 'All' : BUILDS[t].n}${n != null ? ` <b>${n}</b>` : ''}</button>`;
 function vDecks() {
-  const i = S.dsel != null ? S.dsel : DUO().deckSel, d = DUO().decks[i], face = S.face || 'angel', full = d.length >= DECK_SIZE;
+  const i = S.dsel != null && DUO().decks[S.dsel] ? S.dsel : DUO().deckSel, d = DUO().decks[i], face = S.face || 'angel', full = d.length >= DECK_SIZE;
   const boxes = [0, 1, 2].map(k => { const dk = DUO().decks[k], ok = deckValid(dk);
     return `<button class="dbox${k === i ? ' on' : ''}${ok ? '' : ' wip'}" data-act="dedit" data-i="${k}"><b>Deck ${k + 1}</b><small>${k === DUO().deckSel ? '✓' : dk.length + '/' + DECK_SIZE}</small></button>`; }).join('');
   const pips = Array.from({length: DECK_SIZE}, (_, k) => `<i class="${k < d.length ? 'on' : ''}"></i>`).join('');
@@ -9521,7 +9521,7 @@ const ACT = {
   decks: () => { if (S.sheet && S.sheet.pick) S.sheet = null; S.fromCheck = S.screen === 'deckcheck'; S.dsel = S.dsel != null ? S.dsel : DUO().deckSel; S.screen = 'decks'; render(); },
   dedit: d => { S.dsel = +d.i; render(); },
   duse: d => { if (deckValid(DUO().decks[+d.i])) { DUO().deckSel = +d.i; save(); } render(); },
-  dtog: d => { const deck = DUO().decks[S.dsel], k = deck.indexOf(d.i);
+  dtog: d => { if (!DUO().decks[S.dsel]) S.dsel = DUO().decks[DUO().deckSel] ? DUO().deckSel : 0; const deck = DUO().decks[S.dsel], k = deck.indexOf(d.i);
     if (k >= 0) deck.splice(k, 1); else if (deck.length < DECK_SIZE && DUO().coll[d.i]) deck.push(d.i); else return; save(); render(); },
   upg: d => { const c = DUO().coll[d.i]; if (!canForge(c)) return render(); const from = rarLabel(d.i); c.c -= forgeNeed(c); if ((c.lv || 1) < 2) c.lv = 2; else c.emp = (c.emp || 0) + 1;
     save(); sfx('win'); buzz([30, 40, 80]); if (vowDue(d.i)) S.vowPick = {id: d.i, from}; else S.forge = {id: d.i, from, to: rarLabel(d.i)}; render(); },
