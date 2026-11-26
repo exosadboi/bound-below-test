@@ -2120,7 +2120,7 @@ x-i.pi{display:inline-block;width:1em;height:1em;vertical-align:-.12em;flex:none
 .egains small{font-size:10.667px!important}
 .endscr .elv{align-items:center}
 /* rewards: stacked rows, a PixelLab frame per rarity, more light the rarer it is */
-.rws{display:flex;flex-direction:column;gap:12px;width:100%;padding-top:4px} .mkrws{margin-top:4px} .mkrws .rw{animation:none} .mkrws .rw.got{opacity:.55}
+.rws{display:flex;flex-direction:column;gap:12px;width:100%;padding-top:4px} .mkrws{margin-top:4px} .rkn{display:flex;flex-direction:column;gap:6px;text-align:center} .rkn>span{display:block} .fgnext{margin:6px 16px 0;font-size:14px;line-height:1.3} .mkrws .rw{animation:none} .mkrws .rw.got{opacity:.55}
 .rw{position:relative;display:grid;grid-template-columns:72px minmax(0,1fr) auto;align-items:center;gap:12px;min-height:92px;padding:4px 6px;border:12px solid transparent;border-image:var(--k-rw-common) 18 fill / 18px stretch;text-align:left;animation:rwin .4s cubic-bezier(.2,.9,.3,1.2) both;animation-delay:calc(var(--i) * .12s)}
 @keyframes rwin{from{opacity:0;transform:translateY(14px) scale(.96)}}
 .rw.r-rare{border-image-source:var(--k-rw-rare)}
@@ -2767,7 +2767,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy health and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.117.2-test'; // bump for every build you send to testers
+const VERSION = '0.118-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -2874,13 +2874,55 @@ const OWNED_START = ['aegis','guard','smite','radiance','reckon','brandsin','men
 const START_COLL = OWNED_START.concat(['insight','martyr','strike','crossing','eclipse']);
 const DECK_SIZE = 10;
 const UPK = ['dmg','blk','heal','bless','mana','mark','sunder','burst','cross','cursed','cHeal','reapS','reapJ','swBlk','swDmg','wound','heatBurst','tickV'];
+// card ranks. A card's level value is its rank + 1 (1 = not upgraded). Rarity never changes; ranks add power.
+// Each face has a fixed path: most ranks grow its numbers, +3/+9/+15 add a perk, +6/+12 are a vow you choose in the Forge.
+const RANK_MAX = 15, RUN_UP_MAX = 2, RANK_PERK = [3, 9, 15], RANK_CHOICE = [6, 12];
+const MINOR = ['judge', 'sinN', 'regen', 'cov', 'weak', 'silence', 'blkSw'], GROW_ST = x => !['weak', 'frail', 'chill'].includes(x[0]);
+const RANK_BASE = {}, RANK_PATH = {};
+function rankBase(e) { if (!e.br || e.br === 'common') return e; if (e.pic && RANK_BASE[e.pic]) return RANK_BASE[e.pic]; const o = {...e}; // rare and better cards are born 25% stronger
+  UPK.forEach(k => { if (o[k]) o[k] = Math.ceil(o[k] * 1.25); }); if (o.st) o.st = o.st.map(x => [x[0], GROW_ST(x) ? Math.ceil(x[1] * 1.25) : x[1], x[2], x[3]]); if (e.pic) RANK_BASE[e.pic] = o; return o; }
+function rankPath(b) { if (b.pic && RANK_PATH[b.pic]) return RANK_PATH[b.pic];
+  const grow = UPK.some(k => b[k]) || (b.st || []).some(GROW_ST), st = b.st || [];
+  const minor = MINOR.filter(k => typeof b[k] === 'number' && b[k] > 0).concat(st.some(x => !GROW_ST(x)) ? ['stv'] : []).concat(b.selfP ? ['selfP'] : []);
+  const dmg = b.dmg != null && !b.blkdmg, perks = [];
+  if (dmg && !b.pierce) perks.push('pierce'); if (b.blk && !b.keepBlk) perks.push('keepBlk'); if (st.some(x => x[2] > 0) || (b.regen && b.turns)) perks.push('turns');
+  if (st.some(x => !GROW_ST(x)) || b.weak) perks.push('stv'); if (dmg && !b.ls && !b.all) perks.push('ls'); if (b.draw) perks.push('draw'); perks.push('blk3', 'heal2', 'blk3');
+  const P = {3: perks.shift(), 9: b.c >= 2 ? 'cost' : perks.shift(), 15: b.c >= 3 ? 'cost' : perks.shift()};
+  const out = []; let nn = 0;
+  for (let k = 1; k <= RANK_MAX + RUN_UP_MAX; k++) {
+    if (RANK_CHOICE.includes(k)) out.push('vow:' + RANK_CHOICE.indexOf(k));
+    else if (P[k]) out.push(P[k]);
+    else if (grow) out.push('num');
+    else { nn++; out.push(minor.length && nn % 2 ? 'minor:' + minor[Math.floor(nn / 2) % minor.length] : 'blk2'); } } // a face with nothing to grow alternates a small boost and new block
+  if (b.pic) RANK_PATH[b.pic] = out; return out; }
+const rInc = v => Math.max(1, Math.round(v * .15));
 function lvl(e, lv) {
-  if (!lv || lv < 2) return e;
-  const o = {...e, rar: rarOfLv(lv, e.br)}, vs = e.pic ? vowsOf(e.pic.slice(0, -2)) : [];
-  UPK.forEach(k => { if (o[k]) o[k] = Math.ceil(o[k] * (1 + 0.25 * (lv - 1))); });
-  if (o.st) o.st = o.st.map(([id, v, t, f]) => [id, id === 'weak' || id === 'frail' || id === 'chill' ? v : Math.ceil(v * (1 + 0.25 * (lv - 1))), t, f]);
+  const r = Math.max(0, Math.round((lv || 1) - 1)), b = rankBase(e), o = {...b, rar: e.br || 'common', rk: r};
+  const id = e.pic ? e.pic.slice(0, -2) : null, stored = id ? vowsOf(id) : [], vs = stored.slice();
+  if (!r) return vs.length ? applyVows(o, vs) : o;
+  const path = rankPath(b); let nNum = 0; if (o.st) o.st = o.st.map(x => x.slice());
+  for (let k = 1; k <= r && k <= path.length; k++) { const p = path[k - 1];
+    if (p === 'num') nNum++;
+    else if (p.startsWith('vow:')) { const i = +p.slice(4); if (stored[i] == null && id) { const v = vowOffer(id).concat(['warded', 'mending']).find(x => x !== 'tempered' && !(VOWS[x].once && vs.includes(x)) && !(i && x === vs[vs.length - 1])); if (v) vs.push(v); } }
+    else if (p.startsWith('minor:')) { const m = p.slice(6); if (m === 'stv') o.st.forEach(x => { if (!GROW_ST(x)) x[1]++; }); else if (m === 'selfP') { if (o.selfP > 0) o.selfP--; else o.blk = (o.blk || 0) + 2; } else o[m] = (o[m] || 0) + 1; }
+    else if (p === 'blk2') o.blk = (o.blk || 0) + 2; else if (p === 'blk3') o.blk = (o.blk || 0) + 3; else if (p === 'heal2') o.heal = (o.heal || 0) + 2;
+    else if (p === 'pierce' || p === 'ls' || p === 'keepBlk') o[p] = 1;
+    else if (p === 'turns') { if (o.st) o.st.forEach(x => { if (x[2] > 0) x[2]++; }); if (o.regen && o.turns) o.turns++; }
+    else if (p === 'stv') { if (o.st) o.st.forEach(x => { if (!GROW_ST(x)) x[1]++; }); if (o.weak) o.weak++; }
+    else if (p === 'draw') o.draw = (o.draw || 0) + 1; else if (p === 'cost') o.c = Math.max(0, o.c - 1); }
+  if (nNum) { UPK.forEach(k => { if (b[k]) o[k] += nNum * rInc(b[k]); }); if (o.st) o.st.forEach((x, j) => { if (GROW_ST(x)) x[1] += nNum * rInc(b.st[j][1]); }); }
   return vs.length ? applyVows(o, vs) : o;
 }
+// what one more rank changes, in plain words: "Deal 6→7", "Costs 2→1", "New: Pierce"
+const plainW = e => cardWords(e, false).map(w => w.replace(/<[^>]+>/g, ''));
+function stepLines(e0, e1) { const a = plainW(e0), b = plainW(e1), key = w => w.replace(/\d+/g, '#'), out = [];
+  if (e1.c !== e0.c) out.push(`Costs ${e0.c}→${e1.c}`); const hp = (e1.selfP || 0) !== (e0.selfP || 0); if (hp) out.push(`Health cost ${e0.selfP}%→${e1.selfP}%`);
+  b.forEach(w => { if (a.includes(w) || (hp && /life/.test(w))) return; const j = a.findIndex(x => key(x) === key(w)); if (j < 0) return out.push('New: ' + w); const na = a[j].match(/\d+/g) || []; let i = 0; out.push(w.replace(/\d+/g, m => { const o = na[i++]; return o === m ? m : o + '→' + m; })); });
+  return out; }
+const rankNext = (id, lv) => ['a', 'd'].map(f => stepLines(lvl(CARDS[id][f], lv), lvl(CARDS[id][f], lv + 1)));
+const rankNextHTML = (id, lv) => { const [a, d] = rankNext(id, lv), fa = HEATD() ? 'fire' : 'holy', fd = HEATD() ? 'frost' : 'shadow';
+  const na = lvl(CARDS[id].a, lv).n, nd = lvl(CARDS[id].d, lv).n; return `<span class="rkn"><span class="${fa}"><b>${na}:</b> ${a.join(' · ') || 'No change'}</span><span class="${fd}"><b>${nd}:</b> ${d.join(' · ') || 'No change'}</span></span>`; };
+const rkLabel = r => r ? '+' + r : 'Base';
 const POOL = ['penance','scales','judgement','halo','purge','sanctuary','insight','radiance','whisper','martyr','turncoat','crossing','tornsoul','unbind',
   'blessing','consecrate','bloodprice','lance','bulwark','grace','vigil','mercy','pillar','echo',
   'brand2','dawn','kindle','haste','ashen','debt','feast','lanternv','unburden','tally','patience','hymn','leash',
@@ -4079,6 +4121,8 @@ let busy = false, uid = 0;
 const mk = id => ({id, u: ++uid});
 const P = () => S.p, F = () => S.f;
 const alive = () => F().en.filter(e => e.hp > 0);
+const canUp = c => (c.rb || 0) < RUN_UP_MAX;
+function runUp(c, n) { const k = Math.min(n || 1, RUN_UP_MAX - (c.rb || 0)); if (k > 0) { c.lv = (c.lv || 1) + k; c.rb = (c.rb || 0) + k; } return k; }
 const side = (c, form) => lvl(CARDS[c.id][(form || P().form) === 'angel' ? 'a' : 'd'], c.lv);
 // rarity: a card's level is Common (lv 1) → Rare (lv 2, forged from 3 copies) → Empowered I, II… (each from 5–10 more copies), endlessly.
 // Empowered V+ wears the Epic frame. Some cards are born Rare, Epic or Legendary (CARD_RAR) and drop less often.
@@ -4087,29 +4131,29 @@ for (const id in CARD_RAR) if (CARDS[id]) { CARDS[id].a.br = CARD_RAR[id]; CARDS
 for (const id in CARDS) { CARDS[id].a.pic = id + '-a'; CARDS[id].d.pic = id + '-d'; } // and which one-off art it may have in CARD_PIC
 const baseRar = id => CARD_RAR[id] || 'common';
 const empOf = c => c ? (c.emp || 0) + Math.max(0, (c.lv || 1) - 2) : 0;
-const cLv = id => { const c = DUO().coll[id]; if (!c) return baseRar(id) === 'common' ? 1 : 2; return (c.lv || 1) < 2 ? 1 : 2 + empOf(c) * .32; };
-const rarOfLv = (lv, br) => { const r = lv < 2 ? 0 : lv >= 2 + 5 * .32 - .01 ? 2 : 1; return RORD2[Math.max(r, RORD2.indexOf(br || 'common'))]; };
-const forgeNeed = c => (c.lv || 1) < 2 ? 4 : Math.max(3, Math.min(12, 6 + Math.floor(empOf(c) / 2)) - 2 * (c.vows || []).filter(x => x === 'tempered').length);
-const canForge = c => !!c && c.c >= forgeNeed(c);
-const newColl = id => ({c: 0, lv: baseRar(id) === 'common' ? 1 : 2, emp: 0});
+const cRank = id => { const c = DUO().coll[id]; if (!c) return 0; if (c.r == null) c.r = Math.min(RANK_MAX, (baseRar(id) === 'common' && (c.lv || 1) >= 2 ? 1 : 0) + empOf(c)); return c.r; }; // older saves: each Empower tier becomes a rank
+const cLv = id => 1 + cRank(id);
+const forgeNeed = c => !(c.r || 0) ? 4 : Math.max(3, Math.min(12, 6 + Math.floor(((c.r || 0) - 1) / 2)) - 2 * (c.vows || []).filter(x => x === 'tempered').length);
+const canForge = c => !!c && (c.r || 0) < RANK_MAX && c.c >= forgeNeed(c);
+const newColl = id => ({c: 0, r: 0, lv: 1, emp: 0});
 // vows: every 5th empower tier the player binds one of two permanent perks to the card. They use ordinary effect fields, so faces and text follow.
 const VOWS = {honed: {n: 'Honed', ic: 'sword', d: 'Every number on it grows 25%'}, swift: {n: 'Swift', ic: 'energy', d: 'Costs 1 less', once: 1}, warded: {n: 'Warded', ic: 'shield', d: 'Also gain 3 block', rank: 1, f: 'blk', v: 3},
   mending: {n: 'Mending', ic: 'heart', d: 'Also heal 2', rank: 2, f: 'heal', v: 2}, wellspring: {n: 'Wellspring', ic: 'mana', d: 'Also gain 1 mana', rank: 4, f: 'mana', v: 1, once: 1}, seeking: {n: 'Seeking', ic: 'deck', d: 'Also draw 1 card', rank: 5, f: 'draw', v: 1, once: 1},
   tempered: {n: 'Tempered', ic: 'crit', d: 'Future forges need 2 fewer copies'}};
 const vowsOf = id => { const c = DUO().coll[id]; return (c && c.vows) || []; };
-const vowDue = id => { const c = DUO().coll[id]; return c ? Math.max(0, Math.floor(empOf(c) / 5) - (c.vows || []).length) : 0; };
+const vowDue = id => { const c = DUO().coll[id]; return c ? Math.max(0, RANK_CHOICE.filter(k => cRank(id) >= k).length - (c.vows || []).length) : 0; };
 const faceRank = e => e.dmg != null || e.blkdmg ? 0 : e.blk ? 1 : e.heal ? 2 : e.bless ? 3 : e.mana ? 4 : e.draw ? 5 : e.ap ? 6 : 9; // a side effect may never outrank the card's main number
-function vowOffer(id) { const a = CARDS[id].a, d = CARDS[id].d, have = vowsOf(id), ok = Object.keys(VOWS).filter(k => { const v = VOWS[k]; if (v.once && have.includes(k)) return false; if (k === 'swift') return Math.max(a.c, d.c) > 0 && !have.includes('seeking'); if (k === 'seeking') return Math.min(a.c, d.c) > 0 && !have.includes('swift'); if (k === 'honed') return [a, d].some(e => UPK.some(u => e[u])); if (k === 'tempered') return forgeNeed(DUO().coll[id]) > 3; return faceRank(a) <= v.rank && faceRank(d) <= v.rank; });
+function vowOffer(id) { const a = CARDS[id].a, d = CARDS[id].d, have = vowsOf(id), ok = Object.keys(VOWS).filter(k => { const v = VOWS[k]; if (v.once && have.includes(k)) return false; if (k === 'swift') return Math.max(a.c, d.c) > 0 && !have.includes('seeking'); if (k === 'seeking') return Math.min(a.c, d.c) > 0 && !have.includes('swift'); if (k === 'honed') return [a, d].some(e => UPK.some(u => e[u])); if (k === 'tempered') return !!DUO().coll[id] && forgeNeed(DUO().coll[id]) > 3; return faceRank(a) <= v.rank && faceRank(d) <= v.rank; });
   for (const k of ['wellspring', 'mending', 'warded']) if (ok.length < 2 && !ok.includes(k) && !(VOWS[k].once && have.includes(k))) ok.push(k); // a card with little to improve still gets a real choice
   let h = have.length * 7 + 3; for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) % 9973; const pick = []; while (pick.length < 2 && ok.length) { pick.push(ok.splice(h % ok.length, 1)[0]); h = (h * 17 + 5) % 9973; } return pick; } // seeded, so reopening shows the same pair
 const applyVows = (o, vs) => { const n = k => vs.filter(x => x === k).length; const hn = n('honed'); if (hn) { UPK.forEach(k => { if (o[k]) o[k] = Math.ceil(o[k] * (1 + .25 * hn)); }); if (o.st) o.st = o.st.map(([id, v, t, f]) => [id, id === 'weak' || id === 'frail' || id === 'chill' ? v : Math.ceil(v * (1 + .25 * hn)), t, f]); }
   if (n('swift')) o.c = Math.max(0, o.c - 1); for (const k of ['warded', 'mending', 'wellspring', 'seeking']) if (n(k)) o[VOWS[k].f] = (o[VOWS[k].f] || 0) + VOWS[k].v * n(k); return o; };
 const empName = n => n ? 'Empowered ' + ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'][Math.min(10, n)] + (n > 10 ? '+' + (n - 10) : '') : '';
-const rarLabel = id => { const c = DUO().coll[id], r = rarOfLv(cLv(id), baseRar(id)); return (r[0].toUpperCase() + r.slice(1)) + (c && empOf(c) ? ' · ' + empName(empOf(c)) : ''); };
+const rarLabel = id => { const r = baseRar(id), k = cRank(id); return (r[0].toUpperCase() + r.slice(1)) + (k ? ' · +' + k : ''); };
 // a compact forge meter for under a card: bar + count, tinted by the rarity the next forge reaches
-const forgeTag = id => { const c = DUO().coll[id]; if (!c) return '<b class="fnew">New</b>'; const n = forgeNeed(c), k = Math.min(c.c, n), r = (c.lv || 1) < 2 ? 'rare' : 'epic'; return `<span class="ftag r-${r}"><span class="fbar"><span style="width:${Math.round(100 * k / n)}%"></span></span>${k}/${n}</span>`; };
+const forgeTag = id => { const c = DUO().coll[id]; if (!c) return '<b class="fnew">New</b>'; cRank(id); const n = forgeNeed(c), k = Math.min(c.c, n), r = baseRar(id); return `<span class="ftag r-${r}"><span class="fbar"><span style="width:${Math.round(100 * k / n)}%"></span></span>${k}/${n}</span>`; };
 // what the next forge gives, for the progress line under a card: "2/3 → Rare"
-const forgeLine = id => { const c = DUO().coll[id]; if (!c) return ''; const n = forgeNeed(c); return `${Math.min(c.c, n)}/${n} → ${(c.lv || 1) < 2 ? 'Rare' : empName(empOf(c) + 1).replace('Empowered', 'Emp.')}`; };
+const forgeLine = id => { const c = DUO().coll[id]; if (!c) return ''; const k = cRank(id), n = forgeNeed(c); return k >= RANK_MAX ? 'Max rank' : `${Math.min(c.c, n)}/${n} → +${k + 1}`; };
 const deckValid = d => !!d && d.length === DECK_SIZE && d.every(id => DUO().coll[id]) && new Set(d).size === d.length;
 const log = t => { S.log.push(t); if (S.log.length > 2) S.log.shift(); };
 const pc = v => Math.max(1, Math.ceil(((S.p && S.p.maxHp) || 60) * v / 100));
@@ -4147,7 +4191,7 @@ const LB = {
     return {rank: L.indexOf(e) + 1, ts: e.ts}; },
   async top(mode) { if (LB.url) try { const r = await fetch(LB.url + '?mode=' + mode); if (r.ok) return await r.json(); } catch (e) { /* offline: fall back to local */ } return LB.local()[mode] || []; },
 };
-const KIT_IL = 3, kitLv = id => baseRar(id) === 'common' ? 1 : 2;
+const KIT_IL = 3, kitLv = id => 1;
 // today's shared build: one theme of 6 cards topped up from the starter deck, a curio in every slot, a set companion. No Legendaries.
 function dailyKit(key = dayKey()) { const r = seeded(key * 11 + META.duoSel.length * 101 + 5), mix = a => a.map(x => [r(), x]).sort((a, b) => a[0] - b[0]).map(x => x[1]), D = DUO_DEF();
   const pool = D.cards.filter(id => baseRar(id) !== 'legendary'), n = {}; pool.forEach(id => cardTags(id).forEach(t => { n[t] = (n[t] || 0) + 1; }));
@@ -4738,7 +4782,7 @@ function winFight() {
   const g = gold(1.2 * F().en.reduce((a, e) => a + e.max, 0) / 8 * ({boss:2, guardian:1.75, elite:1.5}[k] || 1) * (1 + 0.1 * (S.heat || 0)) * (F().bound ? 2 : 1));
   if (pen('wither')) { const p = P(); p.maxHp = Math.max(10, p.maxHp - 2); p.hp = Math.min(p.hp, p.maxHp); }
 
-  if (boon('bonedice')) { const r = rnd(3), dk = P().deck.filter(c => c.lv < 8); if (r === 0) { S.gold = Math.max(0, S.gold - 10); toast('Bone Dice: lose 10 gold'); } else if (r === 1 || !dk.length) { S.gold += 15; toast('Bone Dice: +15 gold'); } else { const c = dk[rnd(dk.length)]; c.lv++; toast('Bone Dice: ' + side(c).n + ' +1 level'); } }
+  if (boon('bonedice')) { const r = rnd(3), dk = P().deck.filter(canUp); if (r === 0) { S.gold = Math.max(0, S.gold - 10); toast('Bone Dice: lose 10 gold'); } else if (r === 1 || !dk.length) { S.gold += 15; toast('Bone Dice: +15 gold'); } else { const c = dk[rnd(dk.length)]; runUp(c, 1); toast('Bone Dice: ' + side(c).n + ' ' + rkLabel(c.lv - 1)); } }
   loyGain(k); S.gold += g; S.goldRun = (S.goldRun || 0) + g; S.lastGold = g; if (S.tithe) { S.gold += S.tithe; S.goldRun += S.tithe; S.lastGold += S.tithe; log('The tithe returns: +' + S.tithe + ' gold.'); S.tithe = 0; } stat('fights'); (S.rs = S.rs || {})[k] = (S.rs[k] || 0) + 1; stat('gold', g); if (k === 'elite') stat('elites'); if (k === 'guardian') stat('guards'); if (k === 'boss') stat('bosses');
   F().en.forEach(e => { const K = STATS().kills; K[e.id] = (K[e.id] || 0) + 1; }); save();
   S.lastXp = kx; payTrack(Math.round(kx * (1 + 0.1 * ((S.heat || 0) + penRew()) + .04 * AT('insight'))));
@@ -4983,9 +5027,9 @@ function altarDo(id) {
 }
 function altarSeal() {
   const a = S.altar, p = P(); if (!a || a.step !== 'seal') return;
-  const sc = p.deck[+a.sac], uc = p.deck[+a.up]; if (!sc || !uc) return; uc.lv = Math.min(8, (uc.lv || 1) + 2); p.deck.splice(+a.sac, 1); save();
+  const sc = p.deck[+a.sac], uc = p.deck[+a.up]; if (!sc || !uc) return; runUp(uc, 2); p.deck.splice(+a.sac, 1); save();
   const n = id => CARDS[id].a.n + ' / ' + CARDS[id].d.n;
-  S.msg = 'The altar swallows ' + n(sc.id) + '. ' + n(uc.id) + ' rises to level ' + uc.lv + '.';
+  S.msg = 'The altar swallows ' + n(sc.id) + '. ' + n(uc.id) + ' rises to ' + rkLabel(uc.lv - 1) + '.';
   S.altar = null; render();
 }
 function quitRun() {
@@ -5387,9 +5431,11 @@ const CardFace = (() => {
     // a clean dark name plate over the frame's plate, so nothing busy sits behind the name
     g.fillStyle = '#08060a'; g.fillRect(25, 92, 78, 15); g.fillStyle = '#1c1622'; g.fillRect(26, 93, 76, 13); g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(26, 93, 76, 1);
     // name: the larger pixel face, squeezed to fit long names
+    const RC = {rare: '#8fc4ff', epic: '#d9a6ff', legendary: '#ffcf6e'}[s.rar] || '#fff4e0', GEM = {rare: '#3f8cff', epic: '#a855f7', legendary: '#ffb020'}[s.rar] || '#b9ad9b';
     const tm = c.getContext('2d'); tm.font = BIG; let w = tm.measureText(s.name).width, ls = 0, sx = 1, NFN = BIG; if (w > 72) { ls = -1; w -= s.name.length; }
     if (w > 72 * 1.15) { NFN = '11px ' + FN2; tm.font = NFN; w = tm.measureText(s.name).width - s.name.length; } if (w > 72) sx = Math.max(.8, 72 / w); // long names: a smaller pixel size before any squeeze, so the font never smears
-    const T2 = []; T.push({s: s.name, x: 64, y: 100, f: NFN, c: '#fff4e0', ls, sx});
+    const T2 = []; T.push({s: s.name, x: 64, y: 100, f: NFN, c: RC, ls, sx});
+    g.fillStyle = '#08060a'; g.beginPath(); g.moveTo(64, 85); g.lineTo(70, 91); g.lineTo(64, 97); g.lineTo(58, 91); g.fill(); g.fillStyle = GEM; g.beginPath(); g.moveTo(64, 87); g.lineTo(68, 91); g.lineTo(64, 95); g.lineTo(60, 91); g.fill(); g.fillStyle = 'rgba(255,255,255,.55)'; g.fillRect(63, 88, 1, 2); // the rarity gem
     // cost: a medallion on the frame's top edge, the number at double pixel size so it reads in the hand
     const cy = 22, ring = RING[s.fk] || '#e2c676';
     g.fillStyle = '#08060a'; g.beginPath(); g.arc(64, cy, 13, 0, 7); g.fill(); g.fillStyle = ring; g.beginPath(); g.arc(64, cy, 11, 0, 7); g.fill(); g.fillStyle = '#16101c'; g.beginPath(); g.arc(64, cy, 9, 0, 7); g.fill();
@@ -5425,7 +5471,7 @@ const CardFace = (() => {
   return {ok: () => frames && fonts && ico.complete && ico.naturalWidth > 0, url: s => { const k = JSON.stringify(s); let u = CACHE.get(k); if (!u) { try { u = draw(s); } catch (x) { CardFace.bad = String(x); return ''; } CACHE.set(k, u); } return u; }, glow};
 })();
 const cardRar = e => (e && (e.rar || e.br)) || 'common'; // every card is common until the rarity system arrives
-const cidAttr = (e, opt) => e.pic ? ` data-cid="${e.pic.slice(0, -2)}"${opt.lv ? ` data-lv="${opt.lv}"` : ''}` : ''; // what a long press on this card should show
+const cidAttr = (e, opt) => e.pic ? ` data-cid="${e.pic.slice(0, -2)}"${opt.lv || e.rk != null ? ` data-lv="${opt.lv || e.rk + 1}"` : ''}` : ''; // what a long press on this card should show
 // corner numbers: the bottom corners of a card carry its second number (bottom left, with its icon) and how many turns it lasts (bottom right, an hourglass)
 // the left corner takes the status the turns belong to when there is one, else the first short number; it leaves the panel, so the panel stays calm
 function cardCorners(e, secs, mainIco) { const s0 = (e.st || [])[0], tn = s0 && s0[2] > 0 ? s0[2] : e.regen && e.turns ? e.turns : 0, out = [null, null], num = c => c && c[0] && !c[2] && /^\+?\d{1,2}$/.test(c[1]);
@@ -5439,7 +5485,7 @@ function archCard(e, fm, live, opt) { opt = opt || {}; if (!CardFace.ok()) retur
   // a card with no main number (a pure status or swap card) leads with its first side effect instead
   let secs = cardSecs(e, km && km.k, m.k), num = m.n, ico = ico0; if (!String(num).trim() && secs.length) { const [i, t] = secs.shift(); if (i) ico = i; num = t; }
   const cn = cardCorners(e, secs, ico);
-  const face = CardFace.url({fk, rar, art: art && art.url, name: e.n, cost, ex, num, ico, post: e.blkdmg && num === '=' ? 'shield' : '', all: e.all && (e.dmg != null || e.blkdmg) ? 1 : 0, secs, cn});
+  const face = CardFace.url({fk, rar, art: art && art.url, name: e.n + (e.rk ? ' +' + e.rk : ''), cost, ex, num, ico, post: e.blkdmg && num === '=' ? 'shield' : '', all: e.all && (e.dmg != null || e.blkdmg) ? 1 : 0, secs, cn});
   if (!face) return archCardOld(e, fm, live, opt);
   const tag = opt.act ? 'button' : 'div', attrs = (opt.act ? ` data-act="${opt.act}" data-i="${opt.i}"` : '') + (opt.style ? ` style="${opt.style}"` : '') + (opt.attrs || '') + cidAttr(e, opt);
   const gl = rar === 'epic' || rar === 'legendary' ? `<img class="ac-glow" src="${CardFace.glow(fk, rar)}" alt="">` : '';
@@ -6418,7 +6464,7 @@ function vEDraft() { const d = S.draft || [], n = S.edeck.length, N = edraftN(),
   const strip = S.edeck.map(id => { const e = faceOf(id, cLv(id), face).e, art = Pix.get('art-' + artFor(e) + '-' + artK(face));
     return `<span class="dmini ${face}" title="${e.n}">${art ? `<img src="${art.url}" alt="">` : ''}<span>${e.c}</span></span>`; }).join('') + Array.from({length: Math.max(0, N - n)}, () => '<span class="dmini empty"></span>').join('');
   return `${topBar()}<div class="screen"><h2 style="text-align:center">Draft your deck</h2><p class="dim small" style="text-align:center">From your library, one of three at a time. Card ${n + 1} of ${N}.</p>
-    ${faceBar()}<i class="pg-split"></i><div class="cgrid">${d.map((id, i) => `<div class="cslot">${bigCard(id, 'edrft', i)}<span class="cap">Level ${cLv(id)}</span></div>`).join('')}</div>
+    ${faceBar()}<i class="pg-split"></i><div class="cgrid">${d.map((id, i) => `<div class="cslot">${bigCard(id, 'edrft', i)}<span class="cap">${rkLabel(cRank(id))}</span></div>`).join('')}</div>
     ${sfoot(`<div class="dstrip">${strip}</div>`)}</div>`;
 }
 function lbFetch() { if (!LB.url) return; const t = S.lbTab; LB.top(t).then(rows => { if (S.screen === 'board' && S.lbTab === t) { S.lbRows = rows; S.lbRowsTab = t; render(); } }); }
@@ -6470,7 +6516,7 @@ const SHOP_RAR = {common: 40, rare: 75, epic: 120, legendary: 200};
 const shopCardPrice = id => shopPrice(Math.round((SHOP_RAR[baseRar(id)] || 40) * (DUO().coll[id] ? .7 : 1)));
 function shopPay(price) { if (S.gold < price) return false; S.gold -= price; stat('shop'); S.goldSpent = (S.goldSpent || 0) + price; sfx('coin'); save(); return true; }
 function vShop() { const sh = S.shop, p = P(), g = S.gold;
-  if (sh.mode) { const up = sh.mode === 'up', list = p.deck.map((c, i) => [c, i]).filter(([c]) => !up || c.lv < 8);
+  if (sh.mode) { const up = sh.mode === 'up', list = p.deck.map((c, i) => [c, i]).filter(([c]) => !up || canUp(c));
     return `${topBar()}<div class="screen"><h2 style="text-align:center">${up ? 'Sharpen which card?' : 'Burn which card?'}</h2><p class="dim small" style="text-align:center">${up ? 'It levels up for the rest of the run.' : 'Gone for this run. Your collection keeps it.'} · ${coin()}<b>${shopPrice(up ? 55 : 60)}</b></p>${faceBar('tap a card')}<i class="pg-split"></i>
       <div class="cgrid q4">${list.map(([c, i]) => bigCard(c.id, 'shoppick', i, c.lv)).join('')}</div>${sfoot('<button class="btn" data-act="shopback">Back</button>')}</div>`; }
   const btn = (key, price, ok, act, i) => sh.sold[key] ? '<span class="aown">Sold</span>' : `<button class="abtn buy${g >= price ? '' : ' poor'}" data-act="${act}" data-i="${i}" ${ok && g >= price ? '' : 'disabled'}>${coin()}<b>${price}</b></button>`;
@@ -6480,7 +6526,7 @@ function vShop() { const sh = S.shop, p = P(), g = S.gold;
     <div class="cgrid shopc">${cards}</div>
     ${b ? shopRow({icon: sprite('art-' + b.art + '-' + b.f), n: b.n + (b.k ? ' <small class="ktag">Keystone</small>' : ''), d: b.d, on: !!b.k && !sh.sold.b, dim: sh.sold.b, act: btn('b', shopPrice(b.k ? 120 : 80), !(S.boons || []).includes(b.id), 'shopboon', 0)}) : ''}
     ${shopRow({icon: sprite('art-skull-demon'), n: 'Burn a card', d: '', dim: sh.sold.rm, act: btn('rm', shopPrice(60), p.deck.length > 6, 'shopmode', 'rm')})}
-    ${shopRow({icon: sprite('art-rage-angel'), n: 'Sharpen a card', d: '', dim: sh.sold.up, act: btn('up', shopPrice(55), p.deck.some(c => c.lv < 8), 'shopmode', 'up')})}
+    ${shopRow({icon: sprite('art-rage-angel'), n: 'Sharpen a card', d: '', dim: sh.sold.up, act: btn('up', shopPrice(55), p.deck.some(canUp), 'shopmode', 'up')})}
     ${shopRow({icon: sprite('item-potion_h'), n: 'Heal 15 potion', d: `${p.pots.length}/3`, dim: sh.sold.pot, act: btn('pot', shopPrice(35), p.pots.length < 3, 'shoppot', 0)})}
     ${sfoot('<button class="btn pri" data-act="next">Walk on</button>')}</div>`;
 }
@@ -6604,20 +6650,20 @@ function vHood() {
 const restHeal = () => { const p = P(); return Math.max(0, Math.min(mut('feast') ? 999 : Math.round(p.maxHp * .3) + (compOn('wisp') ? cs(10) : 0) + (S.comp && eqd('strawbed') ? 10 + 2 * (ilv('strawbed') - 1) : 0) + (boon('gravecandle') ? 10 : 0), p.maxHp - p.hp)); };
 function vRest() { const p = P();
   if (S.restPick) return `${topBar()}<div class="screen">${vista('rest', 'small')}<h2 style="text-align:center">${S.restPick === 'up' ? 'Choose a card to sharpen' : 'Choose a card to let go'}</h2>${faceBar("this run only")}<i class="pg-split"></i><div class="cgrid q4">${p.deck.map((c, i) => bigCard(c.id, 'restpick', i, c.lv)).join('')}</div>${sfoot('<button class="btn" data-act="restback">Back</button>')}</div>`;
-  const h = restHeal(), canUp = p.deck.some(c => c.lv < 8), canCut = p.deck.length > 6;
-  const opts = S.restDone ? `<p class="dim story">${S.msg}</p>` : `<div class="alist">${shopRow({icon: pxi('heart'), n: 'Rest', d: h ? `Heal ${h}` : 'Your wounds have closed', dim: !h, act: `<button class="abtn" data-act="rest" data-i="heal" ${h ? '' : 'disabled'}>Rest</button>`})}${shopRow({icon: pxi('plus'), n: 'Sharpen', d: '+1 level to a card in this run', dim: !canUp, act: `<button class="abtn" data-act="rest" data-i="up" ${canUp ? '' : 'disabled'}>Pick</button>`})}${shopRow({icon: pxi('minus'), n: 'Let go', d: 'Remove a card from this run', dim: !canCut, act: `<button class="abtn" data-act="rest" data-i="cut" ${canCut ? '' : 'disabled'}>Pick</button>`})}</div>`;
+  const h = restHeal(), canUp2 = p.deck.some(canUp), canCut = p.deck.length > 6;
+  const opts = S.restDone ? `<p class="dim story">${S.msg}</p>` : `<div class="alist">${shopRow({icon: pxi('heart'), n: 'Rest', d: h ? `Heal ${h}` : 'Your wounds have closed', dim: !h, act: `<button class="abtn" data-act="rest" data-i="heal" ${h ? '' : 'disabled'}>Rest</button>`})}${shopRow({icon: pxi('plus'), n: 'Sharpen', d: '+1 level to a card in this run', dim: !canUp2, act: `<button class="abtn" data-act="rest" data-i="up" ${canUp2 ? '' : 'disabled'}>Pick</button>`})}${shopRow({icon: pxi('minus'), n: 'Let go', d: 'Remove a card from this run', dim: !canCut, act: `<button class="abtn" data-act="rest" data-i="cut" ${canCut ? '' : 'disabled'}>Pick</button>`})}</div>`;
   return `${topBar()}<div class="screen center">${vista('rest')}<h2>A dying fire</h2>${opts}${status()}${sfoot(`<button class="btn${S.restDone ? ' pri' : ''}" data-act="next">Walk on</button>`)}</div>`; }
 function vChance() {
   const ev = evx(S.ev), a = S.altar;
-  if (S.scale) return `${topBar()}<div class="screen">${vista('scales', 'small')}<h2 style="text-align:center">${S.scale === 'cut' ? 'Choose a card to remove' : S.scale[0] === 'u' ? 'Choose a card to temper' : 'Choose a card to copy'}</h2>${faceBar("this run only")}<i class="pg-split"></i><div class="cgrid q4">${P().deck.map((c, i) => S.scale[0] === 'u' && c.lv >= 8 ? '' : bigCard(c.id, 'scalepick', i, c.lv)).join('')}</div>${sfoot('<button class="btn" data-act="scaleback">Back</button>')}</div>`;
+  if (S.scale) return `${topBar()}<div class="screen">${vista('scales', 'small')}<h2 style="text-align:center">${S.scale === 'cut' ? 'Choose a card to remove' : S.scale[0] === 'u' ? 'Choose a card to temper' : 'Choose a card to copy'}</h2>${faceBar("this run only")}<i class="pg-split"></i><div class="cgrid q4">${P().deck.map((c, i) => S.scale[0] === 'u' && !canUp(c) ? '' : bigCard(c.id, 'scalepick', i, c.lv)).join('')}</div>${sfoot('<button class="btn" data-act="scaleback">Back</button>')}</div>`;
   if (a) {
     const D = P().deck, own = D.map((c, i) => String(i));
     const title = a.step === 'sac' ? 'Choose a card to give up' : a.step === 'up' ? 'Choose a card to strengthen' : 'Seal the pact?';
-    const list = a.step === 'sac' ? own : a.step === 'up' ? own.filter(i => i !== String(a.sac) && D[+i].lv < 8) : [String(a.sac), String(a.up)];
+    const list = a.step === 'sac' ? own : a.step === 'up' ? own.filter(i => i !== String(a.sac) && canUp(D[+i])) : [String(a.sac), String(a.up)];
     const hint = a.step === 'sac' ? "Gone for this run" : a.step === 'up' ? '+2 levels for this run' : '';
     return `${topBar()}<div class="screen">${vista('altar', 'small')}<h2 style="text-align:center">${title}</h2>
-      ${a.step === 'seal' ? `<p class="dim" style="text-align:center">Give up the first. The second rises to level ${Math.min(8, D[+a.up].lv + 2)}.</p>` : faceBar(hint)}<i class="pg-split"></i>
-      <div class="cgrid">${list.map(i => `<div class="cslot">${bigCard(D[+i].id, a.step === 'seal' ? 'peek' : 'altpick', i, D[+i].lv)}${a.step === 'seal' ? `<span class="cap ${i === String(a.sac) ? 'neg' : 'holy'}">${i === String(a.sac) ? 'Given up' : 'Level ' + Math.min(8, D[+i].lv + 2)}</span>` : ''}</div>`).join('')}</div>
+      ${a.step === 'seal' ? `<p class="dim" style="text-align:center">Give up the first. The second rises to ${rkLabel(D[+a.up].lv - 1 + Math.min(2, RUN_UP_MAX - (D[+a.up].rb || 0)))}.</p>` : faceBar(hint)}<i class="pg-split"></i>
+      <div class="cgrid">${list.map(i => `<div class="cslot">${bigCard(D[+i].id, a.step === 'seal' ? 'peek' : 'altpick', i, D[+i].lv)}${a.step === 'seal' ? `<span class="cap ${i === String(a.sac) ? 'neg' : 'holy'}">${i === String(a.sac) ? 'Given up' : rkLabel(D[+i].lv - 1 + Math.min(2, RUN_UP_MAX - (D[+i].rb || 0)))}</span>` : ''}</div>`).join('')}</div>
       ${sfoot((a.step === 'seal' ? '<button class="btn pri" data-act="altseal">Seal the pact</button>' : '') + '<button class="btn" data-act="altback">' + (a.step === 'sac' ? 'Leave the altar' : 'Back') + '</button>')}</div>`;
   }
   const opts = ev.o.map((o, i) => { const can = !o.ok || o.ok();
@@ -7240,22 +7286,22 @@ function vTitle() { const v = S.title; if (!v) return ''; const look = typeof v 
 function vForge() { const F2 = S.forge; if (!F2) return ''; const face = S.p ? S.p.form : S.face || 'angel', e = faceOf(F2.id, F2.lv || cLv(F2.id), face).e, r = cardRar(e);
   return `<div class="forge r-${r}" data-act="forgex" role="dialog" aria-label="Forged: ${e.n} is now ${F2.to}"><i class="fgrays"></i><i class="fgflash"></i>
     <p class="fgtop">${F2.top || 'The Forge'}</p><div class="fgcard">${archCard(e, face, false, {})}</div>
-    <p class="fgfrom">${F2.from}</p><h2 class="fgto">${F2.to}</h2><p class="fgtap">Tap to continue</p></div>`; }
+    <p class="fgfrom">${F2.from}</p><h2 class="fgto">${F2.to}</h2>${F2.next ? `<p class="fgnext">${F2.next}</p>` : ''}<p class="fgtap">Tap to continue</p></div>`; }
 // a run card sharpened at the fire or the Merchant gets the Forge's moment: the card, its old level, its new one
-function sharpFx(c, top) { S.forge = {id: c.id, lv: c.lv, top, from: 'Level ' + (c.lv - 1), to: 'Level ' + c.lv}; sfx('win'); buzz([30, 40, 80]); }
+function sharpFx(c, top) { S.forge = {id: c.id, lv: c.lv, top, from: rkLabel(c.lv - 2), to: rkLabel(c.lv - 1), next: rankNextHTML(c.id, c.lv - 1)}; sfx('win'); buzz([30, 40, 80]); }
 function vVow() { const P2 = S.vowPick; if (!P2) return ''; const id = P2.id, face = S.face || 'angel', e = faceOf(id, cLv(id), face).e;
-  return `<div class="vowp" role="dialog" aria-label="Choose a vow for ${e.n}"><p class="fgtop">${empName(empOf(DUO().coll[id]))}</p><h2>Choose a vow</h2><div class="vowcard">${archCard(e, face, false, {})}</div><p class="vowi">It stays on ${e.n} for good, on both sides.</p>
+  return `<div class="vowp" role="dialog" aria-label="Choose a vow for ${e.n}"><p class="fgtop">${rkLabel(cRank(id))}</p><h2>Choose a vow</h2><div class="vowcard">${archCard(e, face, false, {})}</div><p class="vowi">It stays on ${e.n} for good, on both sides.</p>
     <div class="vowl">${vowOffer(id).map(k => `<button class="vowc" data-act="vowpick" data-i="${k}">${pxi(VOWS[k].ic)}<span><b>${VOWS[k].n}</b><small>${VOWS[k].d}</small></span></button>`).join('')}</div><button class="mini" data-act="vowlater">Decide later</button></div>`; }
 function vForgeHub() {
   const t = 'cards', dn = META.dust || 0; // gear is upgraded and salvaged on the Gear screen now; the Forge is for cards
   const tabs = '';
   let body = '';
-  if (t === 'cards') { const C = DUO().coll, prog = id => vowDue(id) ? 9 : canForge(C[id]) ? 8 : C[id].c / forgeNeed(C[id]);
+  if (t === 'cards') { DUO_DEF().cards.forEach(cRank); const C = DUO().coll, prog = id => vowDue(id) ? 9 : canForge(C[id]) ? 8 : C[id].c / forgeNeed(C[id]);
     // cards with copies first, closest to forging on top; the rest greyed below
     const ids = DUO_DEF().cards.filter(id => C[id]).sort((a, b) => prog(b) - prog(a)), live = ids.filter(id => C[id].c > 0 || vowDue(id)), idle = ids.filter(id => !live.includes(id));
     const slot = id => { const c = C[id], need = forgeNeed(c), ok = canForge(c), dim = !live.includes(id);
       return `<div class="cslot${ok ? ' fready' : ''}${dim ? ' fidle' : ''}">${bigCard(id, 'peek', id)}<span class="lvrow"><span class="frg"><i style="width:${Math.round(100 * Math.min(1, c.c / need))}%"></i></span><small>${Math.min(c.c, need)}/${need}</small></span>
-        ${vowDue(id) ? `<button class="mini up glow" data-act="vowopen" data-i="${id}">Choose vow</button>` : ok ? `<button class="mini up glow" data-act="upg" data-i="${id}">Forge</button>` : `<small class="fnext">→ ${(c.lv || 1) < 2 ? 'Rare' : empName(empOf(c) + 1).replace('Empowered', 'Emp.')}</small>`}</div>`; };
+        ${vowDue(id) ? `<button class="mini up glow" data-act="vowopen" data-i="${id}">Choose vow</button>` : ok ? `<button class="mini up glow" data-act="upg" data-i="${id}">Forge</button>` : `<small class="fnext">${cRank(id) >= RANK_MAX ? 'Max rank' : '→ +' + (cRank(id) + 1)}</small>`}</div>`; };
     body = `${faceBar()}${live.length ? `<div class="cgrid q4 fgrid">${live.map(slot).join('')}</div>` : '<div class="aempty">No copies yet. Chests and card picks bring them.</div>'}
       ${idle.length ? `<div class="mksec"><span>No copies</span></div><div class="cgrid q4 fgrid">${idle.map(slot).join('')}</div>` : ''}`; }
   else body = gearHub(t === 'curios' ? ARM : COMP_GEAR, t === 'curios' ? CURIO_SLOTS : COMP_SLOTS);
@@ -8403,11 +8449,13 @@ function vArmory() {
 /* ---------- the black market: every purchase lives here ---------- */
 /* ---------- confirmations: big choices ask once before they happen ---------- */
 // each entry describes the choice: a title, a picture, what it does, what it costs, and the button words
+const upAsk = (c, ok) => { const e = faceOf(c.id, c.lv, S.face || 'angel').e; return {t: `${e.n} to ${rkLabel(c.lv)}?`, art: '', d: rankNextHTML(c.id, c.lv), sub: 'This run only.', ok}; };
 const CONFIRMS = {
   // cards removed from a run can't come back: ask once
   scalepick: d => { const c = S.scale === 'cut' && P().deck[+d.i]; if (!c) return null; const f = faceOf(c.id, c.lv, S.face || 'angel').e; return {t: `Remove ${f.n}?`, art: '', d: 'Gone from this run.', ok: 'Remove'}; },
-  restpick: d => { const c = S.restPick === 'cut' && P().deck[+d.i]; if (!c) return null; const f = faceOf(c.id, c.lv, S.face || 'angel').e; return {t: `Let ${f.n} go?`, art: '', d: 'Gone from this run.', ok: 'Let go'}; },
-  shoppick: d => { const c = S.shop && S.shop.mode !== 'up' && P().deck[+d.i]; if (!c) return null; const f = faceOf(c.id, c.lv, S.face || 'angel').e; return {t: `Burn ${f.n}?`, art: '', d: 'Gone from this run.', ok: 'Burn'}; },
+  upg: d => { const c = DUO().coll[d.i]; if (!c || !canForge(c)) return null; const e = faceOf(d.i, cLv(d.i), 'angel').e; return {t: `Forge ${e.n} to +${cRank(d.i) + 1}?`, art: '', d: rankNextHTML(d.i, cLv(d.i)), sub: RANK_CHOICE.includes(cRank(d.i) + 1) ? 'You choose a vow at this rank.' : '', cost: forgeNeed(c), cur: 'copies', ok: 'Forge'}; },
+  restpick: d => { const c0 = S.restPick === 'up' && P().deck[+d.i]; if (c0) return canUp(c0) ? upAsk(c0, 'Sharpen') : null; const c = S.restPick === 'cut' && P().deck[+d.i]; if (!c) return null; const f = faceOf(c.id, c.lv, S.face || 'angel').e; return {t: `Let ${f.n} go?`, art: '', d: 'Gone from this run.', ok: 'Let go'}; },
+  shoppick: d => { const c0 = S.shop && S.shop.mode === 'up' && P().deck[+d.i]; if (c0) return canUp(c0) ? upAsk(c0, 'Sharpen') : null; const c = S.shop && S.shop.mode !== 'up' && P().deck[+d.i]; if (!c) return null; const f = faceOf(c.id, c.lv, S.face || 'angel').e; return {t: `Burn ${f.n}?`, art: '', d: 'Gone from this run.', ok: 'Burn'}; },
   buy: d => { const x = ALL_GEAR().find(y => y.id === d.i), l = shopIL(), have = +META.arm.own[d.i] || 0; if (!x) return null;
     return {t: have ? `Upgrade ${x.n}?` : `Buy ${x.n}?`, art: sprite(gearIcon(x)), d: fw(gT(x, l)), sub: `${x.s} · item level ${l}${have ? ' (you own iL ' + have + ')' : ''}`, cost: ilCost(x, l), cur: 'souls', ok: have ? 'Upgrade' : 'Buy'}; },
   buycomp: d => { const c = COMPANIONS[d.i]; return c && {t: `Buy ${c.n}?`, art: compFig(d.i), d: c.combo ? c.combo.n + ' · ' + c.spell.n : 'Starter', sub: c.kind + ' · yours to keep', cost: c.cost, cur: 'souls', ok: 'Buy'}; },
@@ -8572,6 +8620,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
+  {v: '0.118', d: '26 Nov', n: ["Cards keep their rarity for good. A coloured gem and name show it", "Upgrades are now ranks (+1, +2…). Every rank changes something you can see", "Before you forge or sharpen, you see exactly what changes", "Some ranks add more than numbers: lower cost, Pierce, more turns, extra draw and more", "A card can be sharpened twice per run"]},
   {v: '0.117.2', d: '26 Nov', n: ["Cards in the Black Market look like they do in chests. Tap or hold to read"]},
   {v: '0.117.1', d: '26 Nov', n: ["The Black Market has new tabs: Today, Supplies, Cards, Skins and Duos", "Cards for sale show both sides. Hold one to read it"]},
   {v: '0.117', d: '26 Nov', n: ["The Black Market is now mostly potions, cards and skins", "A Wanderer sometimes brings gear at your item level, and now and then a companion", "Buy card copies for the Forge, or a card you don't have yet. You see the card before you buy", "Buy bone dust for upgrading gear", "Skins cost souls", "Leftover gold gives fewer souls"]},
@@ -9548,7 +9597,7 @@ const ACT = {
     (S.boons = S.boons || []).push(b.id); if (b.id === 'glass') { S.p.maxHp -= 15; S.p.hp = Math.min(S.p.hp, S.p.maxHp); } sh.sold.b = 1; render(); },
   shopmode: d => { S.shop.mode = d.i; render(); }, shopback: () => { S.shop.mode = null; render(); },
   shoppick: d => { const sh = S.shop, p = P(), c = p.deck[+d.i], up = sh.mode === 'up'; if (!c || !shopPay(shopPrice(up ? 55 : 60))) return;
-    if (up) { c.lv = Math.min(8, c.lv + 1); sharpFx(c, 'The Merchant'); } else p.deck.splice(+d.i, 1); sh.sold[up ? 'up' : 'rm'] = 1; sh.mode = null; render(); },
+    if (up) { if (!canUp(c)) return; runUp(c, 1); sharpFx(c, 'The Merchant'); } else p.deck.splice(+d.i, 1); sh.sold[up ? 'up' : 'rm'] = 1; sh.mode = null; render(); },
   shoppot: () => { const sh = S.shop, p = P(); if (sh.sold.pot || p.pots.length >= 3 || !shopPay(shopPrice(35))) return; p.pots.push('h'); sh.sold.pot = 1; render(); },
   compinfo: d => { if (COMPANIONS[d.i]) { S.sheet = {comp: d.i}; render(); } },
   compbring: d => { META.comp = COMPANIONS[d.i] && META.comps[d.i] ? d.i : null; save(); S.sheet = null; render(); },
@@ -9558,8 +9607,8 @@ const ACT = {
   duse: d => { if (deckValid(DUO().decks[+d.i])) { DUO().deckSel = +d.i; save(); } render(); },
   dtog: d => { if (!DUO().decks[S.dsel]) S.dsel = DUO().decks[DUO().deckSel] ? DUO().deckSel : 0; const deck = DUO().decks[S.dsel], k = deck.indexOf(d.i);
     if (k >= 0) deck.splice(k, 1); else if (deck.length < DECK_SIZE && DUO().coll[d.i]) deck.push(d.i); else return; save(); render(); },
-  upg: d => { const c = DUO().coll[d.i]; if (!canForge(c)) return render(); const from = rarLabel(d.i); c.c -= forgeNeed(c); if ((c.lv || 1) < 2) c.lv = 2; else c.emp = (c.emp || 0) + 1;
-    save(); sfx('win'); buzz([30, 40, 80]); if (vowDue(d.i)) S.vowPick = {id: d.i, from}; else S.forge = {id: d.i, from, to: rarLabel(d.i)}; render(); },
+  upg: d => { const c = DUO().coll[d.i]; cRank(d.i); if (!canForge(c)) return render(); const from = rarLabel(d.i), nx = rankNextHTML(d.i, cLv(d.i)); c.c -= forgeNeed(c); c.r = (c.r || 0) + 1;
+    save(); sfx('win'); buzz([30, 40, 80]); if (vowDue(d.i)) S.vowPick = {id: d.i, from}; else S.forge = {id: d.i, from, to: rarLabel(d.i), next: nx}; render(); },
   vowopen: d => { S.vowPick = {id: d.i, from: rarLabel(d.i)}; render(); }, vowlater: () => { S.vowPick = null; render(); },
   vowpick: d => { const P2 = S.vowPick, c = P2 && DUO().coll[P2.id]; if (!c || !vowDue(P2.id) || !VOWS[d.i]) return; (c.vows = c.vows || []).push(d.i); save(); S.vowPick = null; S.forge = {id: P2.id, from: P2.from, to: VOWS[d.i].n + ' · ' + rarLabel(P2.id)}; sfx('win'); buzz([30, 40, 80]); render(); },
   forgex: () => { S.forge = null; render(); },
@@ -9630,10 +9679,10 @@ const ACT = {
   drft: d => takeDraft(+d.i), drftforge: d => { S.confirm = null; takeDraft(+d.i, true); }, drftskip: () => { S.draft = null; afterLoot(); }, bpick: d => takeBoon(d.i), boons: () => { S.sheet = 'boons'; render(); },
   pickburn: d => { S.burnPick = +d.i; S.trade = null; render(); }, unpick: () => { S.burnPick = null; S.trade = null; render(); }, burn: () => burn(), htrade: () => hoodTrade(), htake: d => hoodTake(+d.i), chance: chance,
   altpick: d => altarDo(d.i), altseal: altarSeal,
-  scalepick: d => { const p = P(), c = p.deck[+d.i]; if (!c || !S.scale) return; const n = faceOf(c.id, c.lv, S.face || 'angel').e.n; if (S.scale === 'cut') { p.deck.splice(+d.i, 1); S.msg = `The pan rises. ${n} is gone from this run.`; } else if (S.scale[0] === 'u') { const up = S.scale === 'up2' ? 2 : 1; if (up === 2) hurt(8); c.lv = Math.min(8, (c.lv || 1) + up); S.msg = `Sparks fly. ${n} rises to level ${c.lv}.`; } else { p.deck.push({id: c.id, u: ++uid, lv: c.lv}); p.maxHp -= 6; p.hp = Math.min(p.hp, p.maxHp); S.msg = `The pan sinks. A second ${n} joins your deck. 6 max health lost.`; } S.scale = null; render(); },
+  scalepick: d => { const p = P(), c = p.deck[+d.i]; if (!c || !S.scale) return; const n = faceOf(c.id, c.lv, S.face || 'angel').e.n; if (S.scale === 'cut') { p.deck.splice(+d.i, 1); S.msg = `The pan rises. ${n} is gone from this run.`; } else if (S.scale[0] === 'u') { const up = S.scale === 'up2' ? 2 : 1; if (up === 2) hurt(8); runUp(c, up); S.msg = `Sparks fly. ${n} rises to level ${c.lv}.`; } else { p.deck.push({id: c.id, u: ++uid, lv: c.lv}); p.maxHp -= 6; p.hp = Math.min(p.hp, p.maxHp); S.msg = `The pan sinks. A second ${n} joins your deck. 6 max health lost.`; } S.scale = null; render(); },
   scaleback: () => { S.scale = null; render(); },
   rest: d => { if (S.restDone || S.screen !== 'rest') return; const p = P(); if (d.i === 'heal') { const h = restHeal(); if (!h && !compOn('tortoise')) return; if (compOn('tortoise')) { p.maxHp += 4; } p.hp += h; S.restDone = true; S.msg = 'You sleep by the fire. Healed ' + h + '.'; sfx('chime'); } else { S.restPick = d.i; } render(); },
-  restpick: d => { const p = P(), c = p.deck[+d.i]; if (!c || !S.restPick) return; const n = faceOf(c.id, c.lv, S.face || 'angel').e.n; if (S.restPick === 'up') { if (c.lv >= 8) return; c.lv += 1; S.msg = `${n} is sharper.`; sharpFx(c, 'By the fire'); } else { if (p.deck.length <= 6) return; p.deck.splice(+d.i, 1); S.msg = `You let ${n} go.`; } S.restPick = null; S.restDone = true; sfx('chime'); render(); },
+  restpick: d => { const p = P(), c = p.deck[+d.i]; if (!c || !S.restPick) return; const n = faceOf(c.id, c.lv, S.face || 'angel').e.n; if (S.restPick === 'up') { if (!canUp(c)) return; runUp(c, 1); S.msg = `${n} is sharper.`; sharpFx(c, 'By the fire'); } else { if (p.deck.length <= 6) return; p.deck.splice(+d.i, 1); S.msg = `You let ${n} go.`; } S.restPick = null; S.restDone = true; sfx('chime'); render(); },
   restback: () => { S.restPick = null; render(); },
   cardhint: d => { S.sheet = {msg: 'Undiscovered ' + baseRar(d.i).replace(/^./, c => c.toUpperCase()), body: CARD_HINT[d.i] || 'Not found yet.'}; render(); },
   altback: () => { const a = S.altar; if (!a) return; if (a.step === 'sac') S.altar = null; else if (a.step === 'up') { a.step = 'sac'; a.sac = null; } else { a.step = 'up'; a.up = null; } render(); },
@@ -9743,7 +9792,7 @@ $app.addEventListener('click', ev => {
   if (S.tip && !(el && el.dataset.act === 'tip')) { S.tip = null; if (!el) render(); }
   if (!el || el.disabled) return;
   if ((el.dataset.act === 'close' || el.dataset.act === 'duoX') && ev.target.closest('.sheet>div') && !ev.target.closest('button')) return;
-  if (el.dataset.act !== 'confirmx' && el.dataset.ok !== '1' && CONFIRMS[el.dataset.act] && (confirmOn() || el.classList.contains('askfirst') || el.dataset.act === 'drft') && !busy) { const c = CONFIRMS[el.dataset.act](el.dataset);
+  if (el.dataset.act !== 'confirmx' && el.dataset.ok !== '1' && CONFIRMS[el.dataset.act] && (confirmOn() || el.classList.contains('askfirst') || ['drft', 'upg', 'restpick', 'shoppick'].includes(el.dataset.act)) && !busy) { const c = CONFIRMS[el.dataset.act](el.dataset);
     if (c) { sfx('tap'); S.confirm = Object.assign({a: el.dataset.act, i: el.dataset.i}, c); return render(); } }
   if (el.dataset.ok === '1') S.confirm = null;
   Music.kick(); if (!['card', 'door', 'drag'].includes(el.dataset.act)) sfx(isConfirm(el) ? 'confirm' : 'tap');
