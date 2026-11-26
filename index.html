@@ -2120,7 +2120,7 @@ x-i.pi{display:inline-block;width:1em;height:1em;vertical-align:-.12em;flex:none
 .egains small{font-size:10.667px!important}
 .endscr .elv{align-items:center}
 /* rewards: stacked rows, a PixelLab frame per rarity, more light the rarer it is */
-.rws{display:flex;flex-direction:column;gap:12px;width:100%;padding-top:4px}
+.rws{display:flex;flex-direction:column;gap:12px;width:100%;padding-top:4px} .mkrws{margin-top:4px} .mkrws .rw{animation:none} .mkrws .rw.got{opacity:.55}
 .rw{position:relative;display:grid;grid-template-columns:72px minmax(0,1fr) auto;align-items:center;gap:12px;min-height:92px;padding:4px 6px;border:12px solid transparent;border-image:var(--k-rw-common) 18 fill / 18px stretch;text-align:left;animation:rwin .4s cubic-bezier(.2,.9,.3,1.2) both;animation-delay:calc(var(--i) * .12s)}
 @keyframes rwin{from{opacity:0;transform:translateY(14px) scale(.96)}}
 .rw.r-rare{border-image-source:var(--k-rw-rare)}
@@ -2767,7 +2767,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy health and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.117.1-test'; // bump for every build you send to testers
+const VERSION = '0.117.2-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -8513,9 +8513,10 @@ function vMarket() {
       + (W.c ? shopRow({icon: compFig(W.c), n: COMPANIONS[W.c].n + ` <small class="ckind">${COMPANIONS[W.c].kind}</small>`, ncls: 'cname', d: COMPANIONS[W.c].combo ? `${COMPANIONS[W.c].combo.n} · ${COMPANIONS[W.c].spell.n}` : '', dim: W.cgot || sl < WANDER_COMP, sub: W.cgot ? '' : 'Here for ' + days(W.cLeft),
         act: (W.cgot ? mstate('Bought') : priceBtn('wander', 'c', WANDER_COMP, sl >= WANDER_COMP)) + `<button class="alink" data-act="compinfo" data-i="${W.c}">Info</button>`}) : '');
     body = `${wrows ? `<div class="mksec"><span>Wanderer</span><em class="mtimer">rare finds</em></div>${wrows}` : ''}<div class="mksec"><span>Today's deals</span><em class="mtimer">new in ${left}</em></div><div class="mdeals">${D.map(deal).join('')}</div>`; }
-  if (t === 'cards') body = `<div class="mksec"><span>Cards</span><em class="mtimer">new in ${left}</em></div>${cacheOffers().map(c => { const x = c.items[0], cd = CARDS[x.v], im = (f, e) => { const sp = Pix.get('art-' + artFor(e) + '-' + artK(f)); return sp ? `<img src="${sp.url}" alt="">` : ''; };
-      return shopRow({attr: ` data-cid="${x.v}"`, icon: `<span class="pk2">${im('angel', cd.a)}${im('demon', cd.d)}</span>`, n: `${c.n}${x.n > 1 ? ` <small class="ilv">×${x.n}</small>` : ''}`, d: `<span class="pkf a">${faceOf(x.v, cLv(x.v), 'angel').e.n}</span><span class="pkf d">${faceOf(x.v, cLv(x.v), 'demon').e.n}</span>`, sub: c.got ? '' : 'Hold to read',
-        dim: c.got || sl < c.cost, act: c.got ? mstate('Bought') : priceBtn('buycache', c.i, c.cost, sl >= c.cost)}); }).join('') || '<p class="ahint">Nothing today. Come back tomorrow.</p>'}`;
+  if (t === 'cards') body = `<div class="mksec"><span>Cards</span><em class="mtimer">new in ${left}</em></div><div class="rws mkrws">${cacheOffers().map((c, i) => { const x = c.items[0], cd = CARDS[x.v], lv = cLv(x.v), r = baseRar(x.v);
+      return `<div class="rw r-${r} iscard${c.got ? ' got' : ''}" style="--i:${i}" data-cid="${x.v}"><span class="rwart"><span class="sstack" data-act="peek" data-i="${x.v}" role="button" aria-label="Read ${cd.a.n}">${archCard(lvl(cd.d, lv), 'demon', false, {cls: 'grid sback'})}${archCard(lvl(cd.a, lv), 'angel', false, {cls: 'grid sfront'})}</span></span>
+        <span class="rwtxt"><span class="rwrar">${RAR[r].n} · ${x.n > 1 ? 'Forge copies' : 'New card'}</span><b class="rwname">${cd.a.n === cd.d.n ? cd.a.n : cd.a.n + ' / ' + cd.d.n}</b><span class="rwdesc">${x.n > 1 ? x.n + ' copies' : 'Not in your collection yet'}</span></span>
+        ${c.got ? mstate('Bought') : priceBtn('buycache', c.i, c.cost, sl >= c.cost)}</div>`; }).join('') || '<p class="ahint">Nothing today. Come back tomorrow.</p>'}</div>`;
   if (t === 'items') { body = `<div class="mksec"><span>Elixirs</span><em class="mtimer">satchel ${META.stash.length}/3</em></div>
       ${SUPPLIES.map(x => { const D = POTS[x.k]; return shopRow({icon: sprite('item-potion_' + x.k), n: D.n, d: `${D.d} · ${D.ch} charge${D.ch > 1 ? 's' : ''}${D.fight ? ' · in a fight' : ''}`, dim: sl < x.cost || META.stash.length >= 3,
         act: META.stash.length >= 3 ? mstate('Satchel full') : priceBtn('buypot', x.k, x.cost, sl >= x.cost)}); }).join('')}
@@ -8571,6 +8572,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
+  {v: '0.117.2', d: '26 Nov', n: ["Cards in the Black Market look like they do in chests. Tap or hold to read"]},
   {v: '0.117.1', d: '26 Nov', n: ["The Black Market has new tabs: Today, Supplies, Cards, Skins and Duos", "Cards for sale show both sides. Hold one to read it"]},
   {v: '0.117', d: '26 Nov', n: ["The Black Market is now mostly potions, cards and skins", "A Wanderer sometimes brings gear at your item level, and now and then a companion", "Buy card copies for the Forge, or a card you don't have yet. You see the card before you buy", "Buy bone dust for upgrading gear", "Skins cost souls", "Leftover gold gives fewer souls"]},
   {v: '0.116.5', d: '26 Nov', n: ["Real-money buttons now ask if you'd really pay. Nothing is charged, but your answer helps us price things", "Two rests always have a fight between them", "Passives button is simpler", "Fixed a crash when editing a deck"]},
