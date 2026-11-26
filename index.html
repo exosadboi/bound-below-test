@@ -2212,7 +2212,7 @@ body.calm #fx{z-index:0} /* dust drifts behind the text, not over it */
 #app .field>.log:has(.coach){top:auto!important;bottom:6px!important;left:auto;right:6px;width:200px} #app .field>.log .coach{font-size:13px}
 .screen .mintro{flex:none} #app .sheet .dtabs{gap:0;justify-content:space-between;margin:2px 0 6px} #app .sheet .dtab{flex:0 1 auto;padding-inline:3px;font-size:11px;letter-spacing:.06em}
 #app .endscr{overflow-y:auto} #app .sheet.pick .ptile{padding-right:14px}
-.cacheic{width:46px;height:auto;image-rendering:pixelated} .cacheo .cachechest{width:150px;height:auto;image-rendering:pixelated;margin:8px 0 12px} .cacheit{display:flex;flex-direction:column;gap:8px;width:min(86vw,340px);z-index:1} .cacheit p{display:flex;align-items:center;gap:10px;margin:0;padding:8px 10px;background:rgba(0,0,0,.45);box-shadow:inset 0 0 0 1px rgba(226,198,118,.25);color:var(--ink);font-size:15px;text-align:left} .cacheit img,.cacheit .pi{flex:none;width:32px;height:32px;font-size:32px;image-rendering:pixelated} .cacheit .lcard{flex:none;width:32px;height:32px;display:block} .cacheit .lcard img{width:100%;height:100%}
+.cacheic{width:46px;height:auto;image-rendering:pixelated} .pk2{display:flex;flex-direction:column;gap:3px;width:34px;margin-right:10px} .arow .aicon:has(.pk2){height:auto;width:auto;min-height:0;overflow:visible} .arow .aicon .pk2 img{flex:none;width:34px;height:34px;max-width:none;object-fit:cover;display:block;image-rendering:pixelated;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.6)} .pkf{display:block} .pkf.a{color:#f1d98a} .pkf.d{color:#ff8a7a} .cacheo .cachechest{width:150px;height:auto;image-rendering:pixelated;margin:8px 0 12px} .cacheit{display:flex;flex-direction:column;gap:8px;width:min(86vw,340px);z-index:1} .cacheit p{display:flex;align-items:center;gap:10px;margin:0;padding:8px 10px;background:rgba(0,0,0,.45);box-shadow:inset 0 0 0 1px rgba(226,198,118,.25);color:var(--ink);font-size:15px;text-align:left} .cacheit img,.cacheit .pi{flex:none;width:32px;height:32px;font-size:32px;image-rendering:pixelated} .cacheit .lcard{flex:none;width:32px;height:32px;display:block} .cacheit .lcard img{width:100%;height:100%}
 #app .market2 .ahead h2{font-size:27px}
 /* short phones: the targeted enemy's statuses stay on one row too, so they can't run over the hero or the next enemy */
 @media (max-height:760px){.field.stg .en.tgt .tags{flex-wrap:nowrap!important;gap:1px!important;justify-content:center}
@@ -2767,7 +2767,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy health and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.117-test'; // bump for every build you send to testers
+const VERSION = '0.117.1-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -8494,13 +8494,14 @@ function buyProv(id) { const x = PROVISIONS.find(y => y.id === id); if (!x || PR
 const priceBtn = (act, id, cost, ok, was) => `<button class="mbuy" data-act="${act}" data-i="${id}" ${ok ? '' : 'disabled'}>${was ? `<s>${was}</s>` : ''}${soul()}<b>${cost}</b></button>`;
 const mstate = t => `<span class="mstate">${t}</span>`;
 function vMarket() {
-  const t = ['today', 'duos', 'looks', 'souls'].includes(S.mtab) ? S.mtab : 'today', sl = META.souls || 0, l = shopIL();
-  const TABS = [['today', 'Today'], ['duos', 'Duos'], ['looks', 'Skins']];
+  const t = ['today', 'items', 'cards', 'duos', 'looks', 'souls'].includes(S.mtab) ? S.mtab : 'today', sl = META.souls || 0, l = shopIL();
+  const TABS = [['today', 'Today'], ['items', 'Supplies'], ['cards', 'Cards'], ['looks', 'Skins'], ['duos', 'Duos']];
   const tabs = TABS.map(([k, n]) => `<button class="dtab ${k === t ? 'on' : ''}" data-act="mtab" data-i="${k}">${n}</button>`).join('');
   // one short line, only where it tells you something the page can't show
   const intro = {gear: `Item level ${l}`, looks: '', souls: ''}[t] || '';
   let body = '';
-  if (t === 'today') { const D = dailyDeals(), left = (() => { const n = new Date(), m = new Date(n); m.setHours(24, 0, 0, 0); const h = Math.floor((m - n) / 36e5); return h ? h + 'h' : Math.ceil((m - n) / 6e4) + 'm'; })();
+  const left = (() => { const n = new Date(), m = new Date(n); m.setHours(24, 0, 0, 0); const h = Math.floor((m - n) / 36e5); return h ? h + 'h' : Math.ceil((m - n) / 6e4) + 'm'; })();
+  if (t === 'today') { const D = dailyDeals();
     const deal = (d, i) => { const got = META.deals.got[i];
       const art = d.k === 'dust' ? pxi('skull') : sprite('item-potion_' + d.v);
       const n = d.k === 'dust' ? d.v + ' bone dust' : POTS[d.v].n;
@@ -8511,10 +8512,11 @@ function vMarket() {
     const wrows = (wg ? shopRow({icon: sprite(gearIcon(wg)), n: wg.n + ` <small class="ilv">iL ${W.g.il}</small>`, d: fw(gT(wg, W.g.il)), dim: W.ggot || sl < W.g.cost, sub: W.ggot ? '' : 'Here for ' + days(W.gLeft), act: W.ggot ? mstate('Bought') : priceBtn('wander', 'g', W.g.cost, sl >= W.g.cost)}) : '')
       + (W.c ? shopRow({icon: compFig(W.c), n: COMPANIONS[W.c].n + ` <small class="ckind">${COMPANIONS[W.c].kind}</small>`, ncls: 'cname', d: COMPANIONS[W.c].combo ? `${COMPANIONS[W.c].combo.n} · ${COMPANIONS[W.c].spell.n}` : '', dim: W.cgot || sl < WANDER_COMP, sub: W.cgot ? '' : 'Here for ' + days(W.cLeft),
         act: (W.cgot ? mstate('Bought') : priceBtn('wander', 'c', WANDER_COMP, sl >= WANDER_COMP)) + `<button class="alink" data-act="compinfo" data-i="${W.c}">Info</button>`}) : '');
-    body = `${wrows ? `<div class="mksec"><span>Wanderer</span><em class="mtimer">rare finds</em></div>${wrows}` : ''}<div class="mksec"><span>Today's deals</span><em class="mtimer">new in ${left}</em></div><div class="mdeals">${D.map(deal).join('')}</div>
-      ${CACHES_ON ? `<div class="mksec"><span>Cards</span><em class="mtimer">new in ${left}</em></div>
-      ${cacheOffers().map(c => shopRow({icon: c.items[0].t === 'card' ? dropArt({t: 'card', v: c.items[0].v}) : pxi('skull'), n: c.n, d: c.items.map(cacheLine).join(' · '), dim: c.got || sl < c.cost, act: c.got ? mstate('Opened') : priceBtn('buycache', c.i, c.cost, sl >= c.cost)})).join('')}` : ''}
-      <div class="mksec"><span>Elixirs</span><em class="mtimer">satchel ${META.stash.length}/3</em></div>
+    body = `${wrows ? `<div class="mksec"><span>Wanderer</span><em class="mtimer">rare finds</em></div>${wrows}` : ''}<div class="mksec"><span>Today's deals</span><em class="mtimer">new in ${left}</em></div><div class="mdeals">${D.map(deal).join('')}</div>`; }
+  if (t === 'cards') body = `<div class="mksec"><span>Cards</span><em class="mtimer">new in ${left}</em></div>${cacheOffers().map(c => { const x = c.items[0], cd = CARDS[x.v], im = (f, e) => { const sp = Pix.get('art-' + artFor(e) + '-' + artK(f)); return sp ? `<img src="${sp.url}" alt="">` : ''; };
+      return shopRow({attr: ` data-cid="${x.v}"`, icon: `<span class="pk2">${im('angel', cd.a)}${im('demon', cd.d)}</span>`, n: `${c.n}${x.n > 1 ? ` <small class="ilv">×${x.n}</small>` : ''}`, d: `<span class="pkf a">${faceOf(x.v, cLv(x.v), 'angel').e.n}</span><span class="pkf d">${faceOf(x.v, cLv(x.v), 'demon').e.n}</span>`, sub: c.got ? '' : 'Hold to read',
+        dim: c.got || sl < c.cost, act: c.got ? mstate('Bought') : priceBtn('buycache', c.i, c.cost, sl >= c.cost)}); }).join('') || '<p class="ahint">Nothing today. Come back tomorrow.</p>'}`;
+  if (t === 'items') { body = `<div class="mksec"><span>Elixirs</span><em class="mtimer">satchel ${META.stash.length}/3</em></div>
       ${SUPPLIES.map(x => { const D = POTS[x.k]; return shopRow({icon: sprite('item-potion_' + x.k), n: D.n, d: `${D.d} · ${D.ch} charge${D.ch > 1 ? 's' : ''}${D.fight ? ' · in a fight' : ''}`, dim: sl < x.cost || META.stash.length >= 3,
         act: META.stash.length >= 3 ? mstate('Satchel full') : priceBtn('buypot', x.k, x.cost, sl >= x.cost)}); }).join('')}
       <div class="mksec"><span>Provisions</span><em class="mtimer">used on your next run</em></div>
@@ -8569,6 +8571,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
+  {v: '0.117.1', d: '26 Nov', n: ["The Black Market has new tabs: Today, Supplies, Cards, Skins and Duos", "Cards for sale show both sides. Hold one to read it"]},
   {v: '0.117', d: '26 Nov', n: ["The Black Market is now mostly potions, cards and skins", "A Wanderer sometimes brings gear at your item level, and now and then a companion", "Buy card copies for the Forge, or a card you don't have yet. You see the card before you buy", "Buy bone dust for upgrading gear", "Skins cost souls", "Leftover gold gives fewer souls"]},
   {v: '0.116.5', d: '26 Nov', n: ["Real-money buttons now ask if you'd really pay. Nothing is charged, but your answer helps us price things", "Two rests always have a fight between them", "Passives button is simpler", "Fixed a crash when editing a deck"]},
   {v: '0.116', d: '25 Nov', n: ["New art for the rest site", "Two rests always have a fight between them", "Act dots no longer get cut off in Acts II and III", "Plainer, shorter wording on boons, tips and card notes", "The enemy's next-hit label fits on screen", "6+ energy wraps instead of running into the mana vial", "Spells you can't take are greyed out, no 'No' button", "Ember & Rime use the new Heat icon everywhere"]},
