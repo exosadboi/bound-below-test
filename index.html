@@ -2767,7 +2767,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy life and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.122-test'; // bump for every build you send to testers
+const VERSION = '0.122.1-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -4887,7 +4887,7 @@ function rollLoot(k) {
 const LTYPE = {gold:'Gold', pot:'Potion', card:'New card', copies:'Forge copies', spell:'Spell', gear:'Equipment', comp:'Companion'};
 function dropInfo(d) {
   if (d.t === 'gold') return {n: d.v + ' gold', s: ''};
-  if (d.t === 'pot') return {n: POTS[d.v].n + ' potion', s: ''};
+  if (d.t === 'pot') return {n: POTS[d.v].n, s: ''};
   if (d.t === 'card') { const c = CARDS[d.v]; return {n: c.a.n + ' / ' + c.d.n, s: hardChest() ? 'Joins this run, and your collection' : DUO().coll[d.v] ? '+1 copy for the Forge' : 'New card for your collection'}; }
   if (d.t === 'copies') { const c = CARDS[d.v]; return {n: d.n + '× ' + c.a.n + ' / ' + c.d.n, s: d.n + (d.n > 1 ? ' copies' : ' copy') + ' for the Forge' + (hardChest() ? ', and one joins this run' : '')}; }
   if (d.t === 'spell') { const s = DUO_DEF().spells.find(x => x.id === d.v); return {n: s.n, s: `<span class="${s.f === 'angel' ? 'holy' : 'shadow'}">${FN(s.f)}</span> · ${s.m} mana · ${cardWords(s.e, false).map(w => w.replace(/<\/?span[^>]*>/g, '')).join(', ')}`}; }
@@ -8481,7 +8481,7 @@ function vArmory() {
         ${equipList(L, sl, hero ? 'None yet. Find curios in chests or the <button class="alink" data-act="market">Black Market</button>.' : 'Nothing for this slot yet. Find pet gear in fights or the <button class="alink" data-act="market">Black Market</button>.')}`; }
     else body = bar + gearHub(L, SL).replace(/^<div class="gmodes">[\s\S]*?<\/div>/, ''); }
   if (t === 'sup') body = `<div class="sslots">${[0, 1, 2].map(i => { const k = META.stash[i], D = k && POTS[k], free = !k && i === 0 && !META.stash.length;
-      return `<div class="sslot${k ? ' full' : free ? ' free' : ''}"><span class="cbox">${k ? sprite('item-potion_' + k) : free ? sprite('item-potion_h') : ''}</span><b>${k ? D.n : free ? 'Heal 15 potion' : 'Empty'}</b>
+      return `<div class="sslot${k ? ' full' : free ? ' free' : ''}"><span class="cbox">${k ? sprite('item-potion_' + k) : free ? sprite('item-potion_h') : ''}</span><b>${k ? D.n : free ? POTS.h.n : 'Empty'}</b>
         <small>${k ? `${D.d} · ${D.ch} charge${D.ch > 1 ? 's' : ''}` : free ? 'Free' : ''}</small>${k ? `<button class="alink" data-act="unpack" data-i="${i}">Return ${soul()}${D.cost}</button>` : ''}</div>`; }).join('')}</div>
     <i class="pg-split"></i><div class="mksec"><span>Elixirs</span></div>
     <div class="glist">${SUPPLIES.map(x => { const D = POTS[x.k], sl = META.souls || 0, ok = sl >= x.cost && META.stash.length < 3, packed = META.stash.filter(k => k === x.k).length;
@@ -8672,6 +8672,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
+  {v: '0.122.1', d: '27 Nov', n: ["Fixed: loot said 'Healing Potion potion'", "Fixed: the deck builder could crash on an empty deck", "The satchel's free potion is named Healing Potion"]},
   {v: '0.122', d: '27 Nov', n: ["Talent balance pass: every talent was tested on its own", "Crits now deal double", "Account talents: every rank now does something. Defence, Precision, Restoration and Deep Well give more. Second Look and First Breath add a 25% chance of one more each rank", "Too strong: Blood Aura, Winter Rest and Steam Shield / Afterimage are weaker", "Too weak: Retribution, Clarity, Turning, Ascend, Easy Turn, Oathkeeper, Mounting Rage, Executioner, Heart of Wrath, Cold Hands and Brittle are stronger", "Rampage now lasts the whole run (+1 per kill, max +3). Ice Vent is now Rime Shell: +4 to Rime block cards"]},
   {v: '0.121', d: '26 Nov', n: ["One way to write everything: 'Might 3 · 3 turns', 'Deal 6 to all', '+2 Judgement', 'Block 6', life (not health)", "Names that clashed are now unique: Sentence, Lay Bare, Brimstone, Drain, Ashen Guard, Deep Breath, Firebolt, Slaughter, and new names for several talents, boons and spells", "Gluttony gives more mana for more life. Carnage hits harder for less life. Cleansing Fire cures your Burn. Lash adds Weak", "Kindling and Fireproof now do something from rank 1", "The three basic potions have names. Energy and Mana are in the glossary"]},
   {v: '0.120', d: '26 Nov', n: ["Clearer card words: Toll (was Frenzy), Fester (was Held), Banish (was Spent), Lasting, Afflicted, Break all, Undying", "Shatter now means ×2 against Chilled or Frozen enemies. Stripping all block is Break all", "Trigger words read the same on every card: Switched:, Kept:, Kill:", "Vent covers every card that spends all your Heat. Purge empties a meter. Pour moves one meter into the other", "Turns show as '· 2 turns' instead of '2t'", "Final Verdict is now Last Rites"]},
@@ -9663,7 +9664,7 @@ const ACT = {
   decks: () => { if (S.sheet && S.sheet.pick) S.sheet = null; S.fromCheck = S.screen === 'deckcheck'; S.dsel = S.dsel != null ? S.dsel : DUO().deckSel; S.screen = 'decks'; render(); },
   dedit: d => { S.dsel = +d.i; render(); },
   duse: d => { if (deckValid(DUO().decks[+d.i])) { DUO().deckSel = +d.i; save(); } render(); },
-  dtog: d => { if (!DUO().decks[S.dsel]) S.dsel = DUO().decks[DUO().deckSel] ? DUO().deckSel : 0; const deck = DUO().decks[S.dsel], k = deck.indexOf(d.i);
+  dtog: d => { if (!DUO().decks[S.dsel]) S.dsel = DUO().decks[DUO().deckSel] ? DUO().deckSel : 0; if (!DUO().decks[S.dsel]) DUO().decks[S.dsel] = []; const deck = DUO().decks[S.dsel], k = deck.indexOf(d.i);
     if (k >= 0) deck.splice(k, 1); else if (deck.length < DECK_SIZE && DUO().coll[d.i]) deck.push(d.i); else return; save(); render(); },
   upg: d => { const c = DUO().coll[d.i]; cRank(d.i); if (!canForge(c)) return render(); const from = rarLabel(d.i), nx = rankNextHTML(d.i, cLv(d.i)); c.c -= forgeNeed(c); c.r = (c.r || 0) + 1;
     save(); sfx('win'); buzz([30, 40, 80]); if (vowDue(d.i)) S.vowPick = {id: d.i, from}; else S.forge = {id: d.i, from, to: rarLabel(d.i), next: nx}; render(); },
