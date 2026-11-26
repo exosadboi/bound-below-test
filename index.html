@@ -2767,7 +2767,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy health and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.116.5-test'; // bump for every build you send to testers
+const VERSION = '0.117-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -3144,9 +3144,9 @@ const pct = n => (Math.round(n * 10) / 10) + '%';
    To take payments, connect purchase(sku) to your provider (Stripe, Google Play, App Store) and call grant(sku) when it succeeds. ---------- */
 const COSMETICS = [
   {id:'skin-bone', type:'skin', duo:'fallen', skin:'bone', earn:{n:'Win 10 runs', have:() => META.wins || 0, need:10}},
-  {id:'skin-gilded', type:'skin', duo:'fallen', skin:'gilded', price:'$2.99'},
+  {id:'skin-gilded', type:'skin', duo:'fallen', skin:'gilded', souls:1200},
   {id:'frame-obsidian', type:'frame', frame:'obsidian', n:'Obsidian frames', d:'Violet-black card frames', earn:{n:'Reach a 7-day Daily streak', have:() => DAILY().bestStreak || 0, need:7}},
-  {id:'frame-bone', type:'frame', frame:'bone', n:'Ivory frames', d:'Bone-white card frames', price:'$1.99'},
+  {id:'frame-bone', type:'frame', frame:'bone', n:'Ivory frames', d:'Bone-white card frames', souls:600},
 ];
 // duos sold as expansions; each also has a free unlock challenge. 'soon' ones are previews until their content ships.
 const DUO_STORE = [
@@ -5003,7 +5003,7 @@ function endRun(won) {
   // souls: the account currency. Earned by how far you get, not by grinding fights. A 1-act win pays ~45, a 3-act win ~130.
   { const R = S.rs || {}; let sl = 5 + 2 * (R.fight || 0) + 4 * (R.elite || 0) + 8 * (R.guardian || 0) + 15 * (R.boss || 0) + (won ? 10 : 0);
     sl = Math.round(sl * (1 + .1 * (hRew() + penRew())) * (S.daily ? 1.5 : 1) * (1 + .03 * AT('fortune')));
-    S.goldSouls = S.endless ? 0 : Math.floor((S.gold || 0) / 20); sl += S.goldSouls; // gold you didn't spend isn't lost: 20 gold makes a soul
+    S.goldSouls = S.endless ? 0 : Math.min(15, Math.floor((S.gold || 0) / 40)); sl += S.goldSouls; // gold you didn't spend isn't lost: 40 gold makes a soul, up to 15, so gold boons can't farm souls
     S.soulsRun = sl; META.souls = (META.souls || 0) + sl; }
   S.xp += Math.max(0, depth - 1) * 2;
   S.xp = Math.round(S.xp * (1 + 0.1 * ((S.heat || 0) + penRew()) + .04 * AT('insight')));
@@ -7419,7 +7419,7 @@ function vPick(k) {
     if (!owned.length) return '<h2>Companion</h2><i class="pg-split"></i><p class="ahint">No companions yet.</p>';
     return `<h2>Companion</h2><i class="pg-split"></i>${[['none', null]].concat(owned.map(id => [id, COMPANIONS[id]])).map(([id, c]) => shopRow({icon: c ? compFig(id) : '<span class="qmark">—</span>', n: c ? c.n : 'Alone', d: c ? (c.combo ? c.combo.n + ' · ' + c.spell.n : 'Starter') : 'Fight on your own', on: id === cs,
       act: `${id === cs ? '<span class="aown">With you</span>' : `<button class="abtn eq" data-act="comp" data-i="${id}">Take</button>`}${c ? `<button class="alink" data-act="compinfo" data-i="${id}">Info</button>` : ''}`})).join('')}`; }
-  if (k === 'curio') { const sl = S.pslot; return `<h2>${sl}</h2><i class="pg-split"></i>${gearRows(ARM, [sl], `No ${sl.toLowerCase()} found yet. They drop in fights, or the Black Market sells them.`).replace(/<p class="aslot-h">[^<]*<\/p>/, '')}<button class="btn" data-act="armory">All curios</button>`; }
+  if (k === 'curio') { const sl = S.pslot; return `<h2>${sl}</h2><i class="pg-split"></i>${gearRows(ARM, [sl], `No ${sl.toLowerCase()} found yet. They drop in fights, or the Black Market may have one.`).replace(/<p class="aslot-h">[^<]*<\/p>/, '')}<button class="btn" data-act="armory">All curios</button>`; }
   return '';
 }
 // builds: what each card feeds. The deck builder counts them and can filter your collection by one.
@@ -8413,9 +8413,13 @@ const CONFIRMS = {
   buycomp: d => { const c = COMPANIONS[d.i]; return c && {t: `Buy ${c.n}?`, art: compFig(d.i), d: c.combo ? c.combo.n + ' · ' + c.spell.n : 'Starter', sub: c.kind + ' · yours to keep', cost: c.cost, cur: 'souls', ok: 'Buy'}; },
   buypot: d => { const x = SUPPLIES.find(y => y.k === d.i), D = POTS[d.i]; return x && {t: `Buy ${D.n}?`, art: sprite('item-potion_' + d.i), d: `${D.d} · ${D.ch} charge${D.ch > 1 ? 's' : ''}`, sub: 'Goes in your satchel for next run.', cost: x.cost, cur: 'souls', ok: 'Buy'}; },
   buyduo: d => { const x = DUO_STORE.find(y => y.id === d.i), a = Pix.get(d.i + ':duo-angel'), b = Pix.get(d.i + ':duo-demon'); return x && {t: `Unlock ${x.n}?`, art: a && b ? `<span class="cfpair"><img src="${a.url}" alt=""><img src="${b.url}" alt=""></span>` : '', d: x.d, cost: x.souls, cur: 'souls', ok: 'Unlock'}; },
-  buycache: d => { const c = cacheOffers()[+d.i]; return c && {t: `Open ${c.n}?`, art: `<img class="cacheic" src="${Stage.back('chest1_' + c.t).url}" alt="">`, d: c.items.map(cacheLine).join('<br>'), sub: 'Exactly these items. Nothing is random.', cost: c.cost, cur: 'souls', ok: 'Open'}; },
-  deal: d => { const x = dailyDeals()[+d.i]; if (!x) return null; const n = x.k === 'gear' ? ALL_GEAR().find(y => y.id === x.v).n : x.k === 'comp' ? COMPANIONS[x.v].n : 'Potion bundle';
-    return {t: `Buy ${n}?`, art: x.k === 'gear' ? sprite(gearIcon(ALL_GEAR().find(y => y.id === x.v))) : x.k === 'comp' ? compFig(x.v) : sprite('item-potion_h'), d: `Today's deal, ${Math.round(x.off * 100)}% off.`, cost: x.cost, cur: 'souls', ok: 'Buy'}; },
+  buycache: d => { const c = cacheOffers().find(x => x.i === +d.i); return c && {t: `Open ${c.n}?`, art: `<img class="cacheic" src="${Stage.back('chest1_' + c.t).url}" alt="">`, d: c.items.map(cacheLine).join('<br>'), sub: 'Exactly this. Nothing is random.', cost: c.cost, cur: 'souls', ok: 'Buy'}; },
+  deal: d => { const x = dailyDeals()[+d.i]; if (!x) return null; const n = x.k === 'dust' ? x.v + ' bone dust' : POTS[x.v].n;
+    return {t: `Buy ${n}?`, art: x.k === 'dust' ? pxi('skull') : sprite('item-potion_' + x.v), d: `Today's deal, ${Math.round(x.off * 100)}% off.`, cost: x.cost, cur: 'souls', ok: 'Buy'}; },
+  buydust: () => ({t: `Buy ${DUST_PACK.n} bone dust?`, art: pxi('skull'), d: 'Upgrades gear on the Gear screen.', cost: DUST_PACK.cost, cur: 'souls', ok: 'Buy'}),
+  wander: d => { const w = wanderStock(); if (d.i === 'c') return w.c && {t: `Buy ${COMPANIONS[w.c].n}?`, art: compFig(w.c), d: COMPANIONS[w.c].combo ? COMPANIONS[w.c].combo.n + ' · ' + COMPANIONS[w.c].spell.n : '', sub: COMPANIONS[w.c].kind + ' · yours to keep', cost: WANDER_COMP, cur: 'souls', ok: 'Buy'};
+    const x = w.g && ALL_GEAR().find(y => y.id === w.g.v); return x && {t: `Buy ${x.n}?`, art: sprite(gearIcon(x)), d: fw(gT(x, w.g.il)), sub: `${x.s} · item level ${w.g.il}`, cost: w.g.cost, cur: 'souls', ok: 'Buy'}; },
+  buycos: d => { const c = COSMETICS.find(y => y.id === d.i); return c && c.souls && {t: `Buy ${cosName(c)}?`, art: '', d: cosDesc(c), sub: 'Looks only. Yours to keep.', cost: c.souls, cur: 'souls', ok: 'Buy'}; },
   prov: d => { const x = PROVISIONS.find(y => y.id === d.i); return x && {t: `Pack ${x.n}?`, art: sprite(x.art), d: x.d + '. Used up when the run starts.', cost: x.cost, cur: 'souls', ok: 'Pack it'}; },
   _atl: d => { const x = ACCT.find(y => y.id === d.i); if (!x) return null; const r = AT(d.i);
     return {t: `${x.n} · rank ${r + 1}?`, art: talIcon(x.art, x.f), d: x.d(r + 1), sub: r ? 'Now: ' + x.d(r) : 'Every duo gets it', cost: acctCost(r), cur: 'marks', ok: 'Learn'}; },
@@ -8442,61 +8446,80 @@ const PROVISIONS = [{id: 'purse', n: "Grave-robber's Purse", d: 'Start your next
 const PROV = () => META.prov || (META.prov = {});
 // three deals that change every day: a piece of gear, a companion, and a potion bundle
 /* ---------- open caches: boxed rewards bought with souls. The exact contents are on show before you pay and nothing is rolled after, so every purchase is a sure thing, and there is no chance element for any store or rating rule to treat as a loot box. Contents change daily; each cache sells once a day. Never sell a re-roll, and never hide a contents line. ---------- */
-const CACHES_ON = false; // hidden until the user decides on selling cards and gear; design doc in memory
-const CACHES = [{id: 'wood', n: 'Wooden Cache', cost: 90, rar: 'common', t: 0}, {id: 'iron', n: 'Iron Cache', cost: 180, rar: 'rare', t: 1}, {id: 'gild', n: 'Gilded Cache', cost: 360, rar: 'epic', t: 2}];
+const CACHES_ON = true;
+const CACHES = [{id: 'copy', n: 'Copy pack', cost: 60, rar: 'common', t: 0}, {id: 'copyr', n: 'Rare copy pack', cost: 120, rar: 'rare', t: 1}, {id: 'newc', n: 'New card', cost: 0, rar: 'epic', t: 2}];
+const NEWC_COST = {common: 80, rare: 110, epic: 150};
+// copy packs: 3 copies of a card you own, for the Forge. New card: one you don't have yet. Legendaries are never sold.
 function cacheOffers() { const day = dayKey(), dk = META.duoSel || 'fallen'; if (!META.cache || META.cache.day !== day) META.cache = {day, got: {}}; const box = META.cache.offers = META.cache.offers || {}; // locked the first time they are shown today, so what was on show is what gets sold
-  if (box[dk]) return box[dk].map((items, i) => ({...CACHES[i], i, items, got: !!META.cache.got[dk + i]})); const ids = DUO_DEF().cards, own = id => !!DUO().coll[id], l = shopIL();
-  box[dk] = CACHES.map((c, i) => { let h = 0; for (const ch of META.duoSel || 'fallen') h = (h * 31 + ch.charCodeAt(0)) % 9973; const R = seeded(day * 11 + i * 97 + h), pick = a => a.length ? a[Math.floor(R() * a.length)] : null, items = [], card = (a, n) => { const id = pick(a); if (id) items.push({t: 'card', v: id, n}); };
-    const gear = il => { const g = pick(ALL_GEAR().filter(x => gearFits(x) && (+META.arm.own[x.id] || 0) < il)); items.push(g ? {t: 'gear', v: g.id, il} : {t: 'dust', n: 40}); };
-    if (i === 0) { card(ids.filter(id => baseRar(id) === 'common' && own(id)), 3); items.push({t: 'dust', n: 20}); }
-    if (i === 1) { card(ids.filter(id => baseRar(id) === 'rare'), 3); gear(l); }
-    if (i === 2) { const lg = ids.filter(id => baseRar(id) === 'legendary' && own(id)); card(ids.filter(id => baseRar(id) === 'epic'), 3); if (lg.length) card(lg, 1); gear(l + 1); const cs = COSMETICS.filter(x => x.price && !COS().owned[x.id] && (!x.duo || x.duo === META.duoSel)); if (cs.length) items.push({t: 'cos', v: pick(cs).id}); else items.push({t: 'dust', n: 60}); }
-    return items; }); save(); return cacheOffers(); }
+  if (box[dk] && !Array.isArray(box[dk][0])) return box[dk].map((o, i) => o && ({...CACHES[i], i, items: o.items, cost: o.cost, got: !!META.cache.got[dk + i]})).filter(Boolean);
+  const ids = DUO_DEF().cards, own = id => !!DUO().coll[id]; let h = 0; for (const ch of dk) h = (h * 31 + ch.charCodeAt(0)) % 9973;
+  box[dk] = CACHES.map((c, i) => { const R = seeded(day * 11 + i * 97 + h), pick = a => a.length ? a[Math.floor(R() * a.length)] : null;
+    if (i < 2) { const id = pick(ids.filter(id => own(id) && (i ? ['rare', 'epic'] : ['common']).includes(baseRar(id)))); return id ? {cost: c.cost, items: [{t: 'card', v: id, n: 3}]} : null; }
+    const id = pick(ids.filter(id => !own(id) && NEWC_COST[baseRar(id)])); return id ? {cost: NEWC_COST[baseRar(id)], items: [{t: 'card', v: id, n: 1}]} : null; });
+  save(); return cacheOffers(); }
 const cacheLine = x => x.t === 'card' ? `${x.n} × ${faceOf(x.v, cLv(x.v), 'angel').e.n}${DUO().coll[x.v] ? '' : ' (new)'}` : x.t === 'gear' ? `${ALL_GEAR().find(y => y.id === x.v).n}, item level ${x.il}` : x.t === 'dust' ? `${x.n} bone dust` : cosName(COSMETICS.find(y => y.id === x.v));
-function buyCache(i) { const c = cacheOffers()[i]; if (!c || c.got || (META.souls || 0) < c.cost) return; META.souls -= c.cost; META.cache.got[(META.duoSel || 'fallen') + i] = 1; stat('caches');
+function buyCache(i) { const c = cacheOffers().find(x => x.i === i); if (!c || c.got || (META.souls || 0) < c.cost) return; META.souls -= c.cost; META.cache.got[(META.duoSel || 'fallen') + i] = 1; stat('caches');
   c.items.forEach(x => { if (x.t === 'card') { const co = DUO().coll[x.v]; if (co) co.c = (co.c || 0) + x.n; else DUO().coll[x.v] = {...newColl(x.v), c: x.n - 1}; }
     if (x.t === 'gear') { const it = ALL_GEAR().find(y => y.id === x.v); META.arm.own[x.v] = Math.max(+META.arm.own[x.v] || 0, x.il); if (!META.arm.eq[it.s]) META.arm.eq[it.s] = x.v; }
     if (x.t === 'dust') META.dust = (META.dust || 0) + x.n; if (x.t === 'cos') COS().owned[x.v] = 1; });
   S.cacheOpen = {t: c.t, n: c.n, rar: c.rar, items: c.items}; sfx(c.t ? 'legend' : 'chime'); save(); render(); }
 function vCacheOpen() { const o = S.cacheOpen; if (!o) return ''; const art = x => x.t === 'card' ? dropArt({t: 'card', v: x.v}) : x.t === 'gear' ? dropArt({t: 'gear', v: x.v}) : x.t === 'dust' ? pxi('skull') : pxi('star');
   return `<div class="forge cacheo r-${o.rar}" data-act="cachex" role="dialog" aria-label="${o.n} opened"><i class="fgrays"></i><i class="fgflash"></i><p class="fgtop">${o.n}</p><img class="cachechest" src="${Stage.back('chest1_' + o.t).url}" alt=""><div class="cacheit">${o.items.map(x => `<p>${art(x)}<span>${cacheLine(x)}</span></p>`).join('')}</div><p class="fgtap">Tap to continue</p></div>`; }
-function dailyDeals() { const day = dayKey(), R = seeded(day * 7 + 3), pick = a => a.length ? a[Math.floor(R() * a.length)] : null, out = [];
+function dailyDeals() { const day = dayKey(), R = seeded(day * 7 + 3), pick = a => a.length ? a[Math.floor(R() * a.length)] : null;
   if (!META.deals || META.deals.day !== day) META.deals = {day, got: {}};
-  const l = shopIL(), g = pick(ALL_GEAR().filter(x => gearFits(x) && (+META.arm.own[x.id] || 0) < l)); if (g) out.push({k: 'gear', v: g.id, off: .3, cost: Math.round(ilCost(g, l) * .7)});
-  const c = pick(Object.keys(COMPANIONS).filter(id => !META.comps[id])); if (c) out.push({k: 'comp', v: c, off: .25, cost: Math.round(COMPANIONS[c].cost * .75)});
-  else { const g2 = pick(ALL_GEAR().filter(x => gearFits(x) && (+META.arm.own[x.id] || 0) < l && (!g || x.id !== g.id))); if (g2) out.push({k: 'gear', v: g2.id, off: .3, cost: Math.round(ilCost(g2, l) * .7)}); }
-  { const ek = pick(['xh', 'xm', 'xb', 'xa', 'xf']); out.push({k: 'bundle', v: ek, off: .3, cost: Math.round(POTS[ek].cost * .7)}); }
-  return out; }
+  const ek = pick(['xh', 'xm', 'xb', 'xa', 'xf']); return [{k: 'bundle', v: ek, off: .3, cost: Math.round(POTS[ek].cost * .7)}, {k: 'dust', v: DUST_PACK.n * 2, off: .3, cost: Math.round(DUST_PACK.cost * 2 * .7)}]; }
 function buyDeal(i) { const d = dailyDeals()[i]; if (!d || META.deals.got[i] || META.souls < d.cost) return;
-  if (d.k === 'gear') { const it = ALL_GEAR().find(x => x.id === d.v); META.arm.own[d.v] = shopIL(); if (!META.arm.eq[it.s]) META.arm.eq[it.s] = d.v; }
-  else if (d.k === 'comp') { META.comps[d.v] = 1; if (!META.comp) META.comp = d.v; }
-  else { if (META.stash.length >= 3) return; META.stash.push(d.v); }
+  if (d.k === 'dust') META.dust = (META.dust || 0) + d.v; else { if (META.stash.length >= 3) return; META.stash.push(d.v); }
   META.souls -= d.cost; META.deals.got[i] = 1; sfx('chime'); save(); render(); }
+// bone dust for the Gear forge, any number of times
+const DUST_PACK = {n: 40, cost: 50};
+function buyDust() { if ((META.souls || 0) < DUST_PACK.cost) return; META.souls -= DUST_PACK.cost; META.dust = (META.dust || 0) + DUST_PACK.n; sfx('coin'); save(); render(); }
+// the Wanderer: gear and companions are rare here. One piece of gear every 2 days at your best item level,
+// and about once a week a companion stays for 2 days. Gear and companions mostly come from fights.
+const dayNo = () => { const n = new Date(); return Math.floor((n - n.getTimezoneOffset() * 6e4) / 864e5); };
+const topIL = () => Math.max(shopIL(), ...Object.values(META.arm.own).map(v => +v || 0));
+const WANDER_COMP = 600;
+function wanderStock() { const d = dayNo(), gb = Math.floor(d / 2), wk = Math.floor(d / 7), sd = Math.floor(seeded(wk * 13 + 5)() * 6), W = META.wander || (META.wander = {});
+  if (W.gb !== gb) { const l = topIL(), pool = ALL_GEAR().filter(x => gearFits(x) && (+META.arm.own[x.id] || 0) < l), g = pool.length ? pool[Math.floor(seeded(gb * 17 + 9)() * pool.length)] : null;
+    Object.assign(W, {gb, ggot: 0, g: g ? {v: g.id, il: l, cost: Math.round(ilCost(g, l) * 1.5)} : null}); save(); }
+  const here = d % 7 === sd || d % 7 === sd + 1;
+  if (here && W.wk !== wk) { const pool = Object.keys(COMPANIONS).filter(id => !META.comps[id] && !COMPANIONS[id].starter && (!COMPANIONS[id].duo || COMPANIONS[id].duo === (META.duoSel || 'fallen')));
+    Object.assign(W, {wk, cgot: 0, c: pool.length ? pool[Math.floor(seeded(wk * 29 + 3)() * pool.length)] : null}); save(); }
+  return {g: W.g, ggot: W.ggot, gLeft: 2 - d % 2, c: here && W.wk === wk ? W.c : null, cgot: W.cgot, cLeft: d % 7 === sd ? 2 : 1}; }
+function buyWander(k) { const w = wanderStock(), W = META.wander;
+  if (k === 'g' && w.g && !w.ggot && META.souls >= w.g.cost) { const it = ALL_GEAR().find(x => x.id === w.g.v); META.souls -= w.g.cost; META.arm.own[w.g.v] = Math.max(+META.arm.own[w.g.v] || 0, w.g.il); if (!META.arm.eq[it.s]) META.arm.eq[it.s] = w.g.v; W.ggot = 1; }
+  else if (k === 'c' && w.c && !w.cgot && !META.comps[w.c] && META.souls >= WANDER_COMP) { META.souls -= WANDER_COMP; META.comps[w.c] = 1; if (!META.comp) META.comp = w.c; W.cgot = 1; }
+  else return; sfx('chime'); save(); render(); }
 function buyProv(id) { const x = PROVISIONS.find(y => y.id === id); if (!x || PROV()[id] || META.souls < x.cost) return; META.souls -= x.cost; PROV()[id] = 1; sfx('coin'); save(); render(); }
 const priceBtn = (act, id, cost, ok, was) => `<button class="mbuy" data-act="${act}" data-i="${id}" ${ok ? '' : 'disabled'}>${was ? `<s>${was}</s>` : ''}${soul()}<b>${cost}</b></button>`;
 const mstate = t => `<span class="mstate">${t}</span>`;
 function vMarket() {
-  const t = S.mtab === 'wares' || !S.mtab ? 'today' : S.mtab, sl = META.souls || 0, l = shopIL();
-  const TABS = [['today', 'Today'], ['gear', 'Gear'], ['allies', 'Allies'], ['duos', 'Duos'], ['looks', 'Looks']];
+  const t = ['today', 'duos', 'looks', 'souls'].includes(S.mtab) ? S.mtab : 'today', sl = META.souls || 0, l = shopIL();
+  const TABS = [['today', 'Today'], ['duos', 'Duos'], ['looks', 'Skins']];
   const tabs = TABS.map(([k, n]) => `<button class="dtab ${k === t ? 'on' : ''}" data-act="mtab" data-i="${k}">${n}</button>`).join('');
   // one short line, only where it tells you something the page can't show
   const intro = {gear: `Item level ${l}`, looks: '', souls: ''}[t] || '';
   let body = '';
   if (t === 'today') { const D = dailyDeals(), left = (() => { const n = new Date(), m = new Date(n); m.setHours(24, 0, 0, 0); const h = Math.floor((m - n) / 36e5); return h ? h + 'h' : Math.ceil((m - n) / 6e4) + 'm'; })();
     const deal = (d, i) => { const got = META.deals.got[i];
-      const art = d.k === 'gear' ? sprite(gearIcon(ALL_GEAR().find(x => x.id === d.v))) : d.k === 'comp' ? compFig(d.v) : sprite('item-potion_' + d.v);
-      const n = d.k === 'gear' ? ALL_GEAR().find(x => x.id === d.v).n : d.k === 'comp' ? COMPANIONS[d.v].n : POTS[d.v].n;
-      const sub = d.k === 'gear' ? `${ALL_GEAR().find(x => x.id === d.v).s} · iL ${l}` : d.k === 'comp' ? COMPANIONS[d.v].kind : `${POTS[d.v].ch} charge${POTS[d.v].ch > 1 ? 's' : ''}`; // the elixir list just below says what it does
-      const full = d.k === 'gear' ? ilCost(ALL_GEAR().find(x => x.id === d.v), l) : d.k === 'comp' ? COMPANIONS[d.v].cost : POTS[d.v].cost, sfull = d.k === 'bundle' && META.stash.length >= 3, ok = !got && sl >= d.cost && !sfull;
-      return `<div class="mdeal ktile r-${d.k === 'comp' ? 'epic' : d.k === 'gear' ? 'rare' : 'common'}${got ? ' got' : ''}"><span class="moff">−${Math.round(d.off * 100)}%</span><span class="mdart">${art}</span><b>${n}</b><small>${sub}</small>${got ? mstate('Bought') : sfull ? mstate('Satchel full') : priceBtn('deal', i, d.cost, ok, full)}</div>`; };
-    body = `<div class="mksec"><span>Today's deals</span><em class="mtimer">new in ${left}</em></div><div class="mdeals">${D.map(deal).join('')}</div>
-      ${CACHES_ON ? `<div class="mksec"><span>Open caches</span><em class="mtimer">you see exactly what you get</em></div>
-      ${cacheOffers().map(c => shopRow({icon: `<img class="cacheic" src="${Stage.back('chest0_' + c.t).url}" alt="">`, n: c.n, d: c.items.map(cacheLine).join(' · '), dim: c.got || sl < c.cost, act: c.got ? mstate('Opened') : priceBtn('buycache', c.i, c.cost, sl >= c.cost)})).join('')}` : ''}
+      const art = d.k === 'dust' ? pxi('skull') : sprite('item-potion_' + d.v);
+      const n = d.k === 'dust' ? d.v + ' bone dust' : POTS[d.v].n;
+      const sub = d.k === 'dust' ? 'for the Gear forge' : `${POTS[d.v].ch} charge${POTS[d.v].ch > 1 ? 's' : ''}`; // the elixir list just below says what it does
+      const full = d.k === 'dust' ? DUST_PACK.cost * 2 : POTS[d.v].cost, sfull = d.k === 'bundle' && META.stash.length >= 3, ok = !got && sl >= d.cost && !sfull;
+      return `<div class="mdeal ktile r-${d.k === 'dust' ? 'rare' : 'common'}${got ? ' got' : ''}"><span class="moff">−${Math.round(d.off * 100)}%</span><span class="mdart">${art}</span><b>${n}</b><small>${sub}</small>${got ? mstate('Bought') : sfull ? mstate('Satchel full') : priceBtn('deal', i, d.cost, ok, full)}</div>`; };
+    const W = wanderStock(), wg = W.g && ALL_GEAR().find(x => x.id === W.g.v), days = n => n > 1 ? n + ' days' : 'today';
+    const wrows = (wg ? shopRow({icon: sprite(gearIcon(wg)), n: wg.n + ` <small class="ilv">iL ${W.g.il}</small>`, d: fw(gT(wg, W.g.il)), dim: W.ggot || sl < W.g.cost, sub: W.ggot ? '' : 'Here for ' + days(W.gLeft), act: W.ggot ? mstate('Bought') : priceBtn('wander', 'g', W.g.cost, sl >= W.g.cost)}) : '')
+      + (W.c ? shopRow({icon: compFig(W.c), n: COMPANIONS[W.c].n + ` <small class="ckind">${COMPANIONS[W.c].kind}</small>`, ncls: 'cname', d: COMPANIONS[W.c].combo ? `${COMPANIONS[W.c].combo.n} · ${COMPANIONS[W.c].spell.n}` : '', dim: W.cgot || sl < WANDER_COMP, sub: W.cgot ? '' : 'Here for ' + days(W.cLeft),
+        act: (W.cgot ? mstate('Bought') : priceBtn('wander', 'c', WANDER_COMP, sl >= WANDER_COMP)) + `<button class="alink" data-act="compinfo" data-i="${W.c}">Info</button>`}) : '');
+    body = `${wrows ? `<div class="mksec"><span>Wanderer</span><em class="mtimer">rare finds</em></div>${wrows}` : ''}<div class="mksec"><span>Today's deals</span><em class="mtimer">new in ${left}</em></div><div class="mdeals">${D.map(deal).join('')}</div>
+      ${CACHES_ON ? `<div class="mksec"><span>Cards</span><em class="mtimer">new in ${left}</em></div>
+      ${cacheOffers().map(c => shopRow({icon: c.items[0].t === 'card' ? dropArt({t: 'card', v: c.items[0].v}) : pxi('skull'), n: c.n, d: c.items.map(cacheLine).join(' · '), dim: c.got || sl < c.cost, act: c.got ? mstate('Opened') : priceBtn('buycache', c.i, c.cost, sl >= c.cost)})).join('')}` : ''}
       <div class="mksec"><span>Elixirs</span><em class="mtimer">satchel ${META.stash.length}/3</em></div>
       ${SUPPLIES.map(x => { const D = POTS[x.k]; return shopRow({icon: sprite('item-potion_' + x.k), n: D.n, d: `${D.d} · ${D.ch} charge${D.ch > 1 ? 's' : ''}${D.fight ? ' · in a fight' : ''}`, dim: sl < x.cost || META.stash.length >= 3,
         act: META.stash.length >= 3 ? mstate('Satchel full') : priceBtn('buypot', x.k, x.cost, sl >= x.cost)}); }).join('')}
       <div class="mksec"><span>Provisions</span><em class="mtimer">used on your next run</em></div>
-      ${PROVISIONS.map(x => shopRow({icon: sprite(x.art), n: x.n, d: x.d, on: !!PROV()[x.id], dim: !PROV()[x.id] && sl < x.cost, act: PROV()[x.id] ? mstate('Packed') : priceBtn('prov', x.id, x.cost, sl >= x.cost)})).join('')}`; }
+      ${PROVISIONS.map(x => shopRow({icon: sprite(x.art), n: x.n, d: x.d, on: !!PROV()[x.id], dim: !PROV()[x.id] && sl < x.cost, act: PROV()[x.id] ? mstate('Packed') : priceBtn('prov', x.id, x.cost, sl >= x.cost)})).join('')}
+      ${shopRow({icon: pxi('skull'), n: DUST_PACK.n + ' bone dust', d: `Upgrades gear · you have ${META.dust || 0}`, dim: sl < DUST_PACK.cost, act: priceBtn('buydust', '', DUST_PACK.cost, sl >= DUST_PACK.cost)})}`; }
   if (t === 'gear') { const who = S.mslot === 'comp' ? 'comp' : 'you', slots = who === 'comp' ? COMP_SLOTS : CURIO_SLOTS;
     body = `<div class="chips"><button class="chip${who === 'you' ? ' on' : ''}" data-act="mslot" data-i="you">For you</button><button class="chip${who === 'comp' ? ' on' : ''}" data-act="mslot" data-i="comp">Pet gear</button></div><i class="pg-split"></i>`
       + slots.map(sn => `<div class="mksec"><span>${sn}</span><em class="mtimer">${(() => { const e = META.arm.eq[sn], it = e && ALL_GEAR().find(x => x.id === e); return it ? 'equipped: ' + it.n : 'empty'; })()}</em></div>`
@@ -8512,7 +8535,7 @@ function vMarket() {
         <div class="mduoa">${own ? mstate('Yours') : d.soon ? mstate('Coming soon') : priceBtn('buyduo', d.id, d.souls, sl >= d.souls) + (sl < d.souls ? `<span class="mneed">${d.souls - sl} more souls · <button class="alink" data-act="mtab" data-i="souls">Get souls</button></span>` : '')}</div></div>`; }).join('')}`;
   if (t === 'looks') { const row = c => { const own = owns(c.id), worn = c.type === 'skin' ? (META.duo[c.duo].skin || 'default') === c.skin : COS().frame === c.frame;
       const icon = c.type === 'skin' ? (Pix.get(c.duo + '~' + c.skin + ':duo-angel') ? `<img class="cfig" src="${Pix.get(c.duo + '~' + c.skin + ':duo-angel').url}" alt="">` : '') : `<span class="fswatch ${c.frame}"></span>`;
-      const act = own ? `<button class="abtn ${worn ? 'eqd' : 'eq'}" data-act="wear" data-i="${c.id}">${worn ? '✓ Worn' : 'Wear'}</button>` : c.price ? `<button class="abtn buy cash" data-act="purchase" data-i="${c.id}">${c.price}</button>` : mstate(`${c.earn.have()}/${c.earn.need}`);
+      const act = own ? `<button class="abtn ${worn ? 'eqd' : 'eq'}" data-act="wear" data-i="${c.id}">${worn ? '✓ Worn' : 'Wear'}</button>` : c.souls ? priceBtn('buycos', c.id, c.souls, (META.souls || 0) >= c.souls) : mstate(`${c.earn.have()}/${c.earn.need}`);
       return shopRow({icon, n: cosName(c), d: cosDesc(c), sub: own ? '' : c.earn ? 'Earn it: ' + c.earn.n : '', on: worn && own, act}); };
     const cs2 = S.cslot === 'frames' ? 'frames' : 'skins';
     body = `<div class="chips">${[['skins', DUO_DEF().n + ' skins'], ['frames', 'Card frames']].map(([k, n]) => `<button class="chip${k === cs2 ? ' on' : ''}" data-act="cslot" data-i="${k}">${n}</button>`).join('')}</div><i class="pg-split"></i>
@@ -8546,6 +8569,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
+  {v: '0.117', d: '26 Nov', n: ["The Black Market is now mostly potions, cards and skins", "A Wanderer sometimes brings gear at your item level, and now and then a companion", "Buy card copies for the Forge, or a card you don't have yet. You see the card before you buy", "Buy bone dust for upgrading gear", "Skins cost souls", "Leftover gold gives fewer souls"]},
   {v: '0.116.5', d: '26 Nov', n: ["Real-money buttons now ask if you'd really pay. Nothing is charged, but your answer helps us price things", "Two rests always have a fight between them", "Passives button is simpler", "Fixed a crash when editing a deck"]},
   {v: '0.116', d: '25 Nov', n: ["New art for the rest site", "Two rests always have a fight between them", "Act dots no longer get cut off in Acts II and III", "Plainer, shorter wording on boons, tips and card notes", "The enemy's next-hit label fits on screen", "6+ energy wraps instead of running into the mana vial", "Spells you can't take are greyed out, no 'No' button", "Ember & Rime use the new Heat icon everywhere"]},
   {v: '0.115', d: '24 Nov', n: ["Potions work in fights again", "All three potion slots always show", "Passives get their own row under the three talent trees", "The talent confirm bar no longer hides the last talent", "The town on the hill is no longer lost in fog", "Legendary cards in the shop show in full", "Companions are smaller and stay by your side in boss fights", "Red dots show what's new: gear slots, companions, new cards, bounties and talents to spend", "The win and loss screens scroll again", "The Forge only calls you over when a card is ready"]},
@@ -9449,7 +9473,7 @@ const ACT = {
   roost: () => { S = {screen:'companions', rtab: uiTab('rtab', 'comps')}; render(); }, rtab: d => { S.rtab = UI().rtab = d.i; S.sellArm = null; render(); },
   buyans: d => { const sku = S.sheet && S.sheet.buy; if (!sku) return; Stats.send('buy', {sku, price: skuInfo(sku).price, step: d.i}); S.sheet = null; toast(d.i === 'yes' ? 'Thanks, noted' : 'Noted'); render(); },
   market: () => { UI().dealSeen = dayKey(); S = {screen:'market', mtab: uiTab('mtab', 'today')}; render(); }, purchase: d => purchase(d.i), wear: d => wear(d.i), mtab: d => { S.mtab = d.i; if (d.i !== 'souls') UI().mtab = d.i; if (d.i === 'today') UI().dealSeen = dayKey(); render(); }, mslot: d => { S.mslot = d.i; render(); }, cslot: d => { S.cslot = d.i; render(); },
-  buycache: d => buyCache(+d.i), cachex: () => { S.cacheOpen = null; render(); }, deal: d => buyDeal(+d.i), prov: d => buyProv(d.i), buy: d => shop('buy', d.i), sell: d => { if (S.sellArm !== d.i) { S.sellArm = d.i; return render(); } S.sellArm = null; shop('sell', d.i); }, equip: d => { S.sellArm = null; shop('equip', d.i); }, buycomp: d => shop('comp', d.i), buypot: d => shop('pot', d.i),
+  buycache: d => buyCache(+d.i), cachex: () => { S.cacheOpen = null; render(); }, deal: d => buyDeal(+d.i), prov: d => buyProv(d.i), buydust: () => buyDust(), wander: d => buyWander(d.i), buycos: d => { const c = COSMETICS.find(y => y.id === d.i); if (!c || !c.souls || owns(c.id) || (META.souls || 0) < c.souls) return; META.souls -= c.souls; COS().owned[c.id] = 1; sfx('chime'); save(); render(); }, buy: d => shop('buy', d.i), sell: d => { if (S.sellArm !== d.i) { S.sellArm = d.i; return render(); } S.sellArm = null; shop('sell', d.i); }, equip: d => { S.sellArm = null; shop('equip', d.i); }, buycomp: d => shop('comp', d.i), buypot: d => shop('pot', d.i),
   options: () => { S.resetArm = false; S.screen = 'options'; render(); },
   opt: d => { META.opt[d.i] = !META.opt[d.i]; save(); setVols(); if (d.i === 'music' || d.i === 'sound') Music.kick(); if (d.i === 'haptics' && META.opt.haptics) buzz(20);
     // flip the switch in place: a full re-render here made iOS jump the page
