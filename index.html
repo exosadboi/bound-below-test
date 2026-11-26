@@ -2767,7 +2767,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy life and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.121-test'; // bump for every build you send to testers
+const VERSION = '0.122-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -3475,18 +3475,20 @@ function applySt(e, ts) { const p = P(); (e.st || []).forEach(([id, v, t, f]) =>
 const ACCT = [
   {id:'vitality', n:'Vitality', art:'heart', f:'angel', d:r => `+${3 * r} max life`},
   {id:'might', n:'Power', art:'slash', f:'demon', d:r => `+${pct(2 * r)} damage`},
-  {id:'bulwark', n:'Defence', art:'shield', f:'angel', d:r => `+${pct(2 * r)} block`},
-  {id:'precision', n:'Precision', art:'burst', f:'demon', d:r => `+${pct(r)} crit chance`},
+  {id:'bulwark', n:'Defence', art:'shield', f:'angel', d:r => `+${pct(3 * r)} block`},
+  {id:'precision', n:'Precision', art:'burst', f:'demon', d:r => `+${pct(2 * r)} crit chance`},
   {id:'siphon', n:'Lifesteal', art:'heart', f:'demon', d:r => `Heal for ${pct(r / 2)} of the damage you deal`},
-  {id:'resto', n:'Restoration', art:'heart', f:'angel', d:r => `+${pct(2 * r)} healing`},
-  {id:'deepwell', n:'Deep Well', art:'orb', f:'angel', d:r => `Start each fight with +${Math.floor((r + 1) / 2)} mana`},
+  {id:'resto', n:'Restoration', art:'heart', f:'angel', d:r => `+${pct(4 * r)} healing`},
+  {id:'deepwell', n:'Deep Well', art:'orb', f:'angel', d:r => `Start each fight with +${r} mana`},
   {id:'momentum', n:'Momentum', art:'rune', f:'angel', d:r => `Your ultimate charges ${pct(4 * r)} faster`},
-  {id:'secondlook', n:'Second Look', art:'tome', f:'angel', d:r => `Draw ${Math.floor((r + 4) / 5)} extra on turn 1`},
-  {id:'firstbreath', n:'First Breath', art:'twin', f:'angel', d:r => Math.floor((r + 4) / 5) === 1 ? 'Your first switch each fight is free' : `Your first ${Math.floor((r + 4) / 5)} switches each fight are free`},
+  {id:'secondlook', n:'Second Look', art:'tome', f:'angel', d:r => `Draw ${stepN(r)} extra on turn 1` + stepTxt(r, 'another')},
+  {id:'firstbreath', n:'First Breath', art:'twin', f:'angel', d:r => (stepN(r) === 1 ? 'Your first switch each fight is free' : `Your first ${stepN(r)} switches each fight are free`) + stepTxt(r, 'one more')},
   {id:'fortune', n:'Fortune', art:'orb', f:'demon', d:r => `+${pct(4 * r)} gold`},
   {id:'insight', n:'Quick Study', art:'tome', f:'demon', d:r => `+${pct(4 * r)} experience`},
 ];
 const acctCost = r => 1 + Math.floor(r / 2);
+const stepN = r => r ? 1 + Math.floor((r - 1) / 4) : 0, stepP = r => r ? (r - 1) % 4 * 25 : 0, stepRoll = r => stepN(r) + (Math.random() * 100 < stepP(r) ? 1 : 0); // a count that grows every 4 ranks; the ranks between add a 25% chance of one more
+const stepTxt = (r, w) => stepP(r) ? ` · ${stepP(r)}% chance of ${w}` : '';
 // duo trees: 5 rows of 2 talents (5 ranks each) and a 1-rank capstone. Row k needs 5k points in that tree; the capstone needs 40.
 const TREES = {fallen: [
   {id:'grace', n:'Grace', f:'angel', blurb:'The Angel: block, healing and holy light', t:[
@@ -3498,7 +3500,7 @@ const TREES = {fallen: [
     {id:'vigil', n:'Standing Guard', art:'hourglass', d:r => `As the Angel, keep ${10 * r}% of your block for your next turn`},
     {id:'halo', n:'Hale', art:'rune', d:r => `+${3 * r} max life`},
     {id:'sanctity', n:'Sanctity', art:'venom', d:r => `Regen and Ward you gain are ${15 * r}% stronger`},
-    {id:'clarity', n:'Clarity', art:'orb', d:r => `${20 * r}% chance that switching to the Angel is free`},
+    {id:'clarity', n:'Clarity', art:'orb', d:r => r >= 5 ? 'Switching to the Angel is free' : `${20 * r}% chance that switching to the Angel is free`},
     {id:'wall', n:'Shield Wall', art:'shield', d:r => `Your first Angel block card each turn gives +${2 * r} block`},
     {id:'avatar', n:'Avatar of Grace', art:'burst', cap:1, d:() => 'The Angel no longer loses damage each turn'}]},
   {id:'wrath', n:'Wrath', f:'demon', blurb:'The Demon: raw damage, blood and execution', t:[
@@ -3508,20 +3510,20 @@ const TREES = {fallen: [
     {id:'gorge', n:'Gorge', art:'heart', d:r => `Heal ${r} when the Demon kills an enemy`},
     {id:'hide', n:'Hardened Hide', art:'shield', d:r => `Start each Demon turn with ${r} block`},
     {id:'savage', n:'Savagery', art:'slash', d:r => `+${2 * r}% crit chance as the Demon`},
-    {id:'exec', n:'Executioner', art:'skull', d:r => `+${4 * r}% damage to enemies below half life`},
-    {id:'bloodaura', n:'Blood Aura', art:'heart', d:r => `Demon attacks heal ${2 * r}% of damage dealt`},
-    {id:'rage', n:'Mounting Rage', art:'burst', d:r => `Each turn you stay the Demon: +1 damage (max +${r})`},
+    {id:'exec', n:'Executioner', art:'skull', d:r => `+${5 * r}% damage to enemies below half life`},
+    {id:'bloodaura', n:'Blood Aura', art:'heart', d:r => `Demon attacks heal ${r / 2}% of damage dealt`},
+    {id:'rage', n:'Mounting Rage', art:'burst', d:r => `As the Demon: +2 damage, +2 more each turn you stay (max +${r})`},
     {id:'pyre', n:'Malice', art:'burst', d:r => `Burn, Poison and Doom you inflict are ${15 * r}% stronger`},
-    {id:'heartwrath', n:'Heart of Wrath', art:'skull', cap:1, d:() => 'Kills as the Demon restore 1 energy'}]},
+    {id:'heartwrath', n:'Heart of Wrath', art:'skull', cap:1, d:() => 'Kills as the Demon give +2 energy and draw 1'}]},
   {id:'twilight', n:'Twilight', f:'twin', blurb:'Switching: free changes, tempo and balance', t:[
     {id:'quick', n:'Quick Change', art:'twin', d:r => `${15 * r}% chance a switch is free`},
-    {id:'turning', n:'Turning', art:'tome', d:r => `${20 * r}% chance to draw 1 when you switch`},
-    {id:'ascend', n:'Ascend', art:'rune', d:r => `${20 * r}% chance switching charges your ultimate by 1`},
+    {id:'turning', n:'Turning', art:'tome', d:r => r >= 5 ? 'Each switch: draw 1' : `${20 * r}% chance to draw 1 when you switch`},
+    {id:'ascend', n:'Ascend', art:'rune', d:r => r >= 5 ? 'Each switch: +1 Ult' : `${20 * r}% chance a switch gives +1 Ult`},
     {id:'afterimage', n:'Afterimage', art:'shield', d:r => `Each switch: Block ${r}`},
     {id:'crossfate', n:'Crossed Fate', art:'twin', d:r => `Switched: bonuses are ${20 * r}% bigger`},
     {id:'echobond', n:'Echo Bond', art:'orb', d:r => `Companion echoes ${4 * r}% stronger`},
     {id:'balance', n:'Balance', art:'twin', d:r => `After you switch: +${3 * r}% damage this turn`},
-    {id:'oathkeeper', n:'Oathkeeper', art:'twin', d:r => `Side-only buffs you gain are ${20 * r}% stronger`},
+    {id:'oathkeeper', n:'Oathkeeper', art:'twin', d:r => r >= 5 ? 'Side-only buffs you gain are twice as strong' : `Side-only buffs you gain are ${20 * r}% stronger`},
     {id:'flow', n:'Flow', art:'hourglass', d:r => `${20 * r}% chance the first card after a switch costs 0 energy`},
     {id:'edge', n:'Twilight Edge', art:'slash', d:r => `Your first hit after each switch deals +${r}`},
     {id:'perfect', n:'Perfect Balance', art:'twin', cap:1, d:() => 'Your first switch each turn is free'}]},
@@ -3555,10 +3557,10 @@ TREES.ember = [
     {id:'hide', n:'Rimeguard', art:'shield', d:r => `Start each Rime turn with ${r} block`},
     {id:'coldhands', n:'Cold Hands', art:'rage', d:r => `+${2 * r}% crit chance as Rime`},
     {id:'permafrost', n:'Permafrost', art:'hourglass', d:r => `As Rime, keep ${10 * r}% of your block for your next turn`},
-    {id:'icevent', n:'Ice Vent', art:'orb', d:r => `Vent cards get +${r} damage or block`},
+    {id:'icevent', n:'Rime Shell', art:'shield', d:() => 'As Rime, block cards get +4'},
     {id:'numbing', n:'Numbing Cold', art:'skull', d:r => `Chilled enemies deal a further ${3 * r}% less`},
     {id:'frostlife', n:'Frozen Blood', art:'heart', d:r => `+${3 * r} max life`},
-    {id:'winterrest', n:'Winter Rest', art:'heart', d:r => `Heal ${r} at the start of each Rime turn`},
+    {id:'winterrest', n:'Winter Rest', art:'heart', d:r => `Heal ${Math.ceil(r / 2)} at the start of each Rime turn`},
     {id:'winterheart', n:'Heart of Winter', art:'burst', cap:1, d:() => 'Your Freeze and Chill last 1 turn longer'}]},
   {id:'equil', n:'Equilibrium', f:'twin', blurb:'Both: switch at the right moment, ride the edge', t:[
     {id:'afterimage', n:'Steam Shield', art:'shield', d:r => `Each switch: Block ${r}`},
@@ -3568,8 +3570,8 @@ TREES.ember = [
     {id:'steam', n:'Scalding Steam', art:'burst', d:r => `Becoming Rime at 6+ Heat deals ${2 * r} to every enemy`},
     {id:'controlled', n:'Controlled Burn', art:'orb', d:r => r >= 3 ? 'Rime no longer loses Heat' : `Rank 3: Rime no longer loses Heat (${r}/3)`},
     {id:'erwell', n:'Reserve', art:'orb', d:r => `Start each fight with ${r} extra mana`},
-    {id:'turning', n:'Fresh Hand', art:'tome', d:r => `${20 * r}% chance to draw 1 when you switch`},
-    {id:'ascend', n:'Surge', art:'rune', d:r => `${20 * r}% chance a switch gives +1 Ult`},
+    {id:'turning', n:'Fresh Hand', art:'tome', d:r => r >= 5 ? 'Each switch: draw 1' : `${20 * r}% chance to draw 1 when you switch`},
+    {id:'ascend', n:'Surge', art:'rune', d:r => r >= 5 ? 'Each switch: +1 Ult' : `${20 * r}% chance a switch gives +1 Ult`},
     {id:'equivital', n:'Equipoise', art:'heart', d:r => `+${2 * r} max life`},
     {id:'perfect', n:'Perfect Balance', art:'twin', cap:1, d:() => 'Your first switch each turn is free'}]}];
 PASSIVES.ember = [
@@ -3679,27 +3681,27 @@ const findTal = id => { for (const tr of TREE_LIST()) { const k = tr.t.findIndex
    Every won fight banks track experience at once, split by how it was played (trackSplit): Bound takes the balance, the leaned-on form the rest. ---------- */
 const CH_CAP = 35, CH_STEP = 5, CH_TR = ['angel', 'bound', 'demon'], CH_K = {fallen: {angel: 2, bound: 4, demon: 2}, ember: {angel: 2, bound: 4, demon: 2}}; // an old talent taken as a perk works at this many times its listed rank, since only one track is live at a time
 const CH_NEW = { // perks with no old talent behind them. {a}/{d} = form names, {A} = the first form's damage type
-  easyturn:{n:'Easy Turn', art:'twin', d:() => 'Your first switch each fight is free'},
+  easyturn:{n:'Easy Turn', art:'twin', d:() => 'Your first 2 switches each fight are free'},
   lightchain:{n:'Light Chain', art:'twin', d:() => 'Switching costs 1 less mana'},
   twinsoul:{n:'Twin Soul', art:'twin', d:() => 'Side-only buffs work on both sides'},
   ascendant:{n:'Ascendant', art:'burst', d:() => '+20% damage as the {a}'},
   unchained:{n:'Unchained', art:'rage', d:() => '+20% damage as the {d}'},
   feast:{n:'Feast', art:'heart', d:() => 'Each kill heals 5% of your max life'},
-  rampage:{n:'Rampage', art:'skull', d:() => 'Each kill adds 2 to your hits for the rest of the fight'},
-  retrib:{n:'Retribution', art:'shield', d:() => 'Enemies that hit your block take a third of what it stopped'},
+  rampage:{n:'Rampage', art:'skull', d:() => 'Each kill adds 1 to your hits for the rest of the run (max +3)'},
+  retrib:{n:'Retribution', art:'shield', d:() => 'Enemies that hit your block take what it stopped'},
   holyfire:{n:'Holy Fire', art:'burst', d:() => 'Your {A} hits also Burn 2 for 2 turns'},
   harmony:{n:'Harmony', art:'twin', d:() => '+15% damage and block'},
   lastlight:{n:'Last Light', art:'burst', d:() => 'Leftover block at turn\'s end strikes every enemy for half its value'},
 };
 const CHAIN = {
   fallen: {
-    angel: [[['steadfast', 4], ['holylight', 5]], [['mender', 3], ['firstlight', 4]], [['vigil', 4], ['wall', 4]], [['mercy', 4], ['sanctity', 3]], [['retrib', 1], ['clarity', 4]], [['ascendant', 1], ['holyfire', 1]], [['lastlight', 1], ['exec', 5]]],
-    bound: [[['easyturn', 1], ['afterimage', 4]], [['turning', 3], ['ascend', 3]], [['edge', 4], ['flow', 3]], [['harmony', 1], ['oathkeeper', 3]], [['balance', 4], ['echobond', 5]], [['lightchain', 1], ['quick', 4]], [['perfect', 1], ['twinsoul', 1]]],
+    angel: [[['steadfast', 4], ['holylight', 5]], [['mender', 3], ['firstlight', 4]], [['vigil', 4], ['wall', 4]], [['mercy', 4], ['sanctity', 3]], [['retrib', 1], ['clarity', 5]], [['ascendant', 1], ['holyfire', 1]], [['lastlight', 1], ['exec', 5]]],
+    bound: [[['easyturn', 2], ['afterimage', 3]], [['turning', 5], ['ascend', 5]], [['edge', 4], ['flow', 3]], [['harmony', 1], ['oathkeeper', 5]], [['balance', 4], ['echobond', 5]], [['lightchain', 1], ['quick', 4]], [['perfect', 1], ['twinsoul', 1]]],
     demon: [[['fury', 4], ['hide', 4]], [['bloodthirst', 4], ['gorge', 4]], [['rage', 5], ['exec', 5]], [['bloodaura', 4], ['pyre', 3]], [['savage', 5], ['shadowm', 5]], [['heartwrath', 1], ['feast', 1]], [['unchained', 1], ['rampage', 1]]]},
   ember: {
     angel: [[['searing', 6], ['firem', 6]], [['kindling', 5], ['fireproof', 5]], [['stoked', 5], ['hothands', 5]], [['pyreheart', 5], ['ashborn', 5]], [['flashpoint', 5], ['pyre', 3]], [['livingflame', 1], ['ascendant', 1]], [['holyfire', 1], ['rampage', 1]]],
-    bound: [[['easyturn', 1], ['afterimage', 4]], [['balance', 4], ['thermal', 4]], [['quick', 4], ['steam', 4]], [['harmony', 1], ['controlled', 1]], [['turning', 3], ['ascend', 3]], [['lightchain', 1], ['echobond', 5]], [['perfect', 1], ['twinsoul', 1]]],
-    demon: [[['frostm', 4], ['glacial', 4]], [['numbing', 3], ['hide', 4]], [['coldhands', 3], ['permafrost', 4]], [['icevent', 2], ['brittle', 1]], [['winterrest', 2], ['retrib', 1]], [['unchained', 1], ['exec', 5]], [['feast', 1], ['rampage', 1]]]}};
+    bound: [[['easyturn', 2], ['afterimage', 3]], [['balance', 4], ['thermal', 4]], [['quick', 4], ['steam', 4]], [['harmony', 1], ['controlled', 1]], [['turning', 5], ['ascend', 5]], [['lightchain', 1], ['echobond', 5]], [['perfect', 1], ['twinsoul', 1]]],
+    demon: [[['frostm', 4], ['glacial', 4]], [['numbing', 3], ['hide', 4]], [['coldhands', 5], ['permafrost', 4]], [['icevent', 4], ['brittle', 2]], [['winterrest', 1], ['retrib', 1]], [['unchained', 1], ['exec', 5]], [['feast', 1], ['rampage', 1]]]}};
 const chDef = id => CH_NEW[id] || (findTal(id) || {}).tal || Object.values(TREES).flat().flatMap(tr => tr.t).find(x => x.id === id) || {n: id, art: 'rune', d: () => ''}; // this duo's name first, then any duo's
 const chTxt = s => (HEATD() ? s.replace(/the \{([ad])\}/g, '{$1}') : s).replace('{a}', DUO_DEF().forms.angel.n).replace('{d}', DUO_DEF().forms.demon.n).replace('{A}', DUO_DEF().forms.angel.dmg);
 const CH_NOK = ['turning', 'ascend', 'flow', 'quick', 'clarity', 'oathkeeper']; // chances and % boosts: the track multiplier would push them past 100%
@@ -4092,16 +4094,16 @@ const earned = () => duoLevel(DUO().xp).L - 1;
 const dtPoints = () => chOpen(); // perks waiting to be picked
 const psEarned = () => CH_TR.reduce((a, k) => a + Math.max(0, trRaw(k) - CH_CAP), 0) + (DUO().psOld || 0); // every level past a full track, plus what old saves had
 const psPoints = () => Math.max(0, psEarned() - pasSpent());
-const healMult = () => (1 + .02 * AT('resto') + .1 * TR('mender') + .02 * PS('resto2')) * (hz(14) ? .75 : 1) * (pen('starve') ? .67 : 1) ;
+const healMult = () => (1 + .04 * AT('resto') + .1 * TR('mender') + .02 * PS('resto2')) * (hz(14) ? .75 : 1) * (pen('starve') ? .67 : 1) ;
 function healP(n) { const p = P(), h = Math.round(n * healMult()), g = Math.max(0, Math.min(h, p.maxHp - p.hp)); p.hp += g; if (S.f && h > 0) { p.healT = (p.healT || 0) + 1; compCombo('heal', p.healT); } return h; }
-const blockMult = () => (1 + .02 * AT('bulwark') + .02 * PS('warding') + .15 * TR('harmony')) * (boon('woundtithe') ? .75 : 1);
+const blockMult = () => (1 + .03 * AT('bulwark') + .02 * PS('warding') + .15 * TR('harmony')) * (boon('woundtithe') ? .75 : 1);
 function dmgMult(e, t, ty) { const p = P();
   let m = 1 + .02 * AT('might') + .15 * TR('harmony') + (boon('glass') ? .3 : 0) + (mut('glass') ? .4 : 0) + (pen('glass') ? .3 : 0) + (p.form === 'demon' ? .03 * TR('fury') + .2 * TR('unchained') : .2 * TR('ascendant'));
   if (ty === 'holy') m += .03 * TR('holylight') + .02 * TR('firem') + .02 * PS('holym');
   if (p.form === 'angel') m += .02 * TR('searing');
   if (ty === 'shadow') m += .03 * TR('shadowm') + .03 * TR('frostm') + .02 * PS('shadowm2');
   if (p.switched) m += .03 * TR('balance');
-  if (t && t.hp < t.max / 2) m += .04 * TR('exec');
+  if (t && t.hp < t.max / 2) m += .05 * TR('exec');
   if (t && p.shpt && stOn(t, 'chill')) m += .3; // Shatterpoint
   if (t && t.id === 'colossus' && alive().some(x => x.id === 'bonearcher')) m *= .5; // Bone Wall
   if (boon('lonely') && S.f && alive().length === 1) m += .25;
@@ -4241,7 +4243,7 @@ function newRun(heat, daily, S0len, pens) {
   if (META.stash.length && !RUNKIT) { META.stash = []; save(); }
   if (!RUNKIT && META.prov && (META.prov.purse || META.prov.oil)) { if (META.prov.purse) S.gold += 40; if (META.prov.oil) { S.p.maxHp += 10; S.p.hp += 10; } META.prov = {}; save(); }
   if (hz(9)) S.p.pots.pop();
-  S.boons = []; if (!daily) Math.random = NATIVE_RANDOM; S.runLen = daily || S.tut ? 1 : (runLens().includes(+(S0len || 0)) ? +S0len : defLen()); S.acts = pickActs(S.runLen); startAct(1); rollDoors();
+  S.boons = []; if (!daily) Math.random = window.__simRnd || NATIVE_RANDOM; S.runLen = daily || S.tut ? 1 : (runLens().includes(+(S0len || 0)) ? +S0len : defLen()); S.acts = pickActs(S.runLen); startAct(1); rollDoors();
   if (S.tut && !daily) render(); else offerBoon('Choose an omen', 'doors');
 }
 function rollDoors() {
@@ -4289,7 +4291,7 @@ function startFight(kind, pre) { S.lastKind = arguments[0]; S.rested = false; if
  if (pen('hunter') && S.step === 5 && kind === 'elite') en.forEach(e => { e.hp = e.max = Math.round(e.max * 1.25); e.dm = (e.dm || 1) * 1.25; });
   if (S.fights) p.mana = Math.min(p.maxMana, p.mana + 2 * p.regen);
   S.fights = (S.fights || 0) + 1;
-  Object.assign(p, {spN: 0, sunH: 0, shpt: 0, evb: 0, judg: 0, sin: 0, vUsed: false, shatterN: 0, seal: false, sealHp: 0, ramp: 0, swBlk: 0, swDmg: 0, woundP: 0, woundN: 0, tickB: 0, tickC: 0, cov: null, lastC: null, lastPrev: null, heat: HEATD() ? 2 + Math.ceil(TR('kindling') * .6) : 0, thermal: false, em:{holy:0, shadow:0}, nextFree:null, blk:0, stack:0, furyT:0, haloT:0, sil:0, burst:0, blessT:0, lostT:0, bp:false, echoes:0, compFirst:false, cds:{}, free:false, freeLeft:(AT('firstbreath') ? Math.floor((AT('firstbreath') + 4) / 5) : 0) + TR('easyturn'), lsAcc:0, edge:false, flowFree:false, wallUsed:false, kindle:compOn('imp'), bones:0, st:{}});
+  Object.assign(p, {spN: 0, sunH: 0, shpt: 0, evb: 0, judg: 0, sin: 0, vUsed: false, shatterN: 0, seal: false, sealHp: 0, ramp: TR('rampage') ? S.rampN || 0 : 0, swBlk: 0, swDmg: 0, woundP: 0, woundN: 0, tickB: 0, tickC: 0, cov: null, lastC: null, lastPrev: null, heat: HEATD() ? 2 + Math.ceil(TR('kindling') * .6) : 0, thermal: false, em:{holy:0, shadow:0}, nextFree:null, blk:0, stack:0, furyT:0, haloT:0, sil:0, burst:0, blessT:0, lostT:0, bp:false, echoes:0, compFirst:false, cds:{}, free:false, freeLeft:stepRoll(AT('firstbreath')) + TR('easyturn'), lsAcc:0, edge:false, flowFree:false, wallUsed:false, kindle:compOn('imp'), bones:0, st:{}});
   if (S.comp && COMPANIONS[S.comp] && eqd('bellcollar')) p.echoes = ilv('bellcollar') >= 6 ? 2 : 1;
   if (S.comp && eqd('blanket')) p.blk += 4 + Math.floor((ilv('blanket') - 1) / 2);
   if (eqd('thornring')) addSt(p, 'thorns', gsr('thornring', 3, .5), 3);
@@ -4311,7 +4313,7 @@ function startFight(kind, pre) { S.lastKind = arguments[0]; S.rested = false; if
   p.opener = boon('opening');
   if (eqd('plaguemask')) en.forEach(x => addSt(x, 'poison', gsr('plaguemask', 3, .5)));
   p.blk += 2 * TR('firstlight') + gsr('warding', 5, 2);
-  if (AT('deepwell')) p.mana = Math.min(p.maxMana, p.mana + Math.floor((AT('deepwell') + 1) / 2));
+  if (AT('deepwell')) p.mana = Math.min(p.maxMana, p.mana + AT('deepwell'));
   if (TR('erwell')) p.mana = Math.min(p.maxMana, p.mana + TR('erwell'));
   if (eqd('emberheart')) p.mana = Math.min(p.maxMana, p.mana + 3 + Math.floor((ilv('emberheart') - 1) / 2));
   S.arm = null; S.info = null;
@@ -4356,7 +4358,7 @@ function startTurn() {
   if (p.blessT > 0) { const h = healP((p.blessV + TR('mercy')) * (p.form === 'demon' ? 2 : 1)); p.blessT--; log('Your blessing heals ' + h + '.'); }
   const rage = hz(2) ? 3 : 4;
   if (f.turn > rage) { alive().forEach(e => e.str += hz(16) ? 4 : 3); log(f.turn === rage + 1 ? 'Their patience snaps. They hit harder every turn now.' : 'Their fury grows.'); }
-  if (f.turn > 1 && p.form === 'demon' && TR('winterrest')) healP(TR('winterrest'));
+  if (f.turn > 1 && p.form === 'demon' && TR('winterrest')) healP(Math.ceil(TR('winterrest') / 2));
   if (f.turn > 1 && compOn('tortoise')) p.blkCarry = Math.floor(blkWas * (.1 + .02 * (compLv() - 1)));
   if (f.turn > 1) { p.blk = p.keepBlk ? (p.keepBlk = false, p.blk) : Math.max(p.form === 'angel' && TR('vigil') ? Math.floor(p.blk * .1 * TR('vigil')) : p.form === 'demon' && TR('permafrost') ? Math.floor(p.blk * .1 * TR('permafrost')) : 0, boon('bastion') ? Math.floor(p.blk / 3) : 0); if (boon('spring')) p.mana = Math.min(p.maxMana, p.mana + 1); if (mut('flow')) p.mana = Math.min(p.maxMana, p.mana + 2); if (boon('sanguine') && p.form === 'demon') healP(3); if (p.form === 'demon') p.blk += TR('hide'); p.blk += p.bones || 0; p.mana = Math.min(p.maxMana, p.mana + p.regen + (p.haloT ? 2 : 0)); if (p.haloT) p.haloT--; }
   if (p.blkCarry) { p.blk += p.blkCarry; p.blkCarry = 0; }
@@ -4366,14 +4368,14 @@ function startTurn() {
   if (f.turn === 1 && p.form === 'demon') p.blk += TR('hide');
   if (f.turn > 1 && p.tickB) { alive().forEach(t => addSt(t, 'burn', p.tickB, 2)); addHeat(1); }
   if (f.turn > 1 && p.tickC) { alive().forEach(t => addSt(t, 'chill', 1, 2)); p.blk += blkOf(p.tickC); }
-  draw(Math.max(0, 5 - f.hand.length + (boon('sight') ? 1 : 0) + (boon('hollow') ? 2 : 0) + (boon('stillborn') ? 2 : 0) + (boon('earlygrave') && f.turn === 1 ? 3 : 0) + (boon('vane') && S.vane === 2 ? 1 : 0) + (f.turn === 1 && AT('secondlook') ? Math.floor((AT('secondlook') + 4) / 5) : 0)));
+  draw(Math.max(0, 5 - f.hand.length + (boon('sight') ? 1 : 0) + (boon('hollow') ? 2 : 0) + (boon('stillborn') ? 2 : 0) + (boon('earlygrave') && f.turn === 1 ? 3 : 0) + (boon('vane') && S.vane === 2 ? 1 : 0) + (f.turn === 1 && AT('secondlook') ? stepRoll(AT('secondlook')) : 0)));
   f.hand.forEach(c => delete c.chained); if (hz(20) && f.hand.length > 1) f.hand[Math.floor(Math.random() * f.hand.length)].chained = true; // Dread 20: one card a turn is chained
 }
 /* ---------- heat duos (Ember & Rime): one Heat gauge instead of form stacks ----------
    Ember cards add Heat (ht); Ember hits get +1 per 2 Heat; at 10 Heat you Overheat (blast everything, get burned, back to 0).
    Rime cools 2 Heat a turn, its hits on Chilled enemies are Brittle (+3), and Vent cards spend all Heat for +N per Heat. */
 const HEATD = () => DUO_DEF().kind === 'heat', HEAT_MAX = 10;
-const ventAmt = e => !e || !HEATD() ? 0 : (e.vent ? (e.vent + (boon('deepvent') ? 1 : 0)) * (P().heat || 0) + (P().heat ? TR('icevent') : 0) : 0) + (e.perHeat ? (e.perHeat + (boon('deepvent') ? 1 : 0)) * (P().heat || 0) : 0); // perHeat scales with Heat and keeps it
+const ventAmt = e => !e || !HEATD() ? 0 : (e.vent ? (e.vent + (boon('deepvent') ? 1 : 0)) * (P().heat || 0) + 0 : 0) + (e.perHeat ? (e.perHeat + (boon('deepvent') ? 1 : 0)) * (P().heat || 0) : 0); // perHeat scales with Heat and keeps it
 function addHeat(n) { const p = P(); if (!HEATD() || !n || dmode() === 'unD') return; p.heat = Math.max(0, Math.min(heatMax(), (p.heat || 0) + n)); if (p.heat >= heatMax()) overheat(); } // Unbound Rime: Heat stays at 0
 function overheat() { P().ovhT = true; charge(2); const p = P(), d = (dmode() === 'unA' ? 12 : 10) + 3 * Math.min(2, (S.act || 1) - 1) + TR('pyreheart') + (boon('wildheat') ? 5 : 0) - (boon('kindled') ? 3 : 0) + (eqd('coalheart') ? 3 + Math.floor((ilv('coalheart') - 1) / 2) : 0), burn = TR('livingflame') || p.sunH || boon('kindled') ? 0 : Math.floor(Math.max(1, 4 - Math.ceil(TR('fireproof') * .6)) * chEase('angel'));
   p.heat = 0; log('OVERHEAT! Flame engulfs every enemy for ' + d + '.'); sfx('big'); S.shake = true; fxe('ovh'); fxe('ult', {form: 'angel'});
@@ -4385,7 +4387,7 @@ const immOf = e => { const q = e.p2on && FOES[e.id].p2; return q && q.immune ? (
 const liveTgt = () => { const f = S && S.f; if (!f || !f.en) return null; const t = f.en[f.tgt]; return t && t.hp > 0 ? t : f.en.find(x => x.hp > 0) || null; };
 function calc(e, t) {
   const p = P(); let d = e.blkdmg ? p.blk : e.dmg + ventAmt(e);
-  if (p.form === 'demon' && !p.sil && !HEATD()) d += 2 + Math.min(p.stack, TR('rage'));
+  if (p.form === 'demon' && !p.sil && !HEATD()) d += 2 + Math.min(2 * (p.stack + 1), TR('rage'));
   if (HEATD() && !p.sil) { if (p.form === 'angel') { d += (e.dmg != null ? 3 : 0) + Math.floor(Math.min(10, p.heat || 0) / 2) + ((p.heat || 0) >= 6 ? Math.ceil(TR('hothands') / 2) : 0); if (t && stOn(t, 'chill') && e.dmg != null) d += 4 + TR('brittle'); } else if (t && stOn(t, 'chill') && dmode() === 'unD') d += 4; } // Rime chills, Ember shatters: Brittle is Ember's payoff
   if (HEATD() && p.thermal && e.dmg != null) d += TR('thermal');
   if (p.edge && e.dmg != null) d += TR('edge');
@@ -4435,7 +4437,7 @@ function calc(e, t) {
 const curseN = t => Object.keys(t.st || {}).filter(id => STATUS[id] && STATUS[id].bad && t.st[id].v > 0).length + (t.ex && t.ex.holy ? 1 : 0) + (t.ex && t.ex.shadow ? 1 : 0) + (t.leechT ? 1 : 0) + (t.sil ? 1 : 0) + (t.vuln ? 1 : 0);
 const cursed = t => !!(t.vuln || t.sil || t.mark || t.leechT || Object.keys(t.st || {}).some(id => STATUS[id].bad) || (t.ex && (t.ex.holy || t.ex.shadow)));
 const blkOf = v => Math.max(0, blkOf0(v) - (v > 0 ? (boon('overflow') ? 2 : 0) + (boon('bloodward') ? 1 : 0) : 0));
-const blkOf0 = v => Math.round((v + (!P().sil && (HEATD() ? P().form === 'demon' && dmode() !== 'unA' : P().form === 'angel') ? 2 : 0)) * (blockMult() + (P().form === 'angel' ? .05 * TR('steadfast') : .05 * TR('glacial'))) * (stOn(P(), 'frail') ? .75 : 1) * (boon('glasshalo') && P().form === 'angel' ? 2 : 1)); // status: frail
+const blkOf0 = v => Math.round((v + (HEATD() && P().form === 'demon' && TR('icevent') ? 4 : 0) + (!P().sil && (HEATD() ? P().form === 'demon' && dmode() !== 'unA' : P().form === 'angel') ? 2 : 0)) * (blockMult() + (P().form === 'angel' ? .05 * TR('steadfast') : .05 * TR('glacial'))) * (stOn(P(), 'frail') ? .75 : 1) * (boon('glasshalo') && P().form === 'angel' ? 2 : 1)); // status: frail
 function hit(t, d, pierce) { const a = pierce ? 0 : Math.min(t.blk, d), h0 = t.hp; t.blk -= a; t.hp = Math.max(0, t.hp - (d - a)); t.fx = '-' + d; brkHit(t, d); return h0 - t.hp; }
 // a charging enemy breaks if you deal enough damage before its signature hit lands: it staggers and loses that turn
 function brkHit(t, d) { if (!t.brk || !(d > 0) || t.hp <= 0) return; t.brk.got += d; if (t.brk.got < t.brk.need) return;
@@ -4454,9 +4456,9 @@ function applyEff(e) {
   if (e.sunder) ts.forEach(t => { t.blk = Math.max(0, t.blk - e.sunder); });
   let dealt = 0, leeched = 0, kills = 0, over = false; const feast = e.cHeal && tg.hp > 0 && cursed(tg), curses = e.healCurse && tg.hp > 0 ? curseN(tg) : 0;
   if (e.dmg != null || e.blkdmg) for (let n = 0; n < (e.hits || 1); n++) ts.forEach(t => {
-    if (t.hp <= 0) return; let dd = calc(e, t); if (p.opener && dd > 0) dd *= 2; if (boon('brittle') && t.frozen && dd > 0) { dd *= 3; t.frozen = 0; log('Brittle Ice: the Freeze shatters.'); } const crit = dd > 0 && (p.critNext ? !(p.critNext = 0) : Math.random() < (AT('precision') + (p.form === 'demon' ? 2 * TR('savage') + 2 * TR('coldhands') : 2 * TR('stoked')) + (compOn('cat') ? 5 + compLv() + (eqd('hungryvessel') ? 5 + ilv('hungryvessel') - 1 : 0) : 0)) / 100); if (crit) { p.critT = (p.critT || 0) + 1; compCombo('crit', p.critT); }
-    if (crit) { dd = Math.round(dd * 1.5); sfx('crit'); bounty('crits'); } if (t.id === 'gargoyle' && dd < 6) dd = 0; const hp0 = t.hp, ab = e.pierce ? 0 : Math.min(t.blk || 0, Math.max(0, dd)); // ab: what the enemy's block soaks, shown apart from the number
-    const h = hit(t, dd, e.pierce); stat('dmg', h); if (dd > (STATS().maxHit || 0)) STATS().maxHit = dd; if ((boon('holyfire') || TR('holyfire')) && h > 0 && !e.ty && p.form === 'angel' && t.hp > 0) addSt(t, 'burn', 2, 2); if (boon('reaper') && t.hp > 0 && t.hp < t.max * .1) t.hp = 0; dealt += h; p.lsAcc = (p.lsAcc || 0) + h * (AT('siphon') / 2 + (p.form === 'demon' ? 2 * TR('bloodaura') : 0) + stV(p, 'vamp')) / 100;
+    if (t.hp <= 0) return; let dd = calc(e, t); if (p.opener && dd > 0) dd *= 2; if (boon('brittle') && t.frozen && dd > 0) { dd *= 3; t.frozen = 0; log('Brittle Ice: the Freeze shatters.'); } const crit = dd > 0 && (p.critNext ? !(p.critNext = 0) : Math.random() < (2 * AT('precision') + (p.form === 'demon' ? 2 * TR('savage') + 2 * TR('coldhands') : 2 * TR('stoked')) + (compOn('cat') ? 5 + compLv() + (eqd('hungryvessel') ? 5 + ilv('hungryvessel') - 1 : 0) : 0)) / 100); if (crit) { p.critT = (p.critT || 0) + 1; compCombo('crit', p.critT); }
+    if (crit) { dd = Math.round(dd * 2); sfx('crit'); bounty('crits'); } if (t.id === 'gargoyle' && dd < 6) dd = 0; const hp0 = t.hp, ab = e.pierce ? 0 : Math.min(t.blk || 0, Math.max(0, dd)); // ab: what the enemy's block soaks, shown apart from the number
+    const h = hit(t, dd, e.pierce); stat('dmg', h); if (dd > (STATS().maxHit || 0)) STATS().maxHit = dd; if ((boon('holyfire') || TR('holyfire')) && h > 0 && !e.ty && p.form === 'angel' && t.hp > 0) addSt(t, 'burn', 2, 2); if (boon('reaper') && t.hp > 0 && t.hp < t.max * .1) t.hp = 0; dealt += h; p.lsAcc = (p.lsAcc || 0) + h * (AT('siphon') / 2 + (p.form === 'demon' ? TR('bloodaura') / 2 : 0) + stV(p, 'vamp')) / 100;
     if (stV(t, 'thorns') && h > 0) loseHp(stV(t, 'thorns')); // status: thorns on enemies
     if (hz(19) && FOES[t.id] && FOES[t.id].final && t.hp > 0 && t.hp <= t.max / 4 && !t.rage25) { t.rage25 = 1; t.str += 6; fxe('etxt', {t, txt: 'Enraged +6', c: '255,90,70'}); }
     if (t.id === 'bloodknight' && p.form === 'demon' && h > 0 && t.hp > t.max / 2) { const hl = Math.floor(h / 2); t.hp = Math.min(t.max, t.hp + hl); fxe('etxt', {t, txt: 'Drinks ' + hl, c: '255,110,100'}); }
@@ -4465,8 +4467,8 @@ function applyEff(e) {
     S.bigHit = Math.max(S.bigHit || 0, dd); if (dd >= 25) bounty('bighit', dd);
     if (t.hp <= 0) { kills++; if (dd >= Math.max(20, hp0 * 2)) over = true; bounty('kills'); const V = VENG(); if (V && t.id === V.id && !V.paid && !S.daily && !S.endless) { V.paid = 1; META.souls = (META.souls || 0) + 20; fxe('call', {txt: 'Vengeance! +20 souls'}); save(); }
       sfx('kill'); if (boon('reaper')) healP(4); if (boon('idol')) { S.idolK = (S.idolK || 0) + 1; if (S.idolK === 25) { fxe('call', {txt: 'The idol wakes'}); log('The Feeding Idol wakes: +1 energy every turn.'); } } if (eqd('hungeridol')) healP(2 + Math.floor((ilv('hungeridol') - 1) / 2)); if (compOn('wolf')) { healP(cs(2)); S.echoed = true; } if (compOn('crow')) { p.bones = (p.bones || 0) + 1; p.blk += 1; S.echoed = true; } }
-    if (t.hp <= 0) { if (TR('feast')) healP(Math.round(p.maxHp * .05)); if (TR('rampage')) p.ramp = (p.ramp || 0) + 2; }
-    if (t.hp <= 0 && p.form === 'demon') { if (TR('gorge')) log('You gorge. +' + healP(TR('gorge')) + ' life.'); if (TR('heartwrath')) { p.ap += 1; log('Heart of Wrath: +1 energy.'); } } });
+    if (t.hp <= 0) { if (TR('feast')) healP(Math.round(p.maxHp * .05)); if (TR('rampage')) p.ramp = S.rampN = Math.min(3, (S.rampN || 0) + 1); }
+    if (t.hp <= 0 && p.form === 'demon') { if (TR('gorge')) log('You gorge. +' + healP(TR('gorge')) + ' life.'); if (TR('heartwrath')) { p.ap += 2; draw(1); log('Heart of Wrath: +2 energy, draw 1.'); } } });
   if (kills >= 2) { fxe('call', {txt: kills >= 3 ? 'Triple kill!' : 'Double kill!'}); bounty('multi'); S.shake = true; } else if (over) fxe('call', {txt: 'Overkill!', small: 1});
   if (dealt > 0) { p.edge = false; p.opener = false; }
   if (vj && p.vUsed) { p.judg = 0; compCombo('meter', 1); log('Verdict! ' + vj + ' Judgement spent.'); fxe('call', {txt: 'Verdict!', small: 1}); jsSpent('judg', vj); } p.vUsed = false;
@@ -4687,7 +4689,7 @@ function strike(v, pierce, by) { const p0 = P(), h0 = p0.hp;
   if (boon('veil') && S.f && !S.f.veil && v - (pierce ? 0 : Math.min(p0.blk, v)) >= 10) { v -= 5; S.f.veil = 1; log("The Mourner's Veil takes 5 off the blow."); }
   strike0(v, pierce, by); if (boon('woundtithe') && S.f) p0.wtM = (p0.wtM || 0) + Math.max(0, h0 - p0.hp); }
 function strike0(v, pierce, by) { const p = P(), a = pierce ? 0 : by && by.id === 'archon' && p.switched ? Math.min(Math.floor(p.blk / 2), v) : Math.min(p.blk, v), h0 = p.hp; if (by && by.id === 'furnace' && v > 0 && a >= v) addSt(p, 'burn', 3, 2); p.blk -= a; if (v - a > 0) S.hurt = {why: by ? by.n + (by.next && by.next.sig ? "'s " + by.next.sig : '') : 'a blow', v: v - a, pierce: !!pierce, sig: !!(by && by.next && by.next.sig), by: by && by.id};
-  if (by && a >= 3 && TR('retrib') && by.hp > 0) { const r = Math.floor(a / 3); by.hp = Math.max(0, by.hp - r); fxe('hit', {t: by, d: r, col: 'angel', dead: by.hp <= 0}); if (by.hp <= 0) by.dying = true; log('Retribution: ' + r + ' back.'); } p.hp = Math.max(0, p.hp - woundCap(v - a)); if (p.hp < h0 && S.f) { S.f.hurt = 1; p.hurtAcc = (p.hurtAcc || 0) + (h0 - p.hp); while (p.hurtAcc >= 5) { p.hurtAcc -= 5; charge(1); } } p.fx = '-' + v; nineLives(); S.lastStrike = Math.max(0, h0 - p.hp);
+  if (by && a >= 1 && TR('retrib') && by.hp > 0) { const r = a; by.hp = Math.max(0, by.hp - r); fxe('hit', {t: by, d: r, col: 'angel', dead: by.hp <= 0}); if (by.hp <= 0) by.dying = true; log('Retribution: ' + r + ' back.'); } p.hp = Math.max(0, p.hp - woundCap(v - a)); if (p.hp < h0 && S.f) { S.f.hurt = 1; p.hurtAcc = (p.hurtAcc || 0) + (h0 - p.hp); while (p.hurtAcc >= 5) { p.hurtAcc -= 5; charge(1); } } p.fx = '-' + v; nineLives(); S.lastStrike = Math.max(0, h0 - p.hp);
   { const late = S.f && S.f.eTurn && !FAST, snd = k => late ? setTimeout(() => sfx(k), 180) : sfx(k); // enemy turn: the sound lands with the lunge, not before it
   if (v - a > 0) { snd(v - a >= 12 ? 'big' : 'hurt'); if (v - a >= 12) S.shake = true; } else snd('block'); }
   if (a) fxe('blocked', {a, full: a >= v}); }
@@ -7574,6 +7576,7 @@ const GLOSSARY = [
   ['Free switch', 'Your next switch costs nothing.'],
   ['Hourglass', 'How many turns it lasts.'],
   ['Pierce', 'Ignores the enemy\'s block.'],
+  ['Crit', 'A hit that deals double.'],
   ['Break all', 'Strips all the enemy\'s block.'],
   ['Break', 'Strips that much enemy block.'],
     ['Lasting', 'This block stays one more turn.'],
@@ -8669,6 +8672,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
+  {v: '0.122', d: '27 Nov', n: ["Talent balance pass: every talent was tested on its own", "Crits now deal double", "Account talents: every rank now does something. Defence, Precision, Restoration and Deep Well give more. Second Look and First Breath add a 25% chance of one more each rank", "Too strong: Blood Aura, Winter Rest and Steam Shield / Afterimage are weaker", "Too weak: Retribution, Clarity, Turning, Ascend, Easy Turn, Oathkeeper, Mounting Rage, Executioner, Heart of Wrath, Cold Hands and Brittle are stronger", "Rampage now lasts the whole run (+1 per kill, max +3). Ice Vent is now Rime Shell: +4 to Rime block cards"]},
   {v: '0.121', d: '26 Nov', n: ["One way to write everything: 'Might 3 · 3 turns', 'Deal 6 to all', '+2 Judgement', 'Block 6', life (not health)", "Names that clashed are now unique: Sentence, Lay Bare, Brimstone, Drain, Ashen Guard, Deep Breath, Firebolt, Slaughter, and new names for several talents, boons and spells", "Gluttony gives more mana for more life. Carnage hits harder for less life. Cleansing Fire cures your Burn. Lash adds Weak", "Kindling and Fireproof now do something from rank 1", "The three basic potions have names. Energy and Mana are in the glossary"]},
   {v: '0.120', d: '26 Nov', n: ["Clearer card words: Toll (was Frenzy), Fester (was Held), Banish (was Spent), Lasting, Afflicted, Break all, Undying", "Shatter now means ×2 against Chilled or Frozen enemies. Stripping all block is Break all", "Trigger words read the same on every card: Switched:, Kept:, Kill:", "Vent covers every card that spends all your Heat. Purge empties a meter. Pour moves one meter into the other", "Turns show as '· 2 turns' instead of '2t'", "Final Verdict is now Last Rites"]},
   {v: '0.119.1', d: '26 Nov', n: ["New icons: Weak is a snapped sword, Sin is a pair of horns, Thorns is a bramble, Ward is a shield", "The Honed vow adds a quarter of the card's base numbers and can be picked once, so fully upgraded cards stay in check", "Low block cards grow every other rank"]},
