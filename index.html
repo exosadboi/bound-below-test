@@ -2603,7 +2603,7 @@ body.calm #fx{z-index:0} /* dust drifts behind the text, not over it */
 .dintro .di-stage{align-items:flex-start!important} .dintro .di-fig{position:relative;z-index:2} .dintro .di-chain{z-index:1} .dintro .di-fig small{min-height:2.4em}
 body:has(#app>.sheet) #titlepg{visibility:hidden}
 .ndot{display:inline-block;width:8px;height:8px;margin-left:5px;vertical-align:top;background:#e0443a;box-shadow:0 0 0 1px #2a0a08,0 0 6px rgba(224,68,58,.8);border-radius:50%} .cslot2 .cbox{position:relative} .cslot2 .ndot,.ccfig>.ndot{position:absolute;top:4px;left:4px;margin:0;z-index:3} .ccfig{position:relative} .dtab{position:relative} .gnew{font:400 11px/1 var(--display);font-style:normal;letter-spacing:.1em;text-transform:uppercase;color:#e0443a;margin-left:4px}
-#app .tpasrow{display:flex;align-items:center;gap:10px;width:100%;margin:10px 0 4px;padding:12px 14px;border:3px solid transparent;border-image:var(--k-inset) 10 fill / 10px stretch;background:none;color:var(--ink);text-align:left;cursor:pointer} #app .tpasrow b{font:400 16px/1 var(--display);letter-spacing:.08em;text-transform:uppercase;color:#e8d9b0} #app .tpasrow small{flex:1;font:400 13px/1.2 var(--body);color:var(--dim)} #app .tpasrow.on{border-image:var(--k-pri) 10 fill / 10px stretch} #app .tpasrow.on b,#app .tpasrow.on small{color:#1a1208} #app .tpasrow .ochev{color:var(--dim)} #app .tpasrow{justify-content:center;text-align:center;position:relative} #app .tpasrow small{flex:0 0 auto}
+#app .tpasrow{display:flex;align-items:center;gap:10px;width:100%;margin:10px 0 4px;padding:12px 14px;border:3px solid transparent;border-image:var(--k-inset) 10 fill / 10px stretch;background:none;color:var(--ink);text-align:left;cursor:pointer} #app .tpasrow b{font:400 16px/1 var(--display);letter-spacing:.08em;text-transform:uppercase;color:#e8d9b0} #app .tpasrow small{flex:1;font:400 13px/1.2 var(--body);color:var(--dim)} #app .tpasrow.on{border-image:var(--k-pri) 10 fill / 10px stretch} #app .tpasrow.on b,#app .tpasrow.on small{color:#1a1208} #app .tpasrow .ochev{color:var(--dim)} .sheet .buyp{text-align:center;font:400 18px/1.2 var(--display);color:var(--holy);margin:4px 0} .sheet .buyd{text-align:center;margin:6px 0 12px} .sheet [data-act=buyans]{width:100%;margin-top:8px} .sheet>div:has([data-act=buyans]) .btn[data-act=close]{display:none} #app .tpasrow{justify-content:center;text-align:center;position:relative} #app .tpasrow small{flex:0 0 auto}
 #app:has(.tdbar) .pg-body{padding-bottom:110px!important}
 #app .cgrid.shopc{overflow:visible!important;padding:16px 6px 0}
 #app .field .comp2 img{width:calc(var(--bw) * var(--k,1.3) * .82px)!important} #app .field .comp2.fly .cfly,#app .field .comp2[data-i=wisp] .cfly,#app .field .comp2[data-i=vesper] .cfly,#app .field .comp2[data-i=ashwing] .cfly{margin-bottom:calc(var(--k,1.3) * 9px)}
@@ -2767,7 +2767,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy health and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.116.4-test'; // bump for every build you send to testers
+const VERSION = '0.116.5-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -3165,7 +3165,9 @@ function grant(sku) { const pk = SOUL_PACKS.find(x => x.id === sku); if (pk) { M
 // a new duo walks into the camp: it is selected, the fire flares, and one line says who they are
 function duoJoin(id) { const x = DUO_STORE.find(y => y.id === id) || {}, n = x.n || (DUOS[id] && DUOS[id].n) || 'A new pair'; save(); S = {screen: 'camp'}; if (DUO_INTRO[id] && !duoMet(id)) return playIntro(id); META.duoSel = id; save(); sfx('chime'); buzz([20, 40, 20]); S = {screen: 'camp', sheet: {msg: n + ' join the fire', body: 'Chained like you. They descend when you are ready.'}}; render(); }
 window.fallenGrant = grant; // for the payment integration
-function purchase(sku) { S.sheet = {msg: 'The store opens at launch', body: 'Purchases are not connected in this build. When they are, this item unlocks right away and stays yours.'}; render(); }
+// tester build: no real payments. The sheet asks if they'd really pay, and the answer goes to the stats sheet (ev 'buy').
+const skuInfo = sku => { const pk = SOUL_PACKS.find(x => x.id === sku); if (pk) return {n: pk.n, price: pk.price, what: pk.souls + ' souls'}; const c = COSMETICS.find(x => x.id === sku); if (c) return {n: cosName(c), price: c.price || '', what: c.type}; return {n: sku, price: '', what: ''}; };
+function purchase(sku) { const x = skuInfo(sku); S.sheet = {buy: sku}; Stats.send('buy', {sku, price: x.price, step: 'view'}); render(); }
 function wear(id) { const c = COSMETICS.find(x => x.id === id); if (!c || !owns(id)) return;
   if (c.type === 'skin') { const d = META.duo[c.duo]; d.skin = d.skin === c.skin ? 'default' : c.skin; } else COS().frame = COS().frame === c.frame ? 'default' : c.frame; save(); render(); }
 /* ---------- the Daily Descent: one seeded run per day, the same for everyone, with two twists and a score ---------- */
@@ -8544,6 +8546,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
+  {v: '0.116.5', d: '26 Nov', n: ["Real-money buttons now ask if you'd really pay. Nothing is charged, but your answer helps us price things", "Two rests always have a fight between them", "Passives button is simpler", "Fixed a crash when editing a deck"]},
   {v: '0.116', d: '25 Nov', n: ["New art for the rest site", "Two rests always have a fight between them", "Act dots no longer get cut off in Acts II and III", "Plainer, shorter wording on boons, tips and card notes", "The enemy's next-hit label fits on screen", "6+ energy wraps instead of running into the mana vial", "Spells you can't take are greyed out, no 'No' button", "Ember & Rime use the new Heat icon everywhere"]},
   {v: '0.115', d: '24 Nov', n: ["Potions work in fights again", "All three potion slots always show", "Passives get their own row under the three talent trees", "The talent confirm bar no longer hides the last talent", "The town on the hill is no longer lost in fog", "Legendary cards in the shop show in full", "Companions are smaller and stay by your side in boss fights", "Red dots show what's new: gear slots, companions, new cards, bounties and talents to spend", "The win and loss screens scroll again", "The Forge only calls you over when a card is ready"]},
   {v: '0.114', d: '24 Nov', n: ["In boss fights your companion stands clear of the boss", "The title page no longer stutters as the game loads", "Meet each duo: a short scene plays the first time you take up their chain", "A title page greets you each time you open the game, with the version and What's new"]},
@@ -8700,6 +8703,8 @@ function vSheet() {
         <button class="btn pri" data-act="codecopy">${S.sheet.copied ? '✓ Copied to clipboard' : 'Copy my save code'}</button>
         <textarea id="codein" class="fbta" rows="3" placeholder="Paste a save code here…"></textarea>
         <button class="btn" data-act="codeload">Load this code</button>${S.sheet.err ? `<p class="neg small" style="text-align:center">${S.sheet.err}</p>` : '<p class="dim small" style="text-align:center">Loading a code replaces the progress on this device.</p>'}`
+    : S.sheet.buy ? (x => `<h2>${x.n}</h2><p class="buyp"><b>${x.price}</b>${x.what ? ` · ${x.what}` : ''}</p><p class="dim small buyd">Test build: you won't be charged and nothing unlocks. Only tap the button if you'd really pay ${x.price} for this.</p>
+        <button class="btn pri" data-act="buyans" data-i="yes">I'd pay ${x.price}</button><button class="btn" data-act="buyans" data-i="no">Not for me</button>`)(skuInfo(S.sheet.buy))
     : S.sheet.msg ? `<h2>${S.sheet.msg}</h2><p class="dim">${S.sheet.body || 'Coming in the next update.'}</p>` : `<div class="cgrid"><span></span>${bigCard(S.sheet.id)}</div>`;
   if (!b.includes('pg-split')) b = b.replace(/^(\s*<h2>[\s\S]*?<\/h2>)/, '$1<i class="pg-split"></i>');
   const pk = S.sheet.pick || S.sheet.chain || S.sheet.chinfo;
@@ -9442,6 +9447,7 @@ const ACT = {
   comparm: d => { S = {screen:'companions'}; render();
     const el = $app.querySelector(`[data-comp="${d.i}"]`); if (el) { el.scrollIntoView({block:'center'}); el.classList.add('focus'); } },
   roost: () => { S = {screen:'companions', rtab: uiTab('rtab', 'comps')}; render(); }, rtab: d => { S.rtab = UI().rtab = d.i; S.sellArm = null; render(); },
+  buyans: d => { const sku = S.sheet && S.sheet.buy; if (!sku) return; Stats.send('buy', {sku, price: skuInfo(sku).price, step: d.i}); S.sheet = null; toast(d.i === 'yes' ? 'Thanks, noted' : 'Noted'); render(); },
   market: () => { UI().dealSeen = dayKey(); S = {screen:'market', mtab: uiTab('mtab', 'today')}; render(); }, purchase: d => purchase(d.i), wear: d => wear(d.i), mtab: d => { S.mtab = d.i; if (d.i !== 'souls') UI().mtab = d.i; if (d.i === 'today') UI().dealSeen = dayKey(); render(); }, mslot: d => { S.mslot = d.i; render(); }, cslot: d => { S.cslot = d.i; render(); },
   buycache: d => buyCache(+d.i), cachex: () => { S.cacheOpen = null; render(); }, deal: d => buyDeal(+d.i), prov: d => buyProv(d.i), buy: d => shop('buy', d.i), sell: d => { if (S.sellArm !== d.i) { S.sellArm = d.i; return render(); } S.sellArm = null; shop('sell', d.i); }, equip: d => { S.sellArm = null; shop('equip', d.i); }, buycomp: d => shop('comp', d.i), buypot: d => shop('pot', d.i),
   options: () => { S.resetArm = false; S.screen = 'options'; render(); },
@@ -9713,7 +9719,7 @@ $app.addEventListener('click', ev => {
   if (el.dataset.ok === '1') S.confirm = null;
   Music.kick(); if (!['card', 'door', 'drag'].includes(el.dataset.act)) sfx(isConfirm(el) ? 'confirm' : 'tap');
   if (el.matches('.btn.pri, .btn.descend')) buzz(8); // primary buttons get a light tick as well as the sound
-  ACT[el.dataset.act](el.dataset); if (el.dataset.ok === '1' && !S.confirm) render();
+  LAST_ACT = el.dataset.act + (el.dataset.i != null ? ':' + el.dataset.i : ''); ACT[el.dataset.act](el.dataset); if (el.dataset.ok === '1' && !S.confirm) render();
 });
 function buildSprites() {
   const jobs = [];
@@ -9769,6 +9775,8 @@ const Stats = (() => { const QK = 'bound-below-stats-q', t0 = Date.now();
   let lastLeave = 0; const leave = () => { if (Date.now() - lastLeave < 15000) return; lastLeave = Date.now(); send('leave', {mins: Math.round((Date.now() - t0) / 6e3) / 10, scr: S && S.screen}); };
   addEventListener('pagehide', leave); document.addEventListener('visibilitychange', () => { if (document.hidden) leave(); }); // iPhone home-screen apps rarely fire pagehide
   return {send, flush}; })();
+// souls in and out: checked once a second, logged with the last button pressed (ev 'souls')
+var LAST_ACT = ''; { let ls = null; setInterval(() => { try { const n = META.souls || 0; if (ls == null) { ls = n; return; } if (n === ls) return; Stats.send('souls', {kind: n > ls ? 'earn' : 'spend', amt: Math.abs(n - ls), bal: n, what: S && S.screen === 'end' ? 'run' : LAST_ACT, scr: S && S.screen || ''}); ls = n; } catch (e) {} }, 1000); }
 // what a run looks like right now, for the run and fight rows
 const runInfo = () => S && S.p ? {mode: S.daily ? 'daily' : S.endless ? 'endless' : 'campaign', act: S.act || 1, acts: S.runLen || 1, step: S.step || 0, dread: S.heat || 0, pen: (S.pen || []).join(' '), hp: S.p.hp, maxHp: S.p.maxHp, gold: S.gold || 0, comp: S.comp || '', boons: (S.boons || []).join(' '), deck: S.p.deck.length, form: S.p.form, mins: S.tStart ? Math.round((Date.now() - S.tStart) / 6e3) / 10 : ''} : {};
 { const nr = newRun; newRun = function () { const out = nr.apply(this, arguments); if (S && S.p) { S.tStart = Date.now(); Stats.send('run_start', Object.assign(runInfo(), {deckIds: S.p.deck.map(c => c.id + ':' + c.lv).join(' ')})); } return out; }; }
