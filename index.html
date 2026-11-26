@@ -1148,7 +1148,7 @@ img.cfig{width:auto}
 /* store + cosmetics */
 .abtn.cash{font:800 15px/1 var(--num);color:#9be8a6;letter-spacing:0}
 .aearn{font:700 12px/1 var(--num);color:var(--dim)}
-.fswatch{display:block;width:40px;height:54px;border:3px solid transparent;background:#100d14}
+.fswatch{display:block;width:40px;height:54px;border:3px solid transparent;background:#100d14} .drafts.d4{display:grid;grid-template-columns:repeat(2,112px);justify-content:center;gap:4px 18px} .drafts.d4 .cslot{width:112px;max-width:none;flex:none} .acard.mx .ac-face{filter:drop-shadow(0 0 2px #ffcf6e) drop-shadow(0 0 5px rgba(255,190,80,.45))} img.cfig.fsw{width:40px!important;height:55px!important;object-fit:contain;image-rendering:pixelated}
 .fswatch.obsidian{border-image:var(--frt-obsidian) 3 / 6px stretch}.fswatch.bone{border-image:var(--frt-bone) 3 / 6px stretch}
 #app.cfr-obsidian .gcard:not(.back),#app.cfr-obsidian .gcard.demon{border-image:var(--frt-obsidian) 3 / 8px stretch}
 #app.cfr-bone .gcard:not(.back),#app.cfr-bone .gcard.demon{border-image:var(--frt-bone) 3 / 8px stretch}
@@ -2767,7 +2767,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy life and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.122.1-test'; // bump for every build you send to testers
+const VERSION = '0.123-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -2991,8 +2991,8 @@ const FOES = {
   bloodknight:{n:'Blood Knight',hp:88,moves:[{k:'atk',v:13,ls:1},{k:'blk',v:12},{k:'big',v:19,ls:1}]},
   pyrepriest:{n:'Pyre Priest',hp:78,tr:{shadow:-3},moves:[{k:'cast',fx:'immolate',st:['burn',4,3]},{k:'atk',v:12},{k:'cast',fx:'rally',st:['might',3,2]}]},
   furnace:   {n:'The Furnace',hp:130,guard:1,moves:[{k:'blk',v:16,st:['ward',4,3]},{k:'big',v:24,st:['burn',3,2]},{k:'atk',v:15}]},
-  tyrant:    {n:'The Ember Tyrant',hp:198,final:1,title:'Lord of the Burning City',moves:[{k:'cast',fx:'rally',st:['might',4,3]},{k:'big',v:22,st:['burn',4,3]},{k:'charge',v:27,sig:'Meteor'},{k:'cast',fx:'summon',sum:'cinderling'},{k:'atk',v:16}],
-    p2:{n:'The city erupts', line:'The Tyrant splits the earth. A molten shell shields him from one form. The other breaks through.', immune:1, aura:['burn',2,1], moves:[{k:'atk',v:18,st:['burn',3,3]},{k:'charge',v:31,sig:'Cataclysm'},{k:'cast',fx:'summon',sum:'cinderling'},{k:'big',v:24}]}},
+  tyrant:    {n:'The Ember Tyrant',hp:218,final:1,title:'Lord of the Burning City',moves:[{k:'cast',fx:'rally',st:['might',4,3]},{k:'big',v:25,st:['burn',4,3]},{k:'charge',v:31,sig:'Meteor'},{k:'cast',fx:'summon',sum:'cinderling'},{k:'atk',v:18}],
+    p2:{n:'The city erupts', line:'The Tyrant splits the earth. A molten shell shields him from one form. The other breaks through.', immune:1, aura:['burn',2,1], moves:[{k:'atk',v:21,st:['burn',3,3]},{k:'charge',v:36,sig:'Cataclysm'},{k:'cast',fx:'summon',sum:'cinderling'},{k:'big',v:28}]}},
   // the Plague Fens
   plaguerat: {n:'Plague Rat',hp:17,tr:{holy:3},moves:[{k:'atk',v:6,st:['poison',2]},{k:'atk',v:7}]},
   boghag:    {n:'Bog Hag',hp:34,tr:{shadow:-3},moves:[{k:'cast',fx:'curse',st:['weak',1,2]},{k:'cast',fx:'mend'},{k:'atk',vf:{angel:13,demon:6}}]},
@@ -3015,15 +3015,15 @@ const FOES = {
   devourer:  {n:'Devourer',hp:100,moves:[{k:'big',v:21,ls:1},{k:'atk',v:13},{k:'cast',fx:'rally',st:['might',3,3]}]},
   voidknight:{n:'Void Knight',hp:95,mirror:1,moves:[{k:'blk',v:12},{k:'atk',v:14,pierce:1},{k:'big',v:20}]},
   archon:    {n:'The Fallen Archon',hp:125,guard:1,moves:[{k:'blk',v:14},{k:'atk',v:14},{k:'big',v:21,st:['doom',8,2]}]},
-  starfall:  {n:'The Fallen Star',hp:205,final:1,title:'Light That Fell Through Heaven',moves:[{k:'cast',fx:'knell',st:['doom',15,2]},{k:'big',v:22},{k:'charge',v:24,sig:'Starfall',pierce:1},{k:'cast',fx:'summon',sum:'spawn'},{k:'atk',v:14,st:['burn',2,3]}],
-    p2:{n:'The sky collapses', line:'The stars go out one by one. Your power drains into the dark.', aura:'drain', str:1, moves:[{k:'atk',v:16},{k:'charge',v:28,sig:'Supernova',pierce:1},{k:'cast',fx:'summon',sum:'spawn'},{k:'big',v:23,st:['burn',3,3]}]}},
-  plague: {n:'The Plague Mother',hp:225,final:1,title:'Queen of the Fens',moves:[{k:'cast',fx:'blight',st:['poison',5]},{k:'atk',v:15,st:['poison',2]},{k:'charge',v:22,sig:'Pestilence',st:['poison',5]},{k:'cast',fx:'swarm',st:['regen',8,3]},{k:'big',v:22}],
-    p2:{n:'The brood awakens', line:'Her belly splits. The swarm pours out, and it drags at your chains.', tug:3, aura:['poison',1], summon:['plaguerat'], moves:[{k:'cast',fx:'summon',sum:'plaguerat'},{k:'atk',v:16,st:['poison',3]},{k:'charge',v:26,sig:'Great Blight',st:['poison',6]},{k:'big',v:22}]}},
-  hollow: {n:'The Hollow King',hp:195,final:1,title:'Who Sits the Frozen Throne',moves:[{k:'blk',v:16,st:['thorns',3,2]},{k:'atk',v:14},{k:'charge',v:23,sig:'Execution'},{k:'cast',fx:'knell',st:['doom',15,2]},{k:'big',v:21,st:['frail',1,2]}],
-    p2:{n:'Crown of bones', line:'The King rises, armoured in the dead. He takes your chain in his fist.', tug:3, blk:20, st:['thorns',3,3], moves:[{k:'brk',v:14},{k:'charge',v:25,sig:'Final Toll',st:['doom',10,2]},{k:'blk',v:18},{k:'big',v:23}]}},
-  boss:   {n:'The Twin Seraph',hp:210,boss:1,final:1,form:'light',title:'Guardian of the Hallowed Graves',moves:{
-            light:[{k:'blk',v:10},{k:'atk',v:14},{k:'charge',v:24,sig:'Judgement of Two'},{k:'cast',fx:'sil'}],
-            dark:[{k:'big',v:23},{k:'brk',v:9,st:['burn',3,3]},{k:'atk',v:15}]},
+  starfall:  {n:'The Fallen Star',hp:226,final:1,title:'Light That Fell Through Heaven',moves:[{k:'cast',fx:'knell',st:['doom',15,2]},{k:'big',v:25},{k:'charge',v:28,sig:'Starfall',pierce:1},{k:'cast',fx:'summon',sum:'spawn'},{k:'atk',v:16,st:['burn',2,3]}],
+    p2:{n:'The sky collapses', line:'The stars go out one by one. Your power drains into the dark.', aura:'drain', str:1, moves:[{k:'atk',v:18},{k:'charge',v:32,sig:'Supernova',pierce:1},{k:'cast',fx:'summon',sum:'spawn'},{k:'big',v:26,st:['burn',3,3]}]}},
+  plague: {n:'The Plague Mother',hp:248,final:1,title:'Queen of the Fens',moves:[{k:'cast',fx:'blight',st:['poison',5]},{k:'atk',v:17,st:['poison',2]},{k:'charge',v:25,sig:'Pestilence',st:['poison',5]},{k:'cast',fx:'swarm',st:['regen',8,3]},{k:'big',v:25}],
+    p2:{n:'The brood awakens', line:'Her belly splits. The swarm pours out, and it drags at your chains.', tug:3, aura:['poison',1], summon:['plaguerat'], moves:[{k:'cast',fx:'summon',sum:'plaguerat'},{k:'atk',v:18,st:['poison',3]},{k:'charge',v:30,sig:'Great Blight',st:['poison',6]},{k:'big',v:25}]}},
+  hollow: {n:'The Hollow King',hp:215,final:1,title:'Who Sits the Frozen Throne',moves:[{k:'blk',v:16,st:['thorns',3,2]},{k:'atk',v:16},{k:'charge',v:26,sig:'Execution'},{k:'cast',fx:'knell',st:['doom',15,2]},{k:'big',v:24,st:['frail',1,2]}],
+    p2:{n:'Crown of bones', line:'The King rises, armoured in the dead. He takes your chain in his fist.', tug:3, blk:20, st:['thorns',3,3], moves:[{k:'brk',v:16},{k:'charge',v:29,sig:'Final Toll',st:['doom',10,2]},{k:'blk',v:18},{k:'big',v:26}]}},
+  boss:   {n:'The Twin Seraph',hp:231,boss:1,final:1,form:'light',title:'Guardian of the Hallowed Graves',moves:{
+            light:[{k:'blk',v:10},{k:'atk',v:16},{k:'charge',v:28,sig:'Judgement of Two'},{k:'cast',fx:'sil'}],
+            dark:[{k:'big',v:26},{k:'brk',v:10,st:['burn',3,3]},{k:'atk',v:17}]},
             p2:{n:'The twins tear apart', line:'Light and shadow wrench apart. Strike the wrong face and nothing lands.', str:1, immune:1}},
 };
 // a form-aware attack: which form it punishes, and that form's damage-type icon
@@ -3206,6 +3206,10 @@ const COSMETICS = [
   {id:'skin-gilded', type:'skin', duo:'fallen', skin:'gilded', souls:1200},
   {id:'frame-obsidian', type:'frame', frame:'obsidian', n:'Obsidian frames', d:'Violet-black card frames', earn:{n:'Reach a 7-day Daily streak', have:() => DAILY().bestStreak || 0, need:7}},
   {id:'frame-bone', type:'frame', frame:'bone', n:'Ivory frames', d:'Bone-white card frames', souls:600},
+  {id:'frame-blood', type:'frame', frame:'blood', n:'Blood frames', d:'Red-iron card frames', souls:600},
+  {id:'frame-ashen', type:'frame', frame:'ashen', n:'Ashen frames', d:'Grey, burnt-out card frames', souls:600},
+  {id:'frame-gilt', type:'frame', frame:'gilt', n:'Gilt frames', d:'Old gold card frames', souls:600},
+  {id:'frame-verdigris', type:'frame', frame:'verdigris', n:'Verdigris frames', d:'Green, weathered bronze card frames', earn:{n:'Win 25 runs', have:() => META.wins || 0, need:25}},
 ];
 // duos sold as expansions; each also has a free unlock challenge. 'soon' ones are previews until their content ships.
 const DUO_STORE = [
@@ -3239,6 +3243,10 @@ const MUTATORS = [
   {id:'curse', n:'Ill Omen', d:'You start each fight Weak for 1 turn'},
   {id:'feast', n:'Feast Day', d:'Rest doors heal fully. No elites'},
   {id:'arcane', n:'Arcane Tide', d:'Start each fight with Focus 2 for 3 turns'},
+  {id:'thin', n:'Thin Air', d:'Switching is free, but you gain half the mana each turn'},
+  {id:'night', n:'Long Night', d:'Enemies start each fight with Ward 3 for 3 turns'},
+  {id:'hoard', n:'Hoard', d:'Gold is doubled. No rest doors'},
+  {id:'tide', n:'Swift Tide', d:'Draw 1 more each turn. Enemies enrage a turn sooner'},
 ];
 // Penance: burdens you choose on a Campaign run for more souls. Unlock order is the list order: 3 after clearing Heat 10, then 1 per 2 Heat
 const PENANCE = [
@@ -3399,7 +3407,7 @@ function takeBoon(id) { gainBoon(id);
 const DRAFT_RAR = ['common', 'rare'], FORGE_N = {common: 3, rare: 2}; // epics and legendaries only ever come from chests
 const forgeN = id => FORGE_N[baseRar(id)] || 1;
 function draftPicks() { const owned = Object.keys(DUO().coll).filter(id => DRAFT_RAR.includes(baseRar(id))), fresh = DUO_DEF().pool.filter(id => !DUO().coll[id] && DRAFT_RAR.includes(baseRar(id))), out = [];
-  for (let k = 0; k < 3 && out.length < 3; k++) { const src = fresh.length && Math.random() < (S.lastKind === 'fight' ? .5 : .2) ? fresh : owned; const c = shuffle(src.filter(id => !out.includes(id)))[0]; if (c) out.push(c); }
+  const N = 3 + (Math.random() * 100 < 4 * PS('keeneye') ? 1 : 0); for (let k = 0; k < N && out.length < N; k++) { const src = fresh.length && Math.random() < (S.lastKind === 'fight' ? .5 : .2) ? fresh : owned; const c = shuffle(src.filter(id => !out.includes(id)))[0]; if (c) out.push(c); }
   return out; }
 // the pick: a card either joins this run's deck, or goes to the Forge as copies. A card you don't own yet is unlocked either way
 function takeDraft(i, forge) { const id = S.draft && S.draft[i]; if (!id) return;
@@ -3535,7 +3543,10 @@ const PASSIVES = {fallen: [
   {id:'shadowm2', n:'Infernal Might', art:'burst', f:'demon', d:r => `+${2 * r}% Shadow damage`},
   {id:'warding', n:'Warding', art:'shield', f:'angel', d:r => `+${2 * r}% block`},
   {id:'resto2', n:'Renewal', art:'heart', f:'demon', d:r => `+${2 * r}% healing`},
-  {id:'pockets', n:'Deep Pockets', art:'orb', f:'demon', d:r => `+${3 * r}% gold`}]};
+  {id:'pockets', n:'Deep Pockets', art:'orb', f:'demon', d:r => `+${3 * r}% gold`},
+  {id:'keeneye', n:'Keen Eye', art:'tome', f:'angel', max:25, d:r => `${Math.min(100, 4 * r)}% chance card rewards offer 4 cards`},
+  {id:'hearth', n:'Hearth', art:'heart', f:'angel', d:r => `Rests heal ${2 * r} more`},
+  {id:'flask', n:'Spare Flask', art:'orb', f:'demon', max:20, d:r => `${Math.min(100, 5 * r)}% chance to start each run with an extra Healing Potion`},]};
 // Ember & Rime: Pyre (fire), Glacier (frost), Equilibrium (both). Ids shared with The Fallen (halo, hide, afterimage, quick, turning, ascend, balance, perfect) reuse the same effect.
 TREES.ember = [
   {id:'pyre', n:'Pyre', f:'angel', blurb:'Ember: build Heat, burn bright, Overheat on purpose', t:[
@@ -3580,7 +3591,11 @@ PASSIVES.ember = [
   {id:'shadowm2', n:'Frost Might', art:'burst', f:'demon', d:r => `+${2 * r}% Frost damage`},
   {id:'warding', n:'Warding', art:'shield', f:'demon', d:r => `+${2 * r}% block`},
   {id:'resto2', n:'Renewal', art:'heart', f:'angel', d:r => `+${2 * r}% healing`},
-  {id:'pockets', n:'Deep Pockets', art:'orb', f:'demon', d:r => `+${3 * r}% gold`}];
+  {id:'pockets', n:'Deep Pockets', art:'orb', f:'demon', d:r => `+${3 * r}% gold`},
+  {id:'keeneye', n:'Keen Eye', art:'tome', f:'angel', max:25, d:r => `${Math.min(100, 4 * r)}% chance card rewards offer 4 cards`},
+  {id:'hearth', n:'Hearth', art:'heart', f:'angel', d:r => `Rests heal ${2 * r} more`},
+  {id:'flask', n:'Spare Flask', art:'orb', f:'demon', max:20, d:r => `${Math.min(100, 5 * r)}% chance to start each run with an extra Healing Potion`}
+];
 // Ember & Rime cards: a = Ember (fire) face, d = Rime (frost) face. ht = Heat gained; vent = +N per Heat, then Heat drops to 0; freeze = enemy skips turns.
 const ER_CARDS = {
   er_cinder:   {a:{n:'Firebolt',c:1,dmg:6},                 d:{n:'Frost Nip',c:1,dmg:4,st:[['chill',1,2]]}},
@@ -4062,7 +4077,7 @@ const hz = n => (S.heat || 0) >= n;
 // heat past 20 never ends: each extra level adds enemy life and damage
 const endless = () => Math.max(0, (S.heat || 0) - 20);
 // every heat level also makes enemies a little tougher on top of its own modifier
-const hL = () => Math.min(10, S.heat || 0), hX = () => Math.max(0, Math.min(20, S.heat || 0) - 10), heatHp = () => (1 + .07 * Math.min(4, hL()) + .25 * Math.max(0, hL() - 5)) * (1 + .05 * hX()) * Math.pow(1.12, endless()), heatDmg = () => (1 + .04 * Math.min(4, hL()) + .1 * Math.max(0, hL() - 5)) * (1 + .03 * hX()) * Math.pow(1.07, endless());
+const hL = () => Math.min(10, S.heat || 0), hX = () => Math.max(0, Math.min(20, S.heat || 0) - 10), heatHp = () => (1 + .07 * Math.min(4, hL()) + .28 * Math.max(0, hL() - 5)) * (1 + .05 * hX()) * Math.pow(1.12, endless()), heatDmg = () => (1 + .04 * Math.min(4, hL()) + .11 * Math.max(0, hL() - 5)) * (1 + .03 * hX()) * Math.pow(1.07, endless());
 const heatLines = h => Array.from({length: Math.min(h, 20)}, (_, k) => [k + 1, HEAT[k + 1]]).concat(h > 20 ? [[h, heatText(h)]] : []);
 const heatText = k => k <= 20 ? HEAT[k] : `Enemies have ${Math.round(100 * (Math.pow(1.12, k - 20) - 1))}% more life and ${Math.round(100 * (Math.pow(1.07, k - 20) - 1))}% more damage`;
 const DUO = () => META.duo[META.duoSel] || META.duo.fallen;
@@ -4114,7 +4129,8 @@ const wellMana = () => eqd('wellstone') ? 2 + Math.floor((ilv('wellstone') - 1) 
 // what a spell costs right now: Frugal Prayers takes 1 off, Thrift Beads 1 off the first spell(s) of a fight; a costed spell never drops below 1
 const spM = s => { if (!s.m) return 0; if (S.p && S.f && compOn('imp') && !S.p.spN) return 0; const p = S.p, bead = eqd('thriftbeads') && p && (p.spN || 0) < (ilv('thriftbeads') >= 6 ? 2 : 1) ? 1 : 0; return Math.max(1, s.m - (boon('frugal') ? 1 : 0) - bead); };
 const swCost = () => { const c0 = swCost0(), c = c0 + (boon('twinflame') && c0 > 0 ? 1 : 0) + (boon('lentlight') ? 1 : 0); if (boon('splitsoul')) return 0; if (boon('tollgate') && S.f && S.p) return S.p.swT ? 2 * c : 0; return c; };
-const swCost0 = () => boon('martyr') ? 0 : Math.max(0, (mut('flow') ? 4 : SWITCH) - TR('lightchain') - (boon('loosechain') ? 1 : 0)) + (pen('sever') ? 1 : 0) + (hz(15) && S.f && !(P().swF > 0) ? 2 : 0);
+const rageT = () => (hz(2) ? 3 : 4) - (mut('tide') ? 1 : 0); // enemies enrage after this turn
+const swCost0 = () => boon('martyr') || mut('thin') ? 0 : Math.max(0, (mut('flow') ? 4 : SWITCH) - TR('lightchain') - (boon('loosechain') ? 1 : 0)) + (pen('sever') ? 1 : 0) + (hz(15) && S.f && !(P().swF > 0) ? 2 : 0);
 const lifeCost = v => Math.max(1, Math.round(pc(v) * (1 - .1 * TR('bloodthirst'))));
 const save = () => { try { localStorage.setItem('fallen-grace', JSON.stringify(META)); } catch (e) {} };
 if (META.souls == null) { META.souls = Math.floor((META.gold || 0) / 4); delete META.gold; } // v7: gold became per-run; account savings convert to souls
@@ -4239,7 +4255,7 @@ function newRun(heat, daily, S0len, pens) {
   if (pen('hollow')) S.p.deck = shuffle(S.p.deck).slice(0, Math.max(4, S.p.deck.length - 4));
   if (hz(6)) S.p.regen -= 1;
   S.p.pots = RUNKIT ? [] : META.stash.slice(0, 3).map(k => POTS[k] && POTS[k].elix ? {k, c: POTS[k].ch} : k); if (!S.p.pots.length) S.p.pots.push('h');
-  if (eqd('bonecharm')) S.p.pots = S.p.pots.concat(Array(1 + Math.floor(ilv('bonecharm') / 5)).fill('h')).slice(0, 3);
+  if (eqd('bonecharm')) S.p.pots = S.p.pots.concat(Array(1 + Math.floor(ilv('bonecharm') / 5)).fill('h')).slice(0, 3); if (!RUNKIT && Math.random() * 100 < 5 * PS('flask') && S.p.pots.length < 3) S.p.pots.push('h');
   if (META.stash.length && !RUNKIT) { META.stash = []; save(); }
   if (!RUNKIT && META.prov && (META.prov.purse || META.prov.oil)) { if (META.prov.purse) S.gold += 40; if (META.prov.oil) { S.p.maxHp += 10; S.p.hp += 10; } META.prov = {}; save(); }
   if (hz(9)) S.p.pots.pop();
@@ -4254,7 +4270,7 @@ function rollDoors() {
   if (EVENT_STEPS.includes(S.step)) {
     const ev = ['chance', 'hood', 'shop', 'scales'].concat(mut('feast') ? [] : ['bell']);
     d = shuffle(ev).slice(0, Math.random() < .5 ? 2 : 1);
-    if (!hz(5) && Math.random() < .83) d.push('rest'); else if (d.length < 2) d.push(shuffle(ev.filter(x => !d.includes(x)))[0]);
+    if (!hz(5) && !mut('hoard') && Math.random() < .83) d.push('rest'); else if (d.length < 2) d.push(shuffle(ev.filter(x => !d.includes(x)))[0]);
     if (S.step === EVENT_STEPS[EVENT_STEPS.length - 1] && S.shopAct !== (S.act || 1) && !d.includes('shop')) d[d.indexOf('rest') === 0 && d.length > 1 ? 1 : 0] = 'shop'; // the Merchant shows up at least once an act
     if (d.includes('shop')) S.shopAct = S.act || 1;
     d = shuffle(d);
@@ -4265,7 +4281,7 @@ function rollDoors() {
     if (!S.tut && Math.random() < .2) { d[d.length - 1] = 'bound'; S.doorBound = Math.random() < .5 ? 'angel' : 'demon'; }
     if (pen('hunter') && S.step === 5) d = ['elite'];
   }
-  if ((S.lastKind === 'elite' || S.lastKind === 'guardian') && !S.endless && d.length > 1 && d.every(k => ['fight', 'elite', 'bound'].includes(k))) d[d.length - 1] = hz(5) ? 'chance' : 'rest'; // after a hard fight, one door is always a breather
+  if ((S.lastKind === 'elite' || S.lastKind === 'guardian') && !S.endless && d.length > 1 && d.every(k => ['fight', 'elite', 'bound'].includes(k))) d[d.length - 1] = hz(5) || mut('hoard') ? 'chance' : 'rest'; // after a hard fight, one door is always a breather
   if (S.rested && d.includes('rest')) { const alt = ['chance', 'hood', 'scales', 'shop'].filter(x => !d.includes(x) && (x !== 'shop' || EVENT_STEPS.includes(S.step))); d[d.indexOf('rest')] = alt.length ? alt[rnd(alt.length)] : 'fight'; } // two rests need a fight between them
   S.doors = shuffle(d);
   S.doorRew = S.doors.map(k => k === 'fight' || k === 'bound' ? ['gold', 'pot', 'spell', 'rare'][rnd(4)] : null); // each fight door shows what it adds to the chest
@@ -4287,7 +4303,7 @@ function startFight(kind, pre) { S.lastKind = arguments[0]; S.rested = false; if
   P().swF = 0; P().keepBlk = false; const p = P(), scale = (1 + 0.06 * (S.step - 1)) * actHp();
   const ids = pre ? pre.slice() : foeIds(kind);
   const hm = (1 + .08 * (S.tolls || 0)) * (mut('thick') ? 1.25 : 1) * (hz(1) ? 1.1 : 1) * (hz(10) ? 1.2 : 1) * heatHp();
-  const en = ids.map(id => spawnFoe(id, (FOES[id].final ? (hz(8) ? 1.25 : 1) * actHp() : FOES[id].guard ? actHp() : scale) * hm)); if ((S.act || 1) === 1 && S.step <= 3 && kind === 'fight' && !S.endless) en.forEach(e => { e.dm = (e.dm || 1) * .85; }); if (kind === 'fight') en.forEach(e => { e.hp = e.max = Math.round(e.max * 1.25); e.dm = (e.dm || 1) * .85; }); // normal fights run longer and hit softer, so the form rhythm has time to matter // the first doors of a run hit softer, so a new player isn't flattened before they learn to switch
+  const en = ids.map(id => spawnFoe(id, (FOES[id].final ? (hz(8) ? 1.25 : 1) * actHp() : FOES[id].guard ? actHp() : scale) * hm)); if ((S.act || 1) === 1 && S.step <= 3 && kind === 'fight' && !S.endless) en.forEach(e => { e.dm = (e.dm || 1) * .85; }); if (kind === 'fight') en.forEach(e => { e.hp = e.max = Math.round(e.max * 1.25); e.dm = (e.dm || 1) * .85; }); if (mut('night')) en.forEach(e => addSt(e, 'ward', 3, 3)); if (!S.endless && (S.act || 1) === 1 && !(S.heat > 0)) en.forEach(e => { if (FOES[e.id] && FOES[e.id].final) e.dm = (e.dm || 1) / 1.15; }); // a first-act boss at Dread 0 keeps its old hits, so a new player's first boss isn't a wall // normal fights run longer and hit softer, so the form rhythm has time to matter // the first doors of a run hit softer, so a new player isn't flattened before they learn to switch
  if (pen('hunter') && S.step === 5 && kind === 'elite') en.forEach(e => { e.hp = e.max = Math.round(e.max * 1.25); e.dm = (e.dm || 1) * 1.25; });
   if (S.fights) p.mana = Math.min(p.maxMana, p.mana + 2 * p.regen);
   S.fights = (S.fights || 0) + 1;
@@ -4356,11 +4372,11 @@ function startTurn() {
   if (f.turn === 8 && boon('bell')) { S.shake = true; fxe('call', {txt: 'The bell tolls'}); alive().forEach(t => pureHit(t, 25, 'The bell tolls: ')); loseHp(25, "the Undertaker's Bell"); }
   if (f.turn > 1 && boon('coin') && !f.bound) { flipForm(); charge(2); draw(1); log('The coin turns. You become the ' + FN(p.form) + '.'); }
   if (p.blessT > 0) { const h = healP((p.blessV + TR('mercy')) * (p.form === 'demon' ? 2 : 1)); p.blessT--; log('Your blessing heals ' + h + '.'); }
-  const rage = hz(2) ? 3 : 4;
+  const rage = rageT();
   if (f.turn > rage) { alive().forEach(e => e.str += hz(16) ? 4 : 3); log(f.turn === rage + 1 ? 'Their patience snaps. They hit harder every turn now.' : 'Their fury grows.'); }
   if (f.turn > 1 && p.form === 'demon' && TR('winterrest')) healP(Math.ceil(TR('winterrest') / 2));
   if (f.turn > 1 && compOn('tortoise')) p.blkCarry = Math.floor(blkWas * (.1 + .02 * (compLv() - 1)));
-  if (f.turn > 1) { p.blk = p.keepBlk ? (p.keepBlk = false, p.blk) : Math.max(p.form === 'angel' && TR('vigil') ? Math.floor(p.blk * .1 * TR('vigil')) : p.form === 'demon' && TR('permafrost') ? Math.floor(p.blk * .1 * TR('permafrost')) : 0, boon('bastion') ? Math.floor(p.blk / 3) : 0); if (boon('spring')) p.mana = Math.min(p.maxMana, p.mana + 1); if (mut('flow')) p.mana = Math.min(p.maxMana, p.mana + 2); if (boon('sanguine') && p.form === 'demon') healP(3); if (p.form === 'demon') p.blk += TR('hide'); p.blk += p.bones || 0; p.mana = Math.min(p.maxMana, p.mana + p.regen + (p.haloT ? 2 : 0)); if (p.haloT) p.haloT--; }
+  if (f.turn > 1) { p.blk = p.keepBlk ? (p.keepBlk = false, p.blk) : Math.max(p.form === 'angel' && TR('vigil') ? Math.floor(p.blk * .1 * TR('vigil')) : p.form === 'demon' && TR('permafrost') ? Math.floor(p.blk * .1 * TR('permafrost')) : 0, boon('bastion') ? Math.floor(p.blk / 3) : 0); if (boon('spring')) p.mana = Math.min(p.maxMana, p.mana + 1); if (mut('flow')) p.mana = Math.min(p.maxMana, p.mana + 2); if (boon('sanguine') && p.form === 'demon') healP(3); if (p.form === 'demon') p.blk += TR('hide'); p.blk += p.bones || 0; p.mana = Math.min(p.maxMana, p.mana + Math.ceil((p.regen + (p.haloT ? 2 : 0)) / (mut('thin') ? 2 : 1))); if (p.haloT) p.haloT--; }
   if (p.blkCarry) { p.blk += p.blkCarry; p.blkCarry = 0; }
   for (const k in p.cds) if (p.cds[k] > 0) p.cds[k]--;
   if (f.turn > 1) stTick(p, true);
@@ -4368,7 +4384,7 @@ function startTurn() {
   if (f.turn === 1 && p.form === 'demon') p.blk += TR('hide');
   if (f.turn > 1 && p.tickB) { alive().forEach(t => addSt(t, 'burn', p.tickB, 2)); addHeat(1); }
   if (f.turn > 1 && p.tickC) { alive().forEach(t => addSt(t, 'chill', 1, 2)); p.blk += blkOf(p.tickC); }
-  draw(Math.max(0, 5 - f.hand.length + (boon('sight') ? 1 : 0) + (boon('hollow') ? 2 : 0) + (boon('stillborn') ? 2 : 0) + (boon('earlygrave') && f.turn === 1 ? 3 : 0) + (boon('vane') && S.vane === 2 ? 1 : 0) + (f.turn === 1 && AT('secondlook') ? stepRoll(AT('secondlook')) : 0)));
+  draw(Math.max(0, 5 - f.hand.length + (mut('tide') ? 1 : 0) + (boon('sight') ? 1 : 0) + (boon('hollow') ? 2 : 0) + (boon('stillborn') ? 2 : 0) + (boon('earlygrave') && f.turn === 1 ? 3 : 0) + (boon('vane') && S.vane === 2 ? 1 : 0) + (f.turn === 1 && AT('secondlook') ? stepRoll(AT('secondlook')) : 0)));
   f.hand.forEach(c => delete c.chained); if (hz(20) && f.hand.length > 1) f.hand[Math.floor(Math.random() * f.hand.length)].chained = true; // Dread 20: one card a turn is chained
 }
 /* ---------- heat duos (Ember & Rime): one Heat gauge instead of form stacks ----------
@@ -4934,7 +4950,7 @@ function openDoor(i) {
     S.ev = shuffle(pool.length ? pool : all)[0]; seen.push(S.ev); S.msg = null; S.altar = null; S.scale = null; S.screen = 'chance'; }
   render();
 }
-const gold = v => Math.round(v * ((1 + gs('thiefcoin', .25, .04)) + .04 * AT('fortune') + .03 * PS('pockets') + (S.p && compOn('imp') ? .25 : 0) + (S.p && compOn('rat') ? .1 : 0) + (boon('fever') ? .4 : 0) + (boon('avarice') ? 1 : 0) + (mut('thick') ? 1 : 0)) * (boon('heavypurse') ? 2 : 1) * (boon('gravegoods') ? .5 : 1));
+const gold = v => Math.round(v * ((1 + gs('thiefcoin', .25, .04)) + .04 * AT('fortune') + .03 * PS('pockets') + (S.p && compOn('imp') ? .25 : 0) + (S.p && compOn('rat') ? .1 : 0) + (boon('fever') ? .4 : 0) + (boon('avarice') ? 1 : 0) + (mut('thick') ? 1 : 0) + (mut('hoard') ? 1 : 0)) * (boon('heavypurse') ? 2 : 1) * (boon('gravegoods') ? .5 : 1));
 const burnGold = x => compOn('imp') ? Math.ceil(15 * x / 2) : 15 * x;
 const hoodPrice = () => S.burns ? burnGold(2) : 0;
 const tradeRar = id => ({common: 'rare', rare: 'epic', epic: 'epic'})[baseRar(id)] || null;
@@ -5113,7 +5129,7 @@ function talBlock(id) {
   return '';
 }
 function buyTal(id) { if (talBlock(id)) return; tdStart(); DUO().t[id] = TR(id) + 1; render(); }
-function buyPas(id) { if (psPoints() < 1) return; tdStart(); DUO().p[id] = PS(id) + 1; render(); }
+function buyPas(id) { const x = DUO_DEF().passives.find(y => y.id === id); if (psPoints() < 1 || (x && x.max && PS(id) >= x.max)) return; tdStart(); DUO().p[id] = PS(id) + 1; render(); }
 const respecCost = () => 25 * ((DUO().rs || 0) + 1);
 function respec() { const c = respecCost(); if (META.souls < c || !talSpent()) return; META.souls -= c; DUO().t = {}; DUO().rs = (DUO().rs || 0) + 1; S.rsArm = false; S.tsel = null; save(); render(); }
 const SHOP = {
@@ -5444,7 +5460,7 @@ const CardFace = (() => {
     const d = g.getImageData(0, 0, c.width, c.height), a = d.data; for (let i = 3; i < a.length; i += 4) a[i] = a[i] > 110 ? 255 : 0; g.putImageData(d, 0, 0); o.drawImage(c, 0, 0); }
   const FN2 = '"Bound Below Pixel"', BIG = '14px ' + FN2, DIG = '11.5px ' + FN2, EXTRA = '13px ' + FN2; // name and word size, main-number size (doubled), the small costs by the medallion
   function draw(s) { const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d'); g.imageSmoothingEnabled = false;
-    g.drawImage(IMG[s.fk + s.rar] || IMG[s.fk + 'common'], 0, 0, W, H); g.save(); g.translate(OX, OY); // from here on, body coordinates (128x184)
+    g.drawImage(frameImg(s.fk, s.rar, s.fr, s.rk >= RANK_MAX), 0, 0, W, H); g.save(); g.translate(OX, OY); // from here on, body coordinates (128x184)
     // one inner layout on every card, whatever the frame: an arched art window, then (below) the name plate and the stat panel
     const BL = {angel: '255,226,150', demon: '255,90,60', fire: '255,150,70', frost: '150,210,255'}[s.fk] || '255,226,150';
     const arch = (x0, y0, x1, y1) => { const r = (x1 - x0) / 2; g.beginPath(); g.moveTo(x0, y1); g.lineTo(x0, y0 + r); g.arc(x0 + r, y0 + r, r, Math.PI, 0); g.lineTo(x1, y1); g.closePath(); };
@@ -5489,14 +5505,29 @@ const CardFace = (() => {
     g.restore(); return up(c, o => { texts(T, 1, o); texts(T2, 2, o); }); }
   // export at 4x with hard pixels: the hand fan rotates cards, and the browser smooths rotated images, which blurs 1x pixel art
   const UP = 4, up = (c, after) => { const o = document.createElement('canvas'); o.width = c.width * UP; o.height = c.height * UP; const og = o.getContext('2d'); og.imageSmoothingEnabled = false; og.drawImage(c, 0, 0, o.width, o.height); if (after) after(og); return o.toDataURL(); };
+  // a cosmetic frame recolours the painted frame by brightness (dark panels stay); a card at the top rank gets a gold edge round its outline
+  const FRAME_RAMP = {obsidian: ['#07060a', '#141228', '#3a2050', '#7a4ab0', '#e0c8ff'], bone: ['#16131b', '#4e4554', '#9a8a6a', '#e4d8bc', '#fffaf0'],
+    blood: ['#0e0406', '#2a0c0e', '#7a1c18', '#d4442f', '#ffaa60'], verdigris: ['#06100e', '#12302a', '#2a6a58', '#5ab090', '#c8f0d8'],
+    ashen: ['#07060a', '#2a2430', '#4e4554', '#8a8090', '#d8d4dc'], gilt: ['#0e0a06', '#3a2c18', '#8a6e34', '#e8cf86', '#fff1c8']}, FCACHE = {};
+  const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  function frameImg(fk, rar, fr, mx) { const im = IMG[fk + rar] || IMG[fk + 'common']; const ramp = FRAME_RAMP[fr]; if (!ramp && !mx) return im; const key = fk + rar + (ramp ? fr : '') + (mx ? '*' : ''); if (FCACHE[key]) return FCACHE[key];
+    const w = im.naturalWidth || im.width, h = im.naturalHeight || im.height, c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'); g.drawImage(im, 0, 0); const d = g.getImageData(0, 0, w, h), p = d.data;
+    if (ramp) { const R = ramp.map(hex), L = i => (.299 * p[i] + .587 * p[i + 1] + .114 * p[i + 2]) / 255; const ls = []; for (let i = 0; i < p.length; i += 4) if (p[i + 3] > 0 && L(i) >= .16) ls.push(L(i)); ls.sort((a, b) => a - b);
+      const lo = ls[Math.floor(ls.length * .05)] || .16, hi = ls[Math.floor(ls.length * .98)] || 1;
+      for (let i = 0; i < p.length; i += 4) { if (!p[i + 3]) continue; const l = L(i); if (l < .16) continue; const t = Math.max(0, Math.min(1, .5 * (l - lo) / Math.max(.05, hi - lo) + .5 * (l - .16) / .84)) * 4, k = Math.min(3, Math.floor(t)), f = t - k;
+        for (let j = 0; j < 3; j++) p[i + j] = Math.round(R[k][j] + (R[k + 1][j] - R[k][j]) * f); } }
+    if (mx) { const a = (x, y) => x < 0 || y < 0 || x >= w || y >= h ? 0 : p[(y * w + x) * 4 + 3]; const edge = [];
+      const near = (x, y, r) => { for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) if (!a(x + dx, y + dy)) return true; return false; }; for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (a(x, y) && near(x, y, 2)) edge.push((y * w + x) * 4);
+      edge.forEach((i, n) => { p[i] = 255; p[i + 1] = n % 7 ? 207 : 241; p[i + 2] = n % 7 ? 110 : 200; p[i + 3] = 255; }); }
+    g.putImageData(d, 0, 0); return (FCACHE[key] = c); }
   // the bright pixels of an epic or legendary frame, for the animated glow layer
-  function glow(fk, rar) { const key = fk + rar; if (GLOW[key]) return GLOW[key]; const im = IMG[key]; if (!im) return '';
+  function glow(fk, rar, fr) { const key = fk + rar + (fr || ''); if (GLOW[key]) return GLOW[key]; const im = IMG[fk + rar] ? frameImg(fk, rar, fr) : null; if (!im) return '';
     const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.drawImage(im, 0, 0, W, H);
     const d = g.getImageData(0, 0, W, H), p = d.data; for (let i = 0; i < p.length; i += 4) { const r = p[i], gg = p[i + 1], b = p[i + 2], hot = (r > 200 && gg > 90 && b < 140) || (b > 200 && gg > 180) || (r > 230 && gg > 210 && b > 150); if (!hot) p[i + 3] = 0; }
     g.putImageData(d, 0, 0); g.globalCompositeOperation = 'destination-out'; // keep the glow off the cost, name and numbers
     g.beginPath(); g.arc(64 + OX, 22 + OY, 15, 0, 7); g.fill(); g.fillRect(22 + OX, 34 + OY, 84, 132);
     return (GLOW[key] = up(c)); }
-  return {ok: () => frames && fonts && ico.complete && ico.naturalWidth > 0, url: s => { const k = JSON.stringify(s); let u = CACHE.get(k); if (!u) { try { u = draw(s); } catch (x) { CardFace.bad = String(x); return ''; } CACHE.set(k, u); } return u; }, glow};
+  return {ok: () => frames && fonts && ico.complete && ico.naturalWidth > 0, swatch: fr => { if (!frames) return ''; const im = frameImg('angel', 'rare', fr), c = document.createElement('canvas'); c.width = im.width; c.height = im.height; c.getContext('2d').drawImage(im, 0, 0); return c.toDataURL(); }, url: s => { const k = JSON.stringify(s); let u = CACHE.get(k); if (!u) { try { u = draw(s); } catch (x) { CardFace.bad = String(x); return ''; } CACHE.set(k, u); } return u; }, glow};
 })();
 const cardRar = e => (e && (e.rar || e.br)) || 'common'; // every card is common until the rarity system arrives
 const cidAttr = (e, opt) => e.pic ? ` data-cid="${e.pic.slice(0, -2)}"${opt.lv || e.rk != null ? ` data-lv="${opt.lv || e.rk + 1}"` : ''}` : ''; // what a long press on this card should show
@@ -5515,11 +5546,11 @@ function archCard(e, fm, live, opt) { opt = opt || {}; if (!CardFace.ok()) retur
   if (e.b0) { const own = new Set(cardSecs(e.b0, km && km.k, m.k, 9).map(c => c[0] + '|' + (c[2] || ''))), mine = c => own.has(c[0] + '|' + (c[2] || '')) ? 0 : 1; secs = secs.map((c, i) => [c, i]).sort((x, y) => mine(x[0]) - mine(y[0]) || x[1] - y[1]).map(x => x[0]); } secs = secs.slice(0, 2); if (!String(num).trim() && secs.length) { const [i, t] = secs.shift(); if (i) ico = i; num = t; }
   const cn = cardCorners(e, secs, ico);
   const bad = [e.pierce && 'crit', e.ls && 'st-vamp', e.keepBlk && 'lock'].filter(Boolean);
-  const face = CardFace.url({fk, rar, bad, art: art && art.url, name: e.n, rk: e.rk || 0, cost, ex, num, ico, post: e.blkdmg && num === '=' ? 'shield' : (e.blkSw || e.swBlk) && /\/$/.test(num) ? 'switch' : (e.bellJ || e.bellS) ? 'deck' : '', all: e.all && (e.dmg != null || e.blkdmg || e.st || e.freeze) ? 1 : 0, secs, cn});
+  const fr = COS().frame !== 'default' ? COS().frame : '', face = CardFace.url({fk, rar, fr, bad, art: art && art.url, name: e.n, rk: e.rk || 0, cost, ex, num, ico, post: e.blkdmg && num === '=' ? 'shield' : (e.blkSw || e.swBlk) && /\/$/.test(num) ? 'switch' : (e.bellJ || e.bellS) ? 'deck' : '', all: e.all && (e.dmg != null || e.blkdmg || e.st || e.freeze) ? 1 : 0, secs, cn});
   if (!face) return archCardOld(e, fm, live, opt);
   const tag = opt.act ? 'button' : 'div', attrs = (opt.act ? ` data-act="${opt.act}" data-i="${opt.i}"` : '') + (opt.style ? ` style="${opt.style}"` : '') + (opt.attrs || '') + cidAttr(e, opt);
-  const gl = rar === 'epic' || rar === 'legendary' ? `<img class="ac-glow" src="${CardFace.glow(fk, rar)}" alt="">` : '';
-  return `<${tag} class="acard nf f-${fk} r-${rar} ${opt.cls || ''}"${attrs} aria-label="${e.n}"><span class="acb"><img class="ac-face" src="${face}" alt="">${gl}</span>${opt.name ? `<span class="ac-name">${e.n}</span>` : ''}</${tag}>`; }
+  const gl = rar === 'epic' || rar === 'legendary' ? `<img class="ac-glow" src="${CardFace.glow(fk, rar, fr)}" alt="">` : '';
+  return `<${tag} class="acard nf f-${fk} r-${rar}${(e.rk || 0) >= RANK_MAX ? ' mx' : ''} ${opt.cls || ''}"${attrs} aria-label="${e.n}"><span class="acb"><img class="ac-face" src="${face}" alt="">${gl}</span>${opt.name ? `<span class="ac-name">${e.n}</span>` : ''}</${tag}>`; }
 function archCardOld(e, fm, live, opt) { opt = opt || {}; const fk = acKey(fm), m = acMain(e, fm, live);
   const ex = []; if (e.selfP) ex.push(['life', lifeCost(e.selfP)]); else if (e.self) ex.push(['life', e.self]); if (e.mc) ex.push(['mana', e.mc]);
   const pp = ARCH.pips(e.c, opt.ap, ex), art = Pix.get('art-' + artFor(e) + '-' + artK(fm));
@@ -5602,7 +5633,7 @@ function topBar() {
   pips += `<i class="boss ${S.step > ACT_STEPS ? 'now' : ''}"></i>`; }
   const bsp = id => { const b = BOONS.find(x => x.id === id); return sprite('art-' + b.art + '-' + b.f); }, bn = (S.boons || []).length, bTight = bn > 1; // in fights the bar is one icon and a count, so the top bar always fits
   const bb = bn ? `<button class="boonbar${bTight ? ' tight' : ''}" data-act="boons" aria-label="Your boons">${bTight ? bsp(S.boons[bn - 1]) + `<b class="bcount">${bn}</b>` : S.boons.map(bsp).join('')}</button>` : '';
-  const fury = S.screen === 'fight' && S.f && !S.chest ? (() => { const rage = hz(2) ? 3 : 4, t = S.f.turn || 1; return t > rage ? `<button class="furyc on" data-act="tip" data-i="fury" aria-label="Fury">Fury +${3 * (t - rage)}</button>` : t >= rage - 1 ? `<button class="furyc" data-act="tip" data-i="fury" aria-label="Fury">Fury in ${rage + 1 - t}</button>` : ''; })() : '';
+  const fury = S.screen === 'fight' && S.f && !S.chest ? (() => { const rage = rageT(), t = S.f.turn || 1; return t > rage ? `<button class="furyc on" data-act="tip" data-i="fury" aria-label="Fury">Fury +${3 * (t - rage)}</button>` : t >= rage - 1 ? `<button class="furyc" data-act="tip" data-i="fury" aria-label="Fury">Fury in ${rage + 1 - t}</button>` : ''; })() : '';
   return `<div class="top"><div class="pips">${pips}</div>${fury}${bb}${S.daily ? '<span class="heat">Daily</span>' : S.endless ? '<span class="heat">Endless</span>' : S.heat || penLv(S.pen) ? `<span class="heat">${S.heat ? 'Dread ' + S.heat : ''}${S.heat && penLv(S.pen) ? ' · ' : ''}${penLv(S.pen) ? 'P' + penLv(S.pen) : ''}</span>` : ''}<span class="kpill kgold" aria-label="${S.gold} gold">${pxi('gold')}<b>${S.gold}</b></span><button class="menubtn" data-act="menu" aria-label="Menu"><i></i><i></i><i></i></button></div>`;
 }
 const potRow = () => P().pots.slice(0, 3).map((x, i) => { const k = potK(x), D = POTS[k], c = potC(x); return `<button class="pot ${k}${D.elix ? ' elix' : ''}" data-act="pot" data-i="${i}" aria-label="${D.n}${D.d ? ': ' + D.d : ''}${c > 1 ? ', ' + c + ' charges' : ''}">${sprite('item-potion_' + k)}${c > 1 ? `<i class="potc">${c}</i>` : ''}</button>`; }).join('') + Array.from({length: Math.max(0, 3 - P().pots.length)}, () => `<span class="pot pslot" aria-label="Empty potion slot">${sprite('item-potion_h')}</span>`).join('');
@@ -6507,7 +6538,7 @@ function vBoard() { const tab = S.lbTab || 'endless', rows = (S.lbRowsTab === ta
 function vDraft() {
   const d = S.draft || [];
   return `${topBar()}<div class="screen center"><h2>Choose a card</h2>
-    ${faceBar()}<div class="drafts">${d.map((id, i) => `<div class="cslot">${bigCard(id, 'drft', i)}<span class="dcap${DUO().coll[id] ? '' : ' new'}">${forgeTag(id)}</span></div>`).join('')}</div>
+    ${faceBar()}<div class="drafts${d.length === 4 ? ' d4' : ''}">${d.map((id, i) => `<div class="cslot">${bigCard(id, 'drft', i)}<span class="dcap${DUO().coll[id] ? '' : ' new'}">${forgeTag(id)}</span></div>`).join('')}</div>
     ${sfoot(`<div class="row eacts">${S.endless || S.rrAct === S.act ? '' : '<button class="btn rrb" data-act="drftreroll" aria-label="Reroll, once this act">Reroll</button>'}<button class="btn" data-act="drftskip">Pass</button></div>`)}</div>`;
 }
 function vBoon() {
@@ -6677,7 +6708,7 @@ function vHood() {
   else body = `<p class="dim hq">${S.burns ? `"Another? ${price} gold."` : '"Give me a card. I have a fire, and a ledger."'}</p>${S.burns ? '' : '<p class="small dim" style="text-align:center">Burn a card or trade it up. The first is free.</p>'}${faceBar()}<div class="cgrid q4">` + p.deck.map((c, i) => bigCard(c.id, 'pickburn', i, c.lv)).join('') + '</div>';
   return `${topBar()}<div class="screen">${vista('hood', S.burnPick != null || !done ? 'small' : '')}<h2 style="text-align:center">The Hooded Man</h2><i class="pg-split"></i>${body}${sfoot('<button class="btn pri" data-act="next">Walk on</button>')}</div>`;
 }
-const restHeal = () => { const p = P(); return Math.max(0, Math.min(mut('feast') ? 999 : Math.round(p.maxHp * .3) + (compOn('wisp') ? cs(10) : 0) + (S.comp && eqd('strawbed') ? 10 + 2 * (ilv('strawbed') - 1) : 0) + (boon('gravecandle') ? 10 : 0), p.maxHp - p.hp)); };
+const restHeal = () => { const p = P(); return Math.max(0, Math.min(mut('feast') ? 999 : Math.round(p.maxHp * .3) + (compOn('wisp') ? cs(10) : 0) + (S.comp && eqd('strawbed') ? 10 + 2 * (ilv('strawbed') - 1) : 0) + (boon('gravecandle') ? 10 : 0) + 2 * PS('hearth'), p.maxHp - p.hp)); };
 function vRest() { const p = P();
   if (S.restPick) return `${topBar()}<div class="screen">${vista('rest', 'small')}<h2 style="text-align:center">${S.restPick === 'up' ? 'Choose a card to sharpen' : 'Choose a card to let go'}</h2>${faceBar("this run only")}<i class="pg-split"></i><div class="cgrid q4">${p.deck.map((c, i) => bigCard(c.id, 'restpick', i, c.lv)).join('')}</div>${sfoot('<button class="btn" data-act="restback">Back</button>')}</div>`;
   const h = restHeal(), canUp2 = p.deck.some(canUp), canCut = p.deck.length > 6;
@@ -8427,7 +8458,7 @@ function vTalents() {
       body = head + tabs + (open ? `<p class="tpts"><b>${pp}</b> passive point${pp === 1 ? '' : 's'} </p>`
           : `<div class="aempty">Opens at ${CH_CAP} on any track.</div>`) + '<i class="pg-split"></i>'
         + '<div class="atl2">' + DUO_DEF().passives.map(x => { const r = PS(x.id);
-          return `<div class="at2${r ? ' on' : ''}${open ? '' : ' dim'}"><span class="at2i">${talIcon(x.art, x.f)}</span><span class="at2t"><b>${x.n}${r ? ` <i class="trank">${r}</i>` : ''}</b><small>${x.d(Math.max(r, 1))}</small></span>${open ? `<button class="abtn buy" data-act="plearn" data-i="${x.id}" ${pp > 0 ? '' : 'disabled'}>+1</button>` : ''}</div>`; }).join('') + '</div>';
+          return `<div class="at2${r ? ' on' : ''}${open ? '' : ' dim'}"><span class="at2i">${talIcon(x.art, x.f)}</span><span class="at2t"><b>${x.n}${r ? ` <i class="trank">${r}</i>` : ''}</b><small>${x.d(Math.max(r, 1))}</small></span>${open ? (x.max && r >= x.max ? '<span class="trank">Max</span>' : `<button class="abtn buy" data-act="plearn" data-i="${x.id}" ${pp > 0 ? '' : 'disabled'}>+1</button>`) : ''}</div>`; }).join('') + '</div>';
     }
   }
   const tds = tdSummary(), tbar = tds && tds.ranks ? `<div class="tdbar${TDRAFT.fresh ? ' in' : ''}"><span><b>${tds.ranks}</b> new rank${tds.ranks > 1 ? 's' : ''}${tds.marks ? ` · <span class="mkic"></span>${tds.marks}` : ''}</span><button class="btn" data-act="tdundo">Undo</button><button class="btn pri" data-act="tdapply">Confirm</button></div>` : '';
@@ -8637,7 +8668,7 @@ function vMarket() {
         <div class="mduot"><b>${d.n}</b><p>${d.d}</p>${d.free && !own && !d.soon ? `<small>Or earn them free: ${d.free}</small>` : ''}</div>
         <div class="mduoa">${own ? mstate('Yours') : d.soon ? mstate('Coming soon') : priceBtn('buyduo', d.id, d.souls, sl >= d.souls) + (sl < d.souls ? `<span class="mneed">${d.souls - sl} more souls · <button class="alink" data-act="mtab" data-i="souls">Get souls</button></span>` : '')}</div></div>`; }).join('')}`;
   if (t === 'looks') { const row = c => { const own = owns(c.id), worn = c.type === 'skin' ? (META.duo[c.duo].skin || 'default') === c.skin : COS().frame === c.frame;
-      const icon = c.type === 'skin' ? (Pix.get(c.duo + '~' + c.skin + ':duo-angel') ? `<img class="cfig" src="${Pix.get(c.duo + '~' + c.skin + ':duo-angel').url}" alt="">` : '') : `<span class="fswatch ${c.frame}"></span>`;
+      const icon = c.type === 'skin' ? (Pix.get(c.duo + '~' + c.skin + ':duo-angel') ? `<img class="cfig" src="${Pix.get(c.duo + '~' + c.skin + ':duo-angel').url}" alt="">` : '') : (CardFace.swatch(c.frame) ? `<img class="cfig fsw" src="${CardFace.swatch(c.frame)}" alt="">` : `<span class="fswatch ${c.frame}"></span>`);
       const act = own ? `<button class="abtn ${worn ? 'eqd' : 'eq'}" data-act="wear" data-i="${c.id}">${worn ? '✓ Worn' : 'Wear'}</button>` : c.souls ? priceBtn('buycos', c.id, c.souls, (META.souls || 0) >= c.souls) : mstate(`${c.earn.have()}/${c.earn.need}`);
       return shopRow({icon, n: cosName(c), d: cosDesc(c), sub: own ? '' : c.earn ? 'Earn it: ' + c.earn.n : '', on: worn && own, act}); };
     const cs2 = S.cslot === 'frames' ? 'frames' : 'skins';
@@ -8672,6 +8703,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
+  {v: '0.123', d: '27 Nov', n: ["Card frames work again, and recolour the real card art. Four new frames: Blood, Ashen, Gilt (600 souls) and Verdigris (win 25 runs)", "Cards at +15 get a gold edge and glow", "Bosses are tougher: 10% more life and harder hits (Act I at Dread 0 keeps its old hits)", "Dread 6 to 10 ramps a little harder", "Four new Daily modifiers: Thin Air, Long Night, Hoard, Swift Tide", "Three new passives: Keen Eye (4-card rewards), Hearth (better rests), Spare Flask (extra potion)"]},
   {v: '0.122.1', d: '27 Nov', n: ["Fixed: loot said 'Healing Potion potion'", "Fixed: the deck builder could crash on an empty deck", "The satchel's free potion is named Healing Potion"]},
   {v: '0.122', d: '27 Nov', n: ["Talent balance pass: every talent was tested on its own", "Crits now deal double", "Account talents: every rank now does something. Defence, Precision, Restoration and Deep Well give more. Second Look and First Breath add a 25% chance of one more each rank", "Too strong: Blood Aura, Winter Rest and Steam Shield / Afterimage are weaker", "Too weak: Retribution, Clarity, Turning, Ascend, Easy Turn, Oathkeeper, Mounting Rage, Executioner, Heart of Wrath, Cold Hands and Brittle are stronger", "Rampage now lasts the whole run (+1 per kill, max +3). Ice Vent is now Rime Shell: +4 to Rime block cards"]},
   {v: '0.121', d: '26 Nov', n: ["One way to write everything: 'Might 3 · 3 turns', 'Deal 6 to all', '+2 Judgement', 'Block 6', life (not health)", "Names that clashed are now unique: Sentence, Lay Bare, Brimstone, Drain, Ashen Guard, Deep Breath, Firebolt, Slaughter, and new names for several talents, boons and spells", "Gluttony gives more mana for more life. Carnage hits harder for less life. Cleansing Fire cures your Burn. Lash adds Weak", "Kindling and Fireproof now do something from rank 1", "The three basic potions have names. Energy and Mana are in the glossary"]},
