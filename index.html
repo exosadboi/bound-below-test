@@ -2120,7 +2120,7 @@ x-i.pi{display:inline-block;width:1em;height:1em;vertical-align:-.12em;flex:none
 .egains small{font-size:10.667px!important}
 .endscr .elv{align-items:center}
 /* rewards: stacked rows, a PixelLab frame per rarity, more light the rarer it is */
-.rws{display:flex;flex-direction:column;gap:12px;width:100%;padding-top:4px} .mkrws{margin-top:4px} .rkn{display:flex;flex-direction:column;gap:6px;text-align:center} .rkn>span{display:block} .fgnext{margin:6px 16px 0;font-size:14px;line-height:1.3} .mkrws .rw{animation:none} .mkrws .rw.got{opacity:.55}
+.rws{display:flex;flex-direction:column;gap:12px;width:100%;padding-top:4px} .mkrws{margin-top:4px}  .sheet.rkup{inset:0;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(4,3,6,.82);animation:fgin .2s ease-out both} .sheet.rkup>.rkbox{width:100%;max-width:400px;max-height:calc(100% - 16px);overflow:auto;text-align:center;padding:16px 12px 14px;background:radial-gradient(70% 40% at 50% 38%,rgba(255,190,90,.16),rgba(0,0,0,0) 70%)} .rktop{font:400 10.667px/1 var(--num);letter-spacing:.2em;text-transform:uppercase;color:#a89a84;margin:2px 0 6px} .rkh{margin:0;font-size:24px} .rkstep{display:flex;justify-content:center;align-items:center;gap:8px;margin:4px 0 12px;font:400 18px/1 var(--display);color:#8d8170} .rkstep b{color:#ffd27a;font-size:22px} .rkstep em,.rkch em{font-style:normal;color:#ffd27a} .rkpair{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start} .rkside{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0} .rkcard .acard{width:132px;max-width:100%;margin:0 auto} .rkcard{animation:rkpop .45s cubic-bezier(.2,1.4,.4,1) both} .rkside+.rkside .rkcard{animation-delay:.08s} @keyframes rkpop{0%{transform:scale(.85);filter:brightness(2.2)}100%{transform:none;filter:none}} .rkch{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font:400 15px/1.2 var(--body);color:#e6dcc8} .rkch li{text-wrap:balance} .rkch s{color:#8a7f70;text-decoration:none} .rkch b{color:#fff4e0} .rkch.a b{color:#ffe08a} .rkch.d b{color:#ff8a7a} .rkch .rknew{color:#9be38a!important} .rkch .rkno{color:#6f6658} .rksub{margin:12px 0 0;font:400 14px/1.2 var(--body);color:#c9a0ff} .rkcost{margin:12px 0 0;font:400 14px/1 var(--num);letter-spacing:.1em;text-transform:uppercase;color:#a89a84} .rkcost b{font:400 22px/1 var(--display);color:#ffd27a;letter-spacing:0} .rkcost small{text-transform:none;letter-spacing:0} .rkbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px} .rkn{display:flex;flex-direction:column;gap:6px;text-align:center} .rkn>span{display:block} .fgnext{margin:6px 16px 0;font-size:14px;line-height:1.3} .mkrws .rw{animation:none} .mkrws .rw.got{opacity:.55}
 .rw{position:relative;display:grid;grid-template-columns:72px minmax(0,1fr) auto;align-items:center;gap:12px;min-height:92px;padding:4px 6px;border:12px solid transparent;border-image:var(--k-rw-common) 18 fill / 18px stretch;text-align:left;animation:rwin .4s cubic-bezier(.2,.9,.3,1.2) both;animation-delay:calc(var(--i) * .12s)}
 @keyframes rwin{from{opacity:0;transform:translateY(14px) scale(.96)}}
 .rw.r-rare{border-image-source:var(--k-rw-rare)}
@@ -2767,7 +2767,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy health and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.118-test'; // bump for every build you send to testers
+const VERSION = '0.118.1-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -8449,11 +8449,11 @@ function vArmory() {
 /* ---------- the black market: every purchase lives here ---------- */
 /* ---------- confirmations: big choices ask once before they happen ---------- */
 // each entry describes the choice: a title, a picture, what it does, what it costs, and the button words
-const upAsk = (c, ok) => { const e = faceOf(c.id, c.lv, S.face || 'angel').e; return {t: `${e.n} to ${rkLabel(c.lv)}?`, art: '', d: rankNextHTML(c.id, c.lv), sub: 'This run only.', ok}; };
+const upAsk = (c, ok) => ({rk: {id: c.id, lv: c.lv, top: S.screen === 'rest' ? 'By the fire' : 'The Merchant'}, sub: 'This run only', ok});
 const CONFIRMS = {
   // cards removed from a run can't come back: ask once
   scalepick: d => { const c = S.scale === 'cut' && P().deck[+d.i]; if (!c) return null; const f = faceOf(c.id, c.lv, S.face || 'angel').e; return {t: `Remove ${f.n}?`, art: '', d: 'Gone from this run.', ok: 'Remove'}; },
-  upg: d => { const c = DUO().coll[d.i]; if (!c || !canForge(c)) return null; const e = faceOf(d.i, cLv(d.i), 'angel').e; return {t: `Forge ${e.n} to +${cRank(d.i) + 1}?`, art: '', d: rankNextHTML(d.i, cLv(d.i)), sub: RANK_CHOICE.includes(cRank(d.i) + 1) ? 'You choose a vow at this rank.' : '', cost: forgeNeed(c), cur: 'copies', ok: 'Forge'}; },
+  upg: d => { const c = DUO().coll[d.i]; if (!c || !canForge(c)) return null; return {rk: {id: d.i, lv: cLv(d.i), top: 'The Forge'}, sub: RANK_CHOICE.includes(cRank(d.i) + 1) ? 'You choose a vow at this rank' : '', cost: forgeNeed(c), cur: 'copies', have: c.c, ok: 'Forge'}; },
   restpick: d => { const c0 = S.restPick === 'up' && P().deck[+d.i]; if (c0) return canUp(c0) ? upAsk(c0, 'Sharpen') : null; const c = S.restPick === 'cut' && P().deck[+d.i]; if (!c) return null; const f = faceOf(c.id, c.lv, S.face || 'angel').e; return {t: `Let ${f.n} go?`, art: '', d: 'Gone from this run.', ok: 'Let go'}; },
   shoppick: d => { const c0 = S.shop && S.shop.mode === 'up' && P().deck[+d.i]; if (c0) return canUp(c0) ? upAsk(c0, 'Sharpen') : null; const c = S.shop && S.shop.mode !== 'up' && P().deck[+d.i]; if (!c) return null; const f = faceOf(c.id, c.lv, S.face || 'angel').e; return {t: `Burn ${f.n}?`, art: '', d: 'Gone from this run.', ok: 'Burn'}; },
   buy: d => { const x = ALL_GEAR().find(y => y.id === d.i), l = shopIL(), have = +META.arm.own[d.i] || 0; if (!x) return null;
@@ -8482,7 +8482,14 @@ const CONFIRMS = {
     return {t: `${CARDS[id].a.n} / ${CARDS[id].d.n}`, art: art ? `<img src="${art.url}" alt="">` : '', d: `Take it this run (${P().deck.length + 1} cards), or feed the Forge ${forgeN(id)} copies.`, sub: DUO().coll[id] ? '' : 'New card · joins your collection either way', ok: 'Add to run', alt: {act: 'drftforge', n: `Forge +${forgeN(id)}`}}; },
 };
 const confirmOn = () => META.opt.confirm !== false;
-function vConfirm() { const c = S.confirm; if (!c) return '';
+const rkFmt = t => t.startsWith('New: ') ? `<b class="rknew">+ ${t.slice(5)}</b>` : t.replace(/(\d+%?)→(\d+%?)/g, '<s>$1</s><em>›</em><b>$2</b>');
+function vRankUp(c) { const R = c.rk, id = R.id, lv = R.lv, ch = rankNext(id, lv), nm = lvl(CARDS[id].a, lv).n;
+  const side = (k, j) => { const e = lvl(CARDS[id][k], lv + 1), L = ch[j]; return `<div class="rkside"><div class="rkcard">${archCard(e, ['angel', 'demon'][j], false, {})}</div><ul class="rkch ${j ? 'd' : 'a'}">${L.length ? L.map(t => `<li>${rkFmt(t)}</li>`).join('') : '<li class="rkno">No change</li>'}</ul></div>`; };
+  const cost = c.cost != null ? `<p class="rkcost"><b>${c.cost}</b> copies${c.have != null ? ` <small>· you have ${c.have}</small>` : ''}</p>` : '';
+  return `<div class="sheet cfsheet rkup" data-act="confirmx"><div class="rkbox"><p class="rktop">${R.top}</p><h2 class="rkh">${nm}</h2><p class="rkstep"><span>${rkLabel(lv - 1)}</span><em>›</em><b>+${lv}</b></p>
+    <div class="rkpair">${side('a', 0)}${side('d', 1)}</div>${c.sub ? `<p class="rksub">${c.sub}</p>` : ''}${cost}
+    <div class="rkbtns"><button class="btn pri" data-act="${c.a}" data-i="${c.i == null ? '' : c.i}" data-ok="1">${c.ok}</button><button class="btn" data-act="confirmx">Cancel</button></div></div></div>`; }
+function vConfirm() { const c = S.confirm; if (!c) return ''; if (c.rk) return vRankUp(c);
   const have = c.cur === 'souls' ? META.souls || 0 : c.cur === 'marks' ? META.marks || 0 : null, short = have != null && c.cost > have;
   const price = c.cost != null ? `<div class="cfcost${short ? ' short' : ''}">${c.cur === 'souls' ? soul() : c.cur === 'marks' ? '<span class="mkic"></span>' : ''}<b>${c.cost}</b> ${c.cur}${have != null ? `<small>you have ${have}${short ? '' : ` · ${have - c.cost} left after`}</small>` : ''}</div>` : '';
   return `<div class="sheet pick cfsheet" data-act="confirmx"><div><div class="cfart">${c.art || ''}</div><h2>${c.t}</h2><p class="cfd">${c.d || ''}</p>${c.sub ? `<p class="cfsub">${c.sub}</p>` : ''}${price}
@@ -8620,6 +8627,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
+  {v: '0.118.1', d: '26 Nov', n: ["Forging or sharpening a card shows both sides at the new rank, with what changes under each"]},
   {v: '0.118', d: '26 Nov', n: ["Cards keep their rarity for good. A coloured gem and name show it", "Upgrades are now ranks (+1, +2…). Every rank changes something you can see", "Before you forge or sharpen, you see exactly what changes", "Some ranks add more than numbers: lower cost, Pierce, more turns, extra draw and more", "A card can be sharpened twice per run"]},
   {v: '0.117.2', d: '26 Nov', n: ["Cards in the Black Market look like they do in chests. Tap or hold to read"]},
   {v: '0.117.1', d: '26 Nov', n: ["The Black Market has new tabs: Today, Supplies, Cards, Skins and Duos", "Cards for sale show both sides. Hold one to read it"]},
