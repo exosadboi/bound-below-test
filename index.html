@@ -2767,7 +2767,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy health and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.119.1-test'; // bump for every build you send to testers
+const VERSION = '0.120-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -2858,7 +2858,7 @@ const CARDS = {
   mirror:   {a:{n:'Mirror of Souls',c:1,mirror:1}, d:{n:'Mirror of Sins',c:0,mirror:1,selfP:3}}, // v0.110: replays your last card this turn on the spot; the Demon pays in life, not energy
   seal:     {a:{n:"The Binder's Seal",c:2,seal:1,spent:1}, d:{n:"The Binder's Chain",c:2,seal:1,sealHp:3,spent:1}},
   // v0.51: a legendary for each build that had no chase card
-  verdict:  {a:{n:'Final Verdict',c:2,reapS:4},    d:{n:'Damnation',c:2,reapJ:4}},
+  verdict:  {a:{n:'Last Rites',c:2,reapS:4},    d:{n:'Damnation',c:2,reapJ:4}},
   twohearts:{a:{n:'Two Hearts',c:1,swBlk:4,swDmg:2}, d:{n:'Twice Damned',c:1,swDmg:4,swBlk:2}},
   wound:    {a:{n:'Sacred Wound',c:2,wound:100,blk:6}, d:{n:'Black Wound',c:1,wound:160}},
   // v0.84: the answer to afflictions
@@ -3372,7 +3372,7 @@ const BOONS = [
   {id:'gravegoods', t:'strong', n:'Grave Goods', art:'oath-a', f:'angel', d:'Each fight starts with a free potion effect', x:'You earn half gold'},
   {id:'coin', k:1, n:'Coin of Three Faces', art:'twinflame-a', f:'angel', d:'You switch for free every turn and draw 1', x:'You can\'t switch yourself'},
   {id:'locket', k:1, n:'Cursed Locket', art:'covenant-d', f:'demon', d:'Your ultimate starts every fight full', x:'It takes 20% of your max health'},
-  {id:'stillborn', k:1, n:'Stillborn Hand', art:'tornsoul-d', f:'demon', d:'Draw 2 more cards each turn', x:'Any card you skip is Spent for the fight'},
+  {id:'stillborn', k:1, n:'Stillborn Hand', art:'tornsoul-d', f:'demon', d:'Draw 2 more cards each turn', x:'Any card you skip is Banished for the fight'},
   {id:'lastbreath', k:1, n:'Crown of Last Breath', art:'martyr-a', f:'angel', d:'Below half health: +2 energy each turn', x:'10 less max health'},
   {id:'splitsoul', k:1, n:'Split Soul', art:'duality-a', f:'angel', d:'Switching costs 1 energy instead of mana', x:'3 less max mana'},
   {id:'redcommunion', duo:'fallen', k:1, n:'Red Communion', art:'exsang-a', f:'demon', d:'Each Bleed tick: +2 damage this fight', x:'The Demon bleeds twice as much'},
@@ -3423,7 +3423,7 @@ const STATUS = {
   focus:  {n:'Focus',     on:'self', d:v => `Gains ${v} mana at the start of each turn`},
   might:  {n:'Might',     on:'self', d:v => `+${v} damage on every hit`},
   thorns: {n:'Thorns',    on:'self', d:v => `Attackers take ${v} damage`},
-  vamp:   {n:'Vampirism', on:'self', d:v => `Heals ${v}% of the damage it deals`},
+  vamp:   {n:'Lifesteal', on:'self', d:v => `Heals ${v}% of the damage it deals`},
 };
 // is the status active right now? form-locked ones only work in their form (enemies have no form)
 const stOn = (h, id) => { const x = h && h.st && h.st[id]; return x && x.v > 0 && (!x.f || !h.form || (h === S.p && (boon('twinsoul') || TR('twinsoul'))) || h.form === x.f || h === S.p && P().form === x.f) ? x : null; };
@@ -3445,7 +3445,7 @@ const BADGE_TIP = {block: ['Block', 'Soaks damage before health. Enemy block sta
   exholy: ['Exposed', 'Takes 50% more of that damage type'], exshadow: ['Exposed', 'Takes 50% more of that damage type'], leech: ['Leech', 'Hitting it heals you for half the damage'],
   eweak: ['Weak', 'Deals 25% less damage'], str: ['Strength', 'Its attacks hit harder'], frozen: ['Frozen', 'Skips its next turn'], fury: ['Fury', '+3 damage on every hit'],
   halo: ['Halo', '+2 mana at the start of each turn'], bless: ['Blessing', 'Heals you at the start of each turn'], nextfree: ['Free card', 'Your next card of that form costs nothing'],
-  tug: ['Chain Tug', 'At 0 the chain drags you into your other form, free'], freesw: ['Free switch', 'Your next form change costs no mana'], empholy: ['Empowered', 'Your damage of that type is 50% higher'], empshadow: ['Empowered', 'Your damage of that type is 50% higher']};
+  tug: ['Chain Tug', 'At 0 the chain drags you to your other side, free'], freesw: ['Free switch', 'Your next form change costs no mana'], empholy: ['Empowered', 'Your damage of that type is 50% higher'], empshadow: ['Empowered', 'Your damage of that type is 50% higher']};
 const badge = (key, icon, v, t, cls) => `<span class="sb ${cls || ''}" data-act="sttip" data-i="${key}" role="button">${ic(icon)}${v != null && v !== '' ? `<b>${v}</b>` : ''}${t ? `<i>${t}</i>` : ''}</span>`;
 const stBadge = (h, id, idle) => { const x = h.st[id], noV = id === 'weak' || id === 'frail' || id === 'chill';
   return badge('st:' + id + ':' + x.v + ':' + (x.t || 0), ST_ICON[id] || 'star', noV ? '' : x.v + (id === 'vamp' ? '%' : ''), x.t, (STATUS[id].bad ? 'bad ' : 'good ') + 's-' + id + (idle ? ' idle' : '')); };
@@ -4613,7 +4613,7 @@ const REACT = {warden:{n:'Iron Will', d:'+6 block when you play a 0-cost card'},
 const reacts = id => alive().filter(x => x.id === id);
 function reactSwitch() { if (hz(11) && F().kind === 'elite') alive().forEach(x => { x.str += 2; fxe('etxt', {t: x, txt: '+2 damage', c: '255,140,120'}); }); reacts('pyrepriest').forEach(x => { x.str += 2; fxe('etxt', {t: x, txt: 'Zeal +2', c: '255,140,120'}); }); reacts('devourer').forEach(x => { x.hp = Math.min(x.max, x.hp + 6); fxe('etxt', {t: x, txt: 'Heals 6', c: '140,230,150'}); }); reacts('voidknight').forEach(x => { x.blk += 8; fxe('etxt', {t: x, txt: 'Guard +8', c: '191,224,255'}); }); }
 function reactCard(e) { const p = P();
-  if (!HEATD() && p.form === 'demon' && e.dmg != null && !e.noFrenzy) { p.dAtk = (p.dAtk || 0) + 1; if (p.dAtk > 3) loseHp(2, "the Demon's frenzy"); } // the Demon's cost: every attack after its 3rd in a turn costs 2 health
+  if (!HEATD() && p.form === 'demon' && e.dmg != null && !e.noFrenzy) { p.dAtk = (p.dAtk || 0) + 1; if (p.dAtk > 3) loseHp(2, "the Demon's toll"); } // the Demon's cost: every attack after its 3rd in a turn costs 2 health
   if ((e.c || 0) === 0) reacts('warden').forEach(x => { x.blk += 6; fxe('etxt', {t: x, txt: 'Guard +6', c: '191,224,255'}); });
   if ((p.playedT || 0) >= 4 && reacts('hexpriest').length) loseHp(2, 'the Hex Priest');
   if ((p.playedT || 0) % 3 === 0) reacts('bellmonk').forEach(x => { x.blk += 6; fxe('etxt', {t: x, txt: 'Toll: guard +6', c: '191,224,255'}); }); }
@@ -4632,7 +4632,7 @@ function castUlt() {
 const freeSwitch = () => { const p = P(); return p.free || (TR('perfect') && !p.switched) || p.freeLeft > 0; };
 function switchForm() {
   if (F().bound) { toast('The chains hold. No switching here'); return; }
-  if (boon('coin')) { toast('The coin decides your form'); return; }
+  if (boon('coin')) { toast('The coin decides your side'); return; }
   const p = P(); let cost = freeSwitch() ? 0 : swCost();
   if (boon('splitsoul')) { if (p.ap < 1) { toast('Switching needs 1 energy'); buzz(30); return render(); } p.ap--; }
   if (p.mana < cost) { log('Switching needs ' + cost + ' mana.'); toast('Switching needs ' + cost + ' mana'); buzz(30); return render(); }
@@ -4714,7 +4714,7 @@ function enemyAct(e) {
   else if (e.sil) log(e.n + ' is silenced. Nothing happens.');
   else if (m.k === 'blk') { const gb = Math.round(m.v * (stOn(e, 'frail') ? .75 : 1)); e.blk += gb; log(e.n + ' raises its guard.'); fxe('etxt', {t: e, txt: 'Guard +' + gb, c: '191,224,255'}); sfx('block'); }
   else if (m.fx === 'str') { alive().forEach(x => x.str += 2); log(e.n + ' chants. They all hit harder.'); fxe('etxt', {t: e, txt: 'All +2 damage', c: '255,140,120'}); }
-  else if (m.fx === 'sil') { p.sil = 2; log('You are silenced. Your form bonus is gone.'); fxe('etxt', {t: e, txt: 'Silences you', c: '220,220,235'}); }
+  else if (m.fx === 'sil') { p.sil = 2; log('You are silenced. Your side bonus is gone.'); fxe('etxt', {t: e, txt: 'Silences you', c: '220,220,235'}); }
   else if (m.fx === 'drain') { const d = Math.min(p.mana, 3); p.mana -= d; log(e.n + ' drinks ' + d + ' of your mana.'); fxe('etxt', {t: e, txt: '−' + d + ' mana', c: '150,180,255'}); }
   else if (m.fx === 'mend') { alive().forEach(x => { x.hp = Math.min(x.max, x.hp + 8); }); log(e.n + ' mends its allies.'); fxe('etxt', {t: e, txt: 'All heal 8', c: '140,230,150'}); }
   else if (m.fx === 'rage') { e.str += 3; log(e.n + ' lashes itself. It hits harder.'); fxe('etxt', {t: e, txt: '+3 damage', c: '255,140,120'}); }
@@ -4754,7 +4754,7 @@ async function endTurn() { const armK = S.f ? F().cArm : null; if (S.f) F().cArm
   if (TR('lastlight') && p.blk >= 2) { const v = Math.floor(p.blk / 2); alive().forEach(t => pureHit(t, v, 'Last Light: ')); }
   f.hand.forEach(c => { const e = side(c), v = e.holdP ? lifeCost(e.holdP) : e.hold; if (v) { loseHp(v, e.n + ' (held at turn end)'); log(e.n + ' burns you for ' + v + '.'); } });
   if (armK != null && f.hand[armK] && !f.hand.some(c => c.keep)) f.hand[armK].keep = true; // the card you had raised stays for next turn
-  if (boon('stillborn')) { const gone = f.hand.filter(c => !c.keep); if (gone.length) { (f.gone = f.gone || []).push(...gone); f.hand = f.hand.filter(c => c.keep); log('Stillborn Hand: ' + gone.length + ' unplayed card' + (gone.length > 1 ? 's are' : ' is') + ' Spent.'); } }
+  if (boon('stillborn')) { const gone = f.hand.filter(c => !c.keep); if (gone.length) { (f.gone = f.gone || []).push(...gone); f.hand = f.hand.filter(c => c.keep); log('Stillborn Hand: ' + gone.length + ' unplayed card' + (gone.length > 1 ? 's are' : ' is') + ' Banished.'); } }
   const kept = f.hand.filter(c => c.keep);
   f.hand.forEach(c => delete c.held); f.disc.push(...f.hand.filter(c => !c.keep)); kept.forEach(c => { delete c.keep; c.held = 1; }); f.hand = kept;
   if (reacts('witch').length && p.form === p.formT0) { loseHp(6, 'the Crossroads'); fxe('etxt', {t: reacts('witch')[0], txt: 'Crossroads −6', c: '200,170,255'}); }
@@ -4977,7 +4977,7 @@ const EVENTS = {
     {l:'Help it', d:'Lose 8 health, choose a card', ok: () => P().hp > 8, go: () => { hurt(8); S.picks = cardPicks(); S.screen = 'reward'; }},
     {l:'Finish it', d:'Fully charge your ultimate', go: () => { const p = P(); p.ult = p.ultNeed; return 'Its last light pours into you. Your ultimate is ready.'; }}]},
   mirror: {n:'The Mirror Pool', t:'Your reflection wears your other face, and smiles.', o:[
-    {l:'Step in', d:'Become your other form. Next fight: +2 energy on turn 1', go: () => { const p = P(); p.form = p.form === 'angel' ? 'demon' : 'angel'; p.stack = 0; p.mirrorAp = 2; S.morph = true;
+    {l:'Step in', d:'Switch to your other side. Next fight: +2 energy on turn 1', go: () => { const p = P(); p.form = p.form === 'angel' ? 'demon' : 'angel'; p.stack = 0; p.mirrorAp = 2; S.morph = true;
       return 'You rise as the ' + FN(p.form) + '. Your next fight starts with 2 extra energy.'; }}]},
   shrine: {n:'A forgotten shrine', t:'Candles still burn before a faceless saint.', o:[
     {l:'Kneel', d:'Lose 6 max health, choose a boon', ok: () => P().maxHp > 26, go: () => { const p = P(); p.maxHp -= 6; p.hp = Math.min(p.hp, p.maxHp); offerBoon('The shrine answers', 'event'); }},
@@ -5143,36 +5143,36 @@ function lines(e, live) {
   if (e.ls) o.push('<span>Lifesteal</span>');
   if (e.bless) o.push(`<span>${ic('heart')}<b>${e.bless}</b> x${e.turns}t</span>`);
   if (e.uc) o.push(`<span>Ult +${e.uc}</span>`);
-  if (e.bp) o.push(`<span>Blood ${ic('shield')}</span>`);
+  
   if (e.blk) o.push(`<span>${ic('shield')}<b>${b}</b></span>`);
   if (e.heal) o.push(`<span>${ic('heart')}<b>${e.heal}</b></span>`);
   if (e.mana) o.push(`<span class="mana">${ic('drop')}<b>+${e.mana}</b></span>`);
   if (e.draw) o.push(`<span>${ic('cards')}<b>${e.draw}</b></span>`);
-  if (e.regen) o.push(`<span class="mana">${ic('drop')}+${e.regen} x${e.turns}t</span>`);
+  if (e.regen) o.push(`<span class="mana">${ic('drop')}+${e.regen} · ${e.turns} turns</span>`);
   if (e.fury) o.push(`<span>${ic('rage')}+${e.fury} per hit, ${e.turns} turns</span>`);
-  if (e.shatter) o.push('<span>Shatter</span>');
-  if (e.silence) o.push(`<span>Silence ${e.silence}t</span>`);
+  if (e.shatter) o.push('<span>Break all</span>');
+  if (e.silence) o.push(`<span>Silence · ${e.silence} turns</span>`);
   if (e.cleanse) o.push(`<span>Cure ${e.cleanse === 'burn' ? 'Burn' : e.cleanse === 'rot' ? 'Poison, Doom' : 'afflictions'}${e.cHealN ? `, heal ${e.cHealN} each` : ''}</span>`);
-  if (e.xferAff) o.push('<span>Your afflictions move to it</span>');
-  if (e.heldX) o.push(`<span>+${e.heldX} if kept</span>`); if (e.noFrenzy) o.push('<span>No frenzy</span>'); if (e.perHeat) o.push(`<span>+${e.perHeat} per Heat</span>`);
+  if (e.xferAff) o.push('<span>Give it your afflictions</span>');
+  if (e.heldX) o.push(`<span>Kept: +${e.heldX}</span>`); if (e.noFrenzy) o.push('<span>No Toll</span>'); if (e.perHeat) o.push(`<span>+${e.perHeat} per Heat</span>`);
   if (e.sunheart) o.push('<span>Overheat at 7, unburnt</span>'); if (e.heatZero) o.push('<span>Heat to 0</span>'); if (e.heatDbl) o.push('<span>Double your Heat</span>');
   if (e.vaultB) o.push(`<span>${ic('shield')}+${e.vaultB} per Heat</span>`); if (e.burnUp) o.push(`<span>+${e.burnUp} Burn on the Burning</span>`); if (e.blkBurn) o.push(`<span>${ic('shield')}= enemy Burn</span>`);
   if (e.snuff) o.push(`<span>Snuff Burn into ${ic('shield')}</span>`); if (e.shpt) o.push('<span>Chilled take +30%</span>'); if (e.everburn) o.push('<span>Burn never fades</span>');
-  if (e.vuln) o.push(`<span>Hex +${e.vuln} ${e.turns}t${e.all && e.dmg == null ? ' all' : ''}</span>`);
-  if (e.twin) o.push(`<span${sw ? ' class="on-sw"' : ''}>x2 after a switch${sw ? ' ✓' : ''}</span>`);
-  if (e.cross) o.push(`<span${sw ? ' class="on-sw"' : ''}>+${e.cross} after a switch${sw ? ' ✓' : ''}</span>`);
+  if (e.vuln) o.push(`<span>Hex +${e.vuln} · ${e.turns} turns${e.all && e.dmg == null ? ' all' : ''}</span>`);
+  if (e.twin) o.push(`<span${sw ? ' class="on-sw"' : ''}>Switched: ×2${sw ? ' ✓' : ''}</span>`);
+  if (e.cross) o.push(`<span${sw ? ' class="on-sw"' : ''}>Switched: +${e.cross}${sw ? ' ✓' : ''}</span>`);
   if (e.burst) o.push(`<span>${ic('rage')}+${e.burst} per hit this turn</span>`);
   if (e.freeSw) o.push('<span>Free switch</span>');
   if (e.flip) o.push('<span>Then switch</span>');
   if (e.self) o.push(`<span class="neg">${ic('heart')}-${e.self}</span>`);
   if (e.selfP) o.push(`<span class="neg">${ic('heart')}-${lifeCost(e.selfP)}</span>`);
-  if (e.hold) o.push(`<span class="neg">Held ${ic('heart')}-${e.hold}</span>`);
-  if (e.holdP) o.push(`<span class="neg">Held ${ic('heart')}-${lifeCost(e.holdP)}</span>`);
+  if (e.hold) o.push(`<span class="neg">Fester ${ic('heart')}-${e.hold}</span>`);
+  if (e.holdP) o.push(`<span class="neg">Fester ${ic('heart')}-${lifeCost(e.holdP)}</span>`);
   if (e.ap) o.push(`<span>${ic('bolt')}<b>+${e.ap}</b></span>`);
-  if (e.cursed) o.push(`<span>+${e.cursed} if cursed</span>`);
-  if (e.cHeal) o.push(`<span>${ic('heart')}${e.cHeal} if cursed</span>`);
-  if (e.emp) o.push(`<span class="${e.emp}">Empower ${TYN(e.emp)} ${e.empT === 1 ? 'this turn' : e.empT + 't'}</span>`);
-  if (e.exp) o.push(`<span class="${e.exp}">Expose ${TYN(e.exp)} ${e.expT}t${e.all ? ' all' : ''}</span>`);
+  if (e.cursed) o.push(`<span>+${e.cursed} if afflicted</span>`);
+  if (e.cHeal) o.push(`<span>${ic('heart')}${e.cHeal} if afflicted</span>`);
+  if (e.emp) o.push(`<span class="${e.emp}">Empower ${TYN(e.emp)} ${e.empT === 1 ? 'this turn' : e.empT + ' turns'}</span>`);
+  if (e.exp) o.push(`<span class="${e.exp}">Expose ${TYN(e.exp)} · ${e.expT} turns${e.all ? ' all' : ''}</span>`);
   if (e.leech) o.push(`<span>Leech ${e.leech}t${e.all ? ' all' : ''}</span>`);
   if (e.weak) o.push(`<span>Weak ${e.weak}t</span>`);
   (e.st || []).forEach(([id, v, t, f]) => o.push(`<span>${stText(id, {v, t, f})}</span>`));
@@ -5210,7 +5210,7 @@ function cardMain0(e, live) {
 }
 // every other effect as a terse keyword phrase. "2t" means 2 turns; a glossary can explain the keywords.
 function cardWords(e, live, skip) {
-  const sw = live && P().switched, o = [], t = n => n > 1 ? ' ' + n + 't' : '';
+  const sw = live && P().switched, o = [], t = n => n > 1 ? ` · ${n} turns` : '';
   let stSkip = skip === 'st1';
   const add = (k, txt, cls) => { if (k === 'st' && stSkip) { stSkip = false; return; } if (!k || k === 'st' || k !== skip) o.push(`<span${cls ? ` class="${cls}"` : ''}>${txt}</span>`); };
   if (e.dmg != null) add('dmg', `Deal <b>${live ? calc(e, liveTgt()) : e.dmg}</b>${e.hits ? ' ×' + e.hits : ''}${e.all ? ' all' : ''}`);
@@ -5224,25 +5224,25 @@ function cardWords(e, live, skip) {
   if (e.vuln) add('vuln', `Hex ${e.vuln}${t(e.turns)}${e.all && e.dmg == null ? ' all' : ''}`);
   if (e.burst) add('', `+${e.burst} damage on each hit this turn`);
   if (e.fury) add('', `+${e.fury} per hit${t(e.turns)}`);
-  if (e.twin) add('', `×2 if you switched this turn${sw ? ' ✓' : ''}`, sw ? 'on' : '');
-  if (e.cross) add('', `+${e.cross} if you switched this turn${sw ? ' ✓' : ''}`, sw ? 'on' : '');
-  if (e.vent) add('', `+${e.vent} per Heat, then your Heat drops to 0`, 'vent');
+  if (e.twin) add('', `Switched: ×2${sw ? ' ✓' : ''}`, sw ? 'on' : '');
+  if (e.cross) add('', `Switched: +${e.cross}${sw ? ' ✓' : ''}`, sw ? 'on' : '');
+  if (e.vent) add('', `Vent: +${e.vent} per Heat`, 'vent');
   if (e.ht) add('', `${e.ht > 0 ? '+' : ''}${e.ht} Heat`, 'heatw');
   if (e.freeze) add('', `Freeze${t(e.freeze)}`);
   if (e.pierce) add('', 'Pierce');
-  if (e.shatter) add('', 'Shatter');
+  if (e.shatter) add('', 'Break all');
   if (e.sunder) add('', `Break ${e.sunder}`);
   if (e.mark) add('', `Mark ${e.mark}`);
   const allN = e.all && e.dmg == null && !e.blkdmg ? ' all' : '';
   if (e.judge) add('', `Judge +${e.judge}`, 'holy');
   if (e.sinN) add('', `Sin +${e.sinN}`, 'shadow');
-  if (e.verX) add('', `Spends Judgement for ×${e.verX}`, 'shadow');
-  if (e.absX) add('', `Spends Sin for ×${e.absX}`, 'holy');
+  if (e.verX) add('', `Verdict ×${e.verX}`, 'shadow');
+  if (e.absX) add('', `Absolve ×${e.absX}`, 'holy');
   if (e.ls) add('', 'Lifesteal');
   if (e.silence) add('', `Silence${t(e.silence)}`);
   if (e.cleanse) add('', `Cure ${e.cleanse === 'burn' ? 'your Burn' : e.cleanse === 'rot' ? 'your Poison and Doom' : 'your Poison, Burn and Doom'}${e.cHealN ? `, heal ${e.cHealN} each` : ''}`, 'ok');
-  if (e.xferAff) add('', 'Hand your Poison, Burn and Doom to the target');
-  if (e.heldX) add('', `+${e.heldX} if kept from last turn`, 'ok'); if (e.noFrenzy) add('', 'Never costs frenzy health'); if (e.perHeat) add('', `+${e.perHeat} per Heat. Heat stays`);
+  if (e.xferAff) add('', 'Give your Poison, Burn and Doom to the target');
+  if (e.heldX) add('', `Kept: +${e.heldX}`, 'ok'); if (e.noFrenzy) add('', 'No Toll'); if (e.perHeat) add('', `+${e.perHeat} per Heat`);
   if (e.sunheart) add('', 'You Overheat at 7 Heat this fight, unburnt', 'ok'); if (e.heatZero) add('', 'Your Heat drops to 0');
   if (e.heatDbl) add('', 'Double your Heat (max 9)'); if (e.vaultB) add('', `+${e.vaultB} block per Heat spent`);
   if (e.burnUp) add('', `+${e.burnUp} Burn on every Burning enemy`); if (e.blkBurn) add('', `Block equal to all enemy Burn, max ${e.blkBurn}`);
@@ -5253,49 +5253,49 @@ function cardWords(e, live, skip) {
   if (e.bp) add('', 'Switch to Angel this turn: block equal to life paid');
   if (e.freeSw) add('', 'Free switch');
   if (e.flip) add('', 'Then switch');
-  if (e.cursed) add('', `+${e.cursed} vs cursed`);
-  if (e.perJ) add('', `+${e.perJ} damage per Judgement`, 'holy');
+  if (e.cursed) add('', `+${e.cursed} vs afflicted`);
+  if (e.perJ) add('', `+${e.perJ} per Judgement`, 'holy');
   if (e.perS) add('', `+${e.perS} per Sin`, 'shadow');
   if (e.perSw) { const n = live ? P().swF || 0 : 0; add('', `+${e.perSw} per switch this fight${n ? ' (' + n + ')' : ''}`, n ? 'on' : ''); }
   if (e.dmgL) add('', `+${e.dmgL} per life lost this turn`);
   if (e.blkL) add('', `+${e.blkL} block per life lost this turn`);
   if (e.healL) add('', `Heal ${e.healL < 1 ? 'half ' : ''}the life lost this turn`, 'ok');
-  if (e.keepBlk) add('', 'Block lasts a turn');
+  if (e.keepBlk) add('', 'Lasting');
   if (e.blkX) add('', 'Double your block');
-  if (e.perCurse) add('', `+${e.perCurse} per curse on the target`);
-  if (e.healCurse) add('', `Heal ${e.healCurse} per curse on the target`, 'ok');
-  if (e.detonate) add('', `${STATUS[e.detonate].n} goes off now: deal double, then it ends`, 'bad');
-  if (e.spread) add('', `Copy the target's ${STATUS[e.spread].n} to every enemy`, 'bad');
+  if (e.perCurse) add('', `+${e.perCurse} per affliction on the target`);
+  if (e.healCurse) add('', `Heal ${e.healCurse} per affliction on the target`, 'ok');
+  if (e.detonate) add('', `Detonate ${STATUS[e.detonate].n}: double damage now, then it ends`, 'bad');
+  if (e.spread) add('', `Spread ${STATUS[e.spread].n}: copy the target's to every enemy`, 'bad');
   if (e.stX) add('', `Double ${STATUS[e.stX].n}${e.all ? ' on all' : ''}`, 'bad');
   if (e.ovh) add('', 'Overheat now', 'heatw');
   if (e.ifOvh) { const on = live && P().ovhT; add('', `+${e.ifOvh} if you Overheated this turn${on ? ' ✓' : ''}`, on ? 'on' : ''); }
-  if (e.xFrozen) add('', `×${e.xFrozen} vs Frozen`);
-  if (e.xChill) add('', `×${e.xChill} vs Chilled`);
-  if (e.cHeal) add('', `Heal ${e.cHeal} vs cursed`, 'ok');
-  if (e.emp) add('', `${e.emp === 'holy' ? 'Angel' : e.emp === 'shadow' ? 'Demon' : TYN(e.emp)} hits +50%${e.empT > 1 ? ` for ${e.empT} turns` : ' this turn'}`, e.emp);
+  if (e.xFrozen) add('', `Shatter: ×${e.xFrozen} vs Frozen`);
+  if (e.xChill) add('', `Shatter: ×${e.xChill} vs Chilled`);
+  if (e.cHeal) add('', `Heal ${e.cHeal} vs afflicted`, 'ok');
+  if (e.emp) add('', `Empower ${e.emp === 'holy' ? 'Angel' : e.emp === 'shadow' ? 'Demon' : TYN(e.emp)}: +50%${e.empT > 1 ? ` for ${e.empT} turns` : ' this turn'}`, e.emp);
   if (e.exp) add('', `Takes +50% from ${e.exp === 'holy' ? 'Angel' : e.exp === 'shadow' ? 'Demon' : TYN(e.exp)}${t(e.expT)}`, e.exp);
   if (e.leech) add('', `Leech${t(e.leech)}${e.all ? ' all' : ''}`);
   if (e.weak) add('', `Weak${t(e.weak)}${allN}`);
-  if (e.nextFree) add('', `Next ${FN(e.nextFree)} card costs 0`, e.nextFree === 'angel' ? 'holy' : 'shadow');
+  if (e.nextFree) add('', `Next ${FN(e.nextFree)} card free`, e.nextFree === 'angel' ? 'holy' : 'shadow');
   (e.st || []).forEach(([id, v, t, f]) => add('st', stText(id, {v, t, f}) + (STATUS[id].bad ? allN : ''), STATUS[id].bad ? 'bad' : 'ok'));
   if (e.mc) add('', `-${e.mc} mana`, 'mn');
   if (e.self) add('', `-${e.self} life`, 'neg');
   if (e.selfP) add('', `-${lifeCost(e.selfP)} life`, 'neg');
-  if (e.retKill) add('', 'On a kill: back to your hand', 'ok'); if (e.apKill) add('', `On a kill: +${e.apKill} energy`, 'ok');
-  if (e.goldKill) add('', `On a kill: +${e.goldKill} gold`, 'ok'); if (e.goldFull) add('', `At full health: ${e.goldFull} gold instead`, 'ok');
+  if (e.retKill) add('', 'Kill: back to your hand', 'ok'); if (e.apKill) add('', `Kill: +${e.apKill} energy`, 'ok');
+  if (e.goldKill) add('', `Kill: +${e.goldKill} gold`, 'ok'); if (e.goldFull) add('', `At full life: ${e.goldFull} gold instead`, 'ok');
   if (e.bellJ) add('', '+1 Judgement per card played this turn', 'holy'); if (e.bellS) add('', '+1 Sin per card played this turn', 'shadow');
-  if (e.markMv) add('', e.markMv === 'j' ? 'Turn your Sin into Judgement' : 'Turn your Judgement into Sin', e.markMv === 'j' ? 'holy' : 'shadow');
+  if (e.markMv) add('', e.markMv === 'j' ? 'Pour your Sin into Judgement' : 'Pour your Judgement into Sin', e.markMv === 'j' ? 'holy' : 'shadow');
   if (e.blkSw) add('', `Block ${e.blkSw} per switch this fight (max ${10 * e.blkSw})`, 'ok');
-  if (e.cov) add('', `Next card on your other side: +${e.cov} damage, block or heal`, 'ok');
+  if (e.cov) add('', `Covenant +${e.cov}: your next other-side card gets it as damage, block or heal`, 'ok');
   if (e.mirror) add('', 'Replay your last card this turn', 'ok');
-  if (e.reapS) add('', `Empty your Sin: every enemy takes ${e.reapS} per point, ignores block`, 'shadow'); if (e.reapJ) add('', `Empty your Judgement: every enemy takes ${e.reapJ} per point`, 'holy');
+  if (e.reapS) add('', `Purge Sin: ${e.reapS} per point to all, ignores block`, 'shadow'); if (e.reapJ) add('', `Purge Judgement: ${e.reapJ} per point to all, ignores block`, 'holy');
   if (e.swBlk || e.swDmg) add('', `Every switch this fight: ${e.swBlk} block, and ${e.swDmg} to every enemy`, 'ok');
-  if (e.wound) add('', `Can't die until next turn, then all enemies take ${e.wound}% of life lost`, 'ok');
-  if (e.heatBurst) add('', `Spend all Heat: ${e.heatBurst} per Heat to all, ignores block`, 'vent');
+  if (e.wound) add('', `Undying until next turn, then all enemies take ${e.wound}% of life lost`, 'ok');
+  if (e.heatBurst) add('', `Vent: ${e.heatBurst} per Heat to all, ignores block`, 'vent');
   if (e.tick === 'burn') add('', `Each turn: +${e.tickV} Burn to all (it stacks), +1 Heat`, 'ok'); if (e.tick === 'chill') add('', `Each turn this fight: Chill every enemy, ${e.tickV} block`, 'ok');
-  if (e.seal) add('', 'All fight, cards play both sides' + (e.sealHp ? ` · Demon cards cost ${e.sealHp} life` : ''), 'holy'); if (e.spent) add('', 'Spent', 'dim');
-  if (e.hold) add('', `Held: -${e.hold} life`, 'neg');
-  if (e.holdP) add('', `Held: -${lifeCost(e.holdP)} life`, 'neg');
+  if (e.seal) add('', 'Both sides: all fight, every card plays both' + (e.sealHp ? ` · Demon cards cost ${e.sealHp} life` : ''), 'holy'); if (e.spent) add('', 'Banish', 'dim');
+  if (e.hold) add('', `Fester: -${e.hold} life`, 'neg');
+  if (e.holdP) add('', `Fester: -${lifeCost(e.holdP)} life`, 'neg');
   return o;
 }
 // one card face. The same pieces in every style: illustration, cost, name, headline number, plain effects, other-side tab.
@@ -5398,9 +5398,9 @@ function acMain(e, fm, live) { e = mainLock(e);
   else if (e.blk) k = 'block'; else if (e.heal) k = 'heal'; else if (e.bless) k = 'regen'; else if (e.mana) k = 'mana'; else if (e.draw) k = 'draw'; else if (e.ap) k = 'ap';
   else if (e.burst || e.fury) k = 'rage'; else if (e.freeze && e.dmg == null) { k = 'freeze'; m.n = String(e.freeze); m.x = ''; } else if (e.st && e.st[0]) k = ST[e.st[0][0]] || 'swap'; else if (e.vuln) k = 'hex'; else if (e.freeze) k = 'freeze';
   else if (e.judge) { k = 'judge'; m.n = '+' + e.judge; } else if (e.sinN) { k = 'sin'; m.n = '+' + e.sinN; } else if (e.ovh) { k = 'heat'; m.n = 'OVERHEAT'; } else if (e.ht) { k = 'heat'; m.n = (e.ht > 0 ? '+' : '') + e.ht; }
-  if (e.blkX) { k = 'block'; m.n = '×2'; m.x = ''; } if (e.healL && !e.heal && e.dmg == null && !e.blk) { k = 'heal'; m.n = '½'; m.x = ''; } if (e.detonate) { k = e.detonate === 'burn' ? 'burn' : 'poison'; m.n = '×2'; m.x = ''; }
+  if (e.blkX) { k = 'block'; m.n = '×2'; m.x = ''; } if (e.healL && !e.heal && e.dmg == null && !e.blk) { k = 'heal'; m.n = '½'; m.x = ''; } if (e.detonate) { k = e.detonate === 'burn' ? 'burn' : 'poison'; m.n = 'DETONATE'; m.x = ''; }
   if (e.spread) { k = 'poison'; m.n = 'ALL'; m.x = ''; } if (e.stX) { k = e.stX === 'burn' ? 'burn' : 'poison'; m.n = '×2'; m.x = ''; }
-  if (e.bellJ || (e.markMv === 'j')) { k = 'judge'; m.n = e.bellJ ? '+1/' : 'SWAP'; m.x = ''; } if (e.bellS || (e.markMv === 's')) { k = 'sin'; m.n = e.bellS ? '+1/' : 'SWAP'; m.x = ''; }
+  if (e.bellJ || (e.markMv === 'j')) { k = 'judge'; m.n = e.bellJ ? '+1/' : 'POUR'; m.x = ''; } if (e.bellS || (e.markMv === 's')) { k = 'sin'; m.n = e.bellS ? '+1/' : 'POUR'; m.x = ''; }
   if (e.blkSw) { k = 'block'; m.n = e.blkSw + '/'; m.x = ''; } if (e.cov) { k = 'rage'; m.n = '+' + e.cov; m.x = ''; } if (e.mirror) { k = 'draw'; m.n = 'REPLAY'; m.x = ''; } if (e.seal) { k = 'rage'; m.n = 'BOTH'; m.x = ''; }
   if (e.reapS) { k = 'sin'; m.n = e.reapS + '/'; m.x = ''; } if (e.reapJ) { k = 'judge'; m.n = e.reapJ + '/'; m.x = ''; } if (e.swBlk) { if (fm === 'angel') { k = 'block'; m.n = e.swBlk + '/'; } else { k = 'aoe_' + dt; m.n = e.swDmg + '/'; } m.x = ''; } if (e.wound) { k = 'heal'; m.n = e.wound + '%'; m.x = ''; } if (e.heatBurst) { k = 'heat'; m.n = e.heatBurst + '/'; m.x = ''; } if (e.tick === 'burn') { k = 'burn'; m.n = e.tickV; m.x = ''; } if (e.tick === 'chill') { k = 'block'; m.n = e.tickV; m.x = ''; }
   return {k, n: String(m.n == null ? '' : m.n) + (m.x || '')}; }
@@ -5410,14 +5410,14 @@ function acMain(e, fm, live) { e = mainLock(e);
 // chips are [icon, text, icon after]: short tokens only ("+3/⚖" reads as +3 per Judgement); ALL rides on the primary row instead
 function cardSecs(e, k, mk, cap) { cap = cap || 2; const o = [], add = (i, t, post) => { if (o.length < cap) o.push(post ? [i, String(t), post] : [i, String(t)]); }; k = {heal: 'heal', block: 'blk', mana: 'mana', draw: 'draw', ap: 'ap'}[mk] || (mk && /holy|shadow|fire|frost|phys/.test(mk) ? 'dmg' : k);
   if (e.dmg != null && mk && !/holy|shadow|fire|frost|phys/.test(mk)) add('sword', e.dmg); // a hit that isn't this card's main number still shows
-  if (e.perCurse) add('skull', '+' + e.perCurse + '/'); if (e.healCurse) add('heart', e.healCurse + '/'); if (e.vent) add('', '+' + e.vent + '/', 'heat'); if (e.flip) add('switch', 'THEN'); if (e.bp) add('shield', 'BLOOD'); if (e.ifOvh) add('heat', '+' + e.ifOvh);
+  if (e.perCurse) add('skull', '+' + e.perCurse + '/'); if (e.healCurse) add('heart', e.healCurse + '/'); if (e.vent) add('', '+' + e.vent + '/', 'heat'); if (e.flip) add('switch', ''); if (e.ifOvh) add('heat', '+' + e.ifOvh);
   if (e.heal && k !== 'heal') add('heart', '+' + e.heal); if (e.blk && k !== 'blk') add('shield', '+' + e.blk);
   if (e.leech) add('st-leech', e.leech); if (e.judge && (e.dmg != null || e.blk)) add('st-judge', '+' + e.judge); if (e.sinN && (e.dmg != null || e.blk)) add('st-sin', '+' + e.sinN);
   if (e.perJ) add('', '+' + e.perJ + '/', 'st-judge'); if (e.perS) add('', '+' + e.perS + '/', 'st-sin'); if (e.verX) add('st-judge', '×' + e.verX); if (e.absX) add('st-sin', '×' + e.absX); // Verdict cashes Judgement; Absolve clears Sin
   (e.st || []).forEach(([id, v], j) => { if (j || k !== 'st1') add('st-' + id, v); });
-  if (e.regen) add('st-manaup', e.regen); if (e.silence) add('st-silence', e.silence); if (e.cleanse) add(e.cleanse === 'burn' ? 'st-burn' : 'st-poison', 'CURE'); if (e.uc) add('star', '+' + e.uc); if (e.heldX) add('lock', '+' + e.heldX); if (e.noFrenzy) add('heart', 'SAFE'); if (e.perHeat) add('', '+' + e.perHeat + '/', 'heat'); if (e.sunheart) add('heat', '7'); if (e.heatDbl) add('heat', '×2'); if (e.vaultB) add('shield', '+' + e.vaultB + '/', 'heat'); if (e.burnUp) add('st-burn', '+' + e.burnUp); if (e.blkBurn) add('shield', '=', 'st-burn'); if (e.snuff) add('shield', 'BURN'); if (e.shpt) add('st-chill', '+30%'); if (e.everburn) add('st-burn', 'KEEP'); if (e.heatZero) add('heat', '0'); if (e.xferAff) add('st-poison', 'GIVE'); if (e.weak) add('st-weak', e.weak); if (e.exp) add('st-expose', e.expT || 1);
+  if (e.regen) add('st-manaup', e.regen); if (e.silence) add('st-silence', e.silence); if (e.cleanse) add(e.cleanse === 'burn' ? 'st-burn' : 'st-poison', 'CURE'); if (e.uc) add('star', '+' + e.uc); if (e.heldX) add('lock', '+' + e.heldX); if (e.noFrenzy) add('heart', 'NO TOLL'); if (e.perHeat) add('', '+' + e.perHeat + '/', 'heat'); if (e.sunheart) add('heat', '7'); if (e.heatDbl) add('heat', '×2'); if (e.vaultB) add('shield', '+' + e.vaultB + '/', 'heat'); if (e.burnUp) add('st-burn', '+' + e.burnUp); if (e.blkBurn) add('shield', '=', 'st-burn'); if (e.snuff) add('shield', 'BURN'); if (e.shpt) add('st-chill', '+30%'); if (e.everburn) add('st-burn', 'KEEP'); if (e.heatZero) add('heat', '0'); if (e.xferAff) add('st-poison', 'GIVE'); if (e.weak) add('st-weak', e.weak); if (e.exp) add('st-expose', e.expT || 1);
   if (e.draw && k !== 'draw') add('deck', '+' + e.draw); if (e.mana && k !== 'mana') add('mana', '+' + e.mana); if (e.ap && k !== 'ap') add('energy', '+' + e.ap);
-  if (e.emp) add('st-might', '+50%'); if (e.shatter) add('crit', 'SHATTER'); if (e.freeze) add('st-frozen', e.freeze);
+  if (e.emp) add(e.emp === 'holy' || e.emp === 'shadow' ? e.emp : 'st-might', '+50%'); if (e.shatter) add('shield', 'BREAK ALL'); if (e.freeze) add('st-frozen', e.freeze);
   if (e.freeSw || e.nextFree) add('st-free', 'FREE'); if (e.perSw) add('', '+' + e.perSw + '/', 'switch');
   if (e.retKill || e.apKill || e.goldKill) add(e.goldKill ? 'gold' : e.apKill ? 'energy' : 'skull', e.goldKill ? '+' + e.goldKill : e.apKill ? '+' + e.apKill : 'RETURN');
   if (e.goldFull) add('gold', e.goldFull); if (e.cross) add('switch', '+' + e.cross); if (e.twin) add('switch', '×2'); if (e.swBlk) { if (mk === 'block') add('sword', '+' + e.swDmg, 'switch'); } if (e.heatBurst && !e.vaultB) add('crit', 'PIERCE'); if (HEATD() && e.ht && !e.ovh && (e.dmg != null || e.blk || e.draw || e.mana || e.heal)) add('heat', (e.ht > 0 ? '+' : '') + e.ht); if (e.tick === 'burn') add('heat', '+1'); if (e.tick === 'chill') add('st-chill', 1);  if (e.reapS || e.reapJ) add('crit', 'PIERCE'); if (e.dmgL && k !== 'dmgL') add('', '+' + e.dmgL + '/', 'heart'); if (e.blkL) add(k === 'blk' ? '' : 'shield', '+' + e.blkL + '/', 'heart'); if (e.healL && mk !== 'heal') add('heart', '½ LOST'); // Ember cards show the Heat they add
@@ -5466,7 +5466,7 @@ const CardFace = (() => {
     if (s.rk) { const rt = '+' + s.rk, rw = 8 + rt.length * 5, rx = 47 - rw; g.fillStyle = '#08060a'; g.fillRect(rx - 1, cy - 7, rw + 2, 14); g.fillStyle = '#e2c676'; g.fillRect(rx, cy - 6, rw, 12); g.fillStyle = '#2a1a0c'; g.fillRect(rx + 1, cy - 5, rw - 2, 10); T.push({s: rt, x: rx + rw / 2, y: cy + 1, f: '9px ' + FN2, c: '#ffe08a'}); } // rank pill
     // words like COPY or BOTH drop to single size so they fit the panel
     // ALL (hits every enemy) sits after the number, as part of the primary
-    const wordy = /[A-Za-z]{2}/.test(s.num), NF = wordy ? BIG : DIG; tm.font = NF; const nw1 = tm.measureText(s.num).width, big2 = !wordy && 20 + nw1 * 2 <= 76, nw = big2 ? nw1 * 2 : nw1; let secs = s.secs; const ALLF = '11px ' + FN2; tm.font = ALLF; let aw = s.all ? 3 + tm.measureText('ALL').width : 0;
+    const wordy = /[A-Za-z]{2}/.test(s.num); let NF = wordy ? BIG : DIG; tm.font = NF; if (wordy && 20 + tm.measureText(s.num).width > 74) { NF = '11px ' + FN2; tm.font = NF; } const nw1 = tm.measureText(s.num).width, big2 = !wordy && 20 + nw1 * 2 <= 76, nw = big2 ? nw1 * 2 : nw1; let secs = s.secs; const ALLF = '11px ' + FN2; tm.font = ALLF; let aw = s.all ? 3 + tm.measureText('ALL').width : 0;
     if (aw && 20 + nw + aw > 76) { aw = 0; secs = [['', 'ALL']].concat(secs); } // no room beside the number: ALL becomes the first chip
     const pw = s.post ? 19 : 0, PW = 16 + 4 + nw + aw + pw, MID = '17px ' + FN2;
     // side effects: chips at 1.5x (between the main number's 2x and the old 1x), one row if they fit, else one row each
@@ -5568,7 +5568,7 @@ function bigCard(id, act, i, lv, extra, badge) {
   return archCard(f.e, face, false, {act, i, lv, cls: 'grid ' + (extra || ''), name: 1}).replace(/<\/(button|div)>$/, (badge || '') + '</$1>');
 }
 // the Binder's riddles for undiscovered rare and better cards
-const CARD_HINT = {bell: 'Rewards long turns.', weighing: 'Pours one meter into the other.', divided: 'Grows with every switch.', covenant: 'Boosts your next card in the other form.', mirror: 'Replays your last card.', seal: 'Every card plays both sides.', verdict: 'Empties a meter into every enemy.', twohearts: 'Every switch hits all enemies.', wound: 'Cheat death, then hit back.', er_tinder: 'Cheap Burn or Chill.', er_coals: 'Block that lasts a turn.', er_cascade: 'Hits every enemy.', er_boiling: 'Dumps all your Heat at once.', er_eternal: 'Burns or Chills every turn.', er_sunheart: 'Overheat sooner, safely.', er_valve: 'Doubles your Heat.', er_flashmelt: 'Shatters Frozen enemies.', er_everburn: 'Burn that never fades.', er_smoulder: 'Feeds Burn already there.', tally: 'Fills a meter fast.', patience: 'Better if held a turn.', hymn: 'Charges your ultimate.', leash: 'Big safe hit, or block after a switch.', er_kindled: 'Better if held a turn.', er_smelt: 'Grows with your Heat.', er_hymn: 'Heat and ultimate charge.', unburden: 'Cures your curses, or hands them back.'}; // a plain one-line hint on an undiscovered card
+const CARD_HINT = {bell: 'Rewards long turns.', weighing: 'Pours one meter into the other.', divided: 'Grows with every switch.', covenant: 'Boosts your next card on the other side.', mirror: 'Replays your last card.', seal: 'Every card plays both sides.', verdict: 'Empties a meter into every enemy.', twohearts: 'Every switch hits all enemies.', wound: 'Cheat death, then hit back.', er_tinder: 'Cheap Burn or Chill.', er_coals: 'Block that lasts a turn.', er_cascade: 'Hits every enemy.', er_boiling: 'Dumps all your Heat at once.', er_eternal: 'Burns or Chills every turn.', er_sunheart: 'Overheat sooner, safely.', er_valve: 'Doubles your Heat.', er_flashmelt: 'Shatters Frozen enemies.', er_everburn: 'Burn that never fades.', er_smoulder: 'Feeds Burn already there.', tally: 'Fills a meter fast.', patience: 'Better if held a turn.', hymn: 'Charges your ultimate.', leash: 'Big safe hit, or block after a switch.', er_kindled: 'Better if held a turn.', er_smelt: 'Grows with your Heat.', er_hymn: 'Heat and ultimate charge.', unburden: 'Cures your curses, or hands them back.'}; // a plain one-line hint on an undiscovered card
 const cardBack = id => { const r = baseRar(id); return CARD_HINT[id] ? `<button class="gcard back cback2 hinted r-${r}" data-act="cardhint" data-i="${id}" aria-label="Undiscovered ${r} card. Tap for a hint"><span class="cb-arch"><b>?</b></span></button>` : '<div class="gcard back cback2" aria-label="Unknown card"><span class="cb-arch"><b>?</b></span><span class="cb-lab">Undiscovered</span></div>'; };
 const faceBar = () => { const f = S.face || 'angel', o = f === 'angel' ? 'demon' : 'angel', por = Pix.get(DK('duo-' + o)), boom = performance.now() - (S.fflip || -1e6) < 300;
   return `<div class="facebar fmed"><span class="fside t-${acKey(f)} on">${FN(f)}</span><button class="medal sw f-${o} can fsw${boom ? ' boom' : ''}" data-act="faceflip" aria-label="Showing ${FN(f)} sides. Swap to ${FN(o)}"><span class="mring"></span><span class="mface">${por ? `<img src="${por.url}" alt="">` : ''}</span></button><span class="fside t-${acKey(o)}">${FN(o)}</span></div>`; };
@@ -6124,7 +6124,7 @@ function foeArt(id, form, extra, style) {
   return `<span class="shape s-${id} ${form || ''} ${extra || ''}"${style ? ` style="${style}"` : ''}><svg viewBox="0 0 100 100" aria-hidden="true">${shadow}${FOE_ART[id] || ''}</svg></span>`;
 }
 // weakness and resistance as small icons: an up or down arrow in the damage type's colour
-function traitIcons(e) { const t = Object.entries(e.tr || {}).map(([k, v]) => `<i class="ti ${k} ${v > 0 ? 'wk' : 'rs'}" title="${v > 0 ? 'Weak to' : 'Resists'} ${TYN(k)}">${v > 0 ? '▲' : '▼'}</i>`);
+function traitIcons(e) { const t = Object.entries(e.tr || {}).map(([k, v]) => `<i class="ti ${k} ${v > 0 ? 'wk' : 'rs'}" title="${v > 0 ? 'Vulnerable to' : 'Resists'} ${TYN(k)}">${v > 0 ? '▲' : '▼'}</i>`);
   if (e.ward || e.mirror || e.iron) t.push('<i class="ti ward" title="Warded">◆</i>'); return t.length ? `<span class="tis">${t.join('')}</span>` : ''; }
 const P2_HOW = {boss: 'Hit with the form it is weak to.', tyrant: 'Its shell blocks one form. Use the other.',
   starfall: 'Drains mana. Spend it fast.', plague: 'Kill the rats first.',
@@ -6132,7 +6132,7 @@ const P2_HOW = {boss: 'Hit with the form it is weak to.', tyrant: 'Its shell blo
 function trK(k) { return typeof HEATD === 'function' && HEATD() ? (k === 'holy' ? 'st-burn' : k === 'shadow' ? 'st-chill' : k) : k; } // weakness chips show fire and frost for Ember & Rime
 function traitTag(e, notesOnly) {
   // compact chips: ▲ takes extra damage from that type, ▼ takes less (notesOnly: just the special rules, for the fight plate)
-  const t = notesOnly ? [] : Object.entries(e.tr || {}).map(([k, v]) => `<span class="trc ${k} ${v > 0 ? 'wk' : 'rs'}" title="${v > 0 ? 'Weak to' : 'Resists'} ${TYN(k)}"><b>${v > 0 ? '▲' : '▼'}</b>${PIC[k] ? pxi(trK(k)) : ''}${TYN(k)}</span>`);
+  const t = notesOnly ? [] : Object.entries(e.tr || {}).map(([k, v]) => `<span class="trc ${k} ${v > 0 ? 'wk' : 'rs'}" title="${v > 0 ? 'Vulnerable to' : 'Resists'} ${TYN(k)}"><b>${v > 0 ? '▲' : '▼'}</b>${PIC[k] ? pxi(trK(k)) : ''}${TYN(k)}</span>`);
   if (e.iron) t.push(`<span class="shadow">${TYN('shadow')} halved while guarded</span>`);
   if (REACT[e.id]) t.push(`<span class="dim"><b>${REACT[e.id].n}:</b> ${REACT[e.id].d}</span>`);
   if (e.next && e.next.vf) t.push(`<span class="${formIc(vfBad(e.next)) === 'holy' || formIc(vfBad(e.next)) === 'heat' ? 'holy' : 'shadow'}">Hits ${FN(vfBad(e.next))} ${e.next.vf[vfBad(e.next)]} · ${FN(vfBad(e.next) === 'angel' ? 'demon' : 'angel')} ${e.next.vf[vfBad(e.next) === 'angel' ? 'demon' : 'angel']}</span>`);
@@ -6335,23 +6335,23 @@ function compEl(fm) {
   const pips = Array.from({length: max}, (_, k) => `<i class="${k < n ? 'full' : ''}"></i>`).join('');
   return `<div class="comp ${on ? 'on' : 'rest'}${echoed ? ' echo' : ''}" data-act="compinfo" data-i="${S.comp}">${compFig(S.comp)}<span class="epips" aria-label="${n} echoes">${pips}</span><span class="cap">${cp.n} · ${on ? cp.tag : n ? 'waiting' : 'switch to charge'}</span></div>`;
 }
-const NOTE = {spent:'Spent: leaves this fight once played.', heldX:'Kept: raise it and end your turn. Next turn it gets the bonus.', cleanse:'Cure: strips those afflictions off you.', xferAff:'Hands your Poison, Burn and Doom to the target.', judge:'Judge: fills Judgement. The Demon\'s next attack spends it.', sinN:'Sin: fills Sin. The Angel\'s next block spends it.', verX:'Spends Judgement for double.', absX:'Spends Sin for double.', ty:'Physical: ignores weakness and resistance.', all:'Hits every enemy.', shatter:'Shatter: strips all block.', silence:'Silence: the enemy cannot guard or cast.',
-  vuln:'Hex: the enemy takes extra damage.', hold:'Held: hurts if kept at turn end.', twin:'Double if you switched this turn.',
-  cross:'Bonus if you switched this turn.', flip:'Then switches your form for free.', freeSw:'Your next form switch costs no mana.',
-  selfP:'Costs a share of your max health.', holdP:'Held: hurts if kept at turn end.', mc:'Also costs mana.',
+const NOTE = {spent:'Banish: leaves this fight once played.', heldX:'Kept: raise it and end your turn. Next turn it gets the bonus.', cleanse:'Cure: strips those afflictions off you.', xferAff:'Gives your Poison, Burn and Doom to the target.', judge:'Judge: fills Judgement. The Demon\'s next attack spends it.', sinN:'Sin: fills Sin. The Angel\'s next block spends it.', verX:'Spends Judgement for double.', absX:'Spends Sin for double.', ty:'Physical: ignores weakness and resistance.', all:'Hits every enemy.', shatter:'Break all: strips all block.', silence:'Silence: the enemy cannot guard or cast.',
+  vuln:'Hex: the enemy takes extra damage.', hold:'Fester: hurts if still in your hand at turn end.', twin:'Double if you switched this turn.',
+  cross:'Bonus if you switched this turn.', flip:'Then switches your side for free.', freeSw:'Your next switch costs no mana.',
+  selfP:'Life cost: a share of your max life.', holdP:'Fester: hurts if still in your hand at turn end.', mc:'Also costs mana.',
   pierce:'Pierce: ignores block.', sunder:'Breaks part of the enemy block.', hits:'Hits more than once.',
   mark:'Mark: your next Demon hit on it deals extra.', ls:'Lifesteal: heals half the damage.',
   bless:'Blessing: heals each turn. Double as the Demon.', uc:'Charges your ultimate.',
   blkdmg:'Deals damage equal to your block.', bp:'Switch to Angel this turn: block equal to life paid.',
   burst:'Rage: bonus damage on every hit this turn.', fury:'Rage: bonus damage on every hit.', emp:'Empower: +50% damage of that type.', exp:'Expose: takes +50% of that type.',
   leech:'Leech: hits on it heal you half.', weak:'Weak: deals 25% less damage.',
-  nextFree:'Your next other-form card this turn is free.', cursed:'Cursed: has any affliction or debuff.',
-  cHeal:'Cursed: has any affliction or debuff.',
+  nextFree:'Your next other-side card this turn is free.', cursed:'Afflicted: has any affliction or debuff.',
+  cHeal:'Afflicted: has any affliction or debuff.',
   perJ:'Counts your Judgement without spending it.', perS:'Counts your Sin without spending it.',
   perSw:'Counts your switches this fight.', dmgL:'Counts life lost this turn.', blkL:'Counts life lost this turn.', healL:'Counts life lost this turn.',
-  keepBlk:'Your block stays next turn.', blkX:'Doubles your block.',
-  perCurse:'Counts each different curse on the enemy.', healCurse:'Counts each different curse on the enemy.',
-  detonate:'Detonate: sets it all off now, for double.', spread:'Spread: copies it to every enemy.', stX:'Doubles the stacks already there.',
+  keepBlk:'Lasting: this block stays one more turn.', blkX:'Doubles your block.',
+  perCurse:'Counts each different affliction on the enemy.', healCurse:'Counts each different affliction on the enemy.',
+  detonate:'Detonate: sets it all off now for double, then it ends.', spread:'Spread: copies it to every enemy.', stX:'Doubles the stacks already there.',
   ovh:'Overheat now.', ifOvh:'Bonus if you Overheated this turn.', xFrozen:'Double vs Frozen.', xChill:'Double vs Chilled.'};
 function describe(name, e, tail) {
   const notes = Object.keys(NOTE).filter(k => e[k]).map(k => NOTE[k]).join(' ');
@@ -7499,7 +7499,7 @@ function vPick(k) {
 // builds: what each card feeds. The deck builder counts them and can filter your collection by one.
 const BUILDS = {
   verdict: {n:'Verdict', c:'#e8c860', d:'Fill a meter with one form, spend it with the other.'},
-  turncoat: {n:'Turncoat', c:'#c89cff', d:'Switch often. Cards that reward it, make it free, or prime the other form.'},
+  turncoat: {n:'Turncoat', c:'#c89cff', d:'Switch often. Cards that reward it, make it free, or prime the other side.'},
   blood: {n:'Blood', c:'#e0503a', d:'The Demon pays in life. Life lost this turn comes back as damage, block and healing.'},
   bulwark: {n:'Bulwark', c:'#8fc8ff', d:'Stack block as the Angel, keep it, double it, then hit with it as the Demon.'},
   affliction: {n:'Affliction', c:'#7ac83a', d:'Burn, Poison and Doom. Every curse on an enemy feeds the payoff.'},
@@ -7553,29 +7553,31 @@ function vDecks() {
 </div>`;
 }
 // an icon for a glossary term, when the game has one for it
-const GLOSS_IC = {cure:'st-poison', block:'shield', switch:'switch', judgement:'st-judge', sin:'st-sin', heat:'heat', overheat:'heat', mark:'st-expose', lifesteal:'st-vamp', leech:'st-leech', silence:'st-silence', streak:'energy', pierce:'sword', shatter:'shield', break:'shield', mana:'mana', energy:'energy', physical:'sword'};
+const GLOSS_IC = {cure:'st-poison', block:'shield', breakall:'shield', lasting:'lock', toll:'heart', fester:'heart', banish:'skull', lifecost:'heart', detonate:'st-burn', spread:'st-poison', afflicted:'skull', purge:'st-judge', pour:'st-sin', undying:'heart', hourglass:'hourglass', vulnerableresists:'crit', switch:'switch', judgement:'st-judge', sin:'st-sin', heat:'heat', overheat:'heat', mark:'st-expose', lifesteal:'st-vamp', leech:'st-leech', silence:'st-silence', streak:'energy', pierce:'sword', shatter:'shield', break:'shield', mana:'mana', energy:'energy', physical:'sword'};
 const glossIc = k => { const n = k.toLowerCase().replace(/[^a-z]/g, ''), c = GLOSS_IC[n] || (PIC['st-' + n] ? 'st-' + n : PIC[n] ? n : null); return c && PIC[PIC_ALIAS[c] || c] ? pxi(c) + ' ' : ''; };
 // every keyword on the cards, in plain words
 const GLOSSARY = [
   ['Holy', 'Angel damage.'],
   ['Shadow', 'Demon damage.'],
   ['Physical', 'Ignores weakness and resistance.'],
-  ['▲ / ▼', '▲ takes 3 more, ▼ takes 3 less. Already in your card numbers.'],
-  ['Bleed', 'The Demon loses this each turn, rising while it stays.'],
-  ['Frenzy', 'Each Demon attack after your 3rd in a turn costs 2 health.'],
+  ['Vulnerable / Resists', '▲ takes 3 more from that type, ▼ takes 3 less. Already in your card numbers.'],
+  ['Bleed', 'The Demon loses this much life each turn, rising while it stays.'],
+  ['Toll', 'Each Demon attack after your 3rd in a turn costs 2 life.'],
   ['Keep', 'Raise a card and end your turn. It stays in your hand.'],
   ['Ultimate', 'Charges as you play, switch, get hit and kill. Tap when full.'],
   ['Streak', 'From your 3rd card in a turn, damage cards hit +1, then +2.'],
   ['Block', 'Soaks damage. Yours clears each turn.'],
   ['Switch', '3 mana. Your hand flips.'],
-  ['2t (turns)', 'Lasts that many turns.'],
+  ['Hourglass', 'How many turns it lasts.'],
   ['Pierce', 'Ignores the enemy\'s block.'],
-  ['Shatter', 'Strips all the enemy\'s block.'],
+  ['Break all', 'Strips all the enemy\'s block.'],
   ['Break', 'Strips that much enemy block.'],
+  ['Shatter', '×2 damage to a Chilled or Frozen enemy.'],
+  ['Lasting', 'This block stays one more turn.'],
   ['Mark', 'Your next Demon hit on it deals extra.'],
   ['Lifesteal', 'Heals you for half the damage dealt.'],
   ['Leech', 'Hit it to heal for half.'],
-  ['Silence', 'No guarding or casting. On you: no form bonus.'],
+  ['Silence', 'No guarding or casting. On you: no side bonus.'],
   ['Hex', 'Every hit on it deals extra damage.'],
   ['Weak', '25% less damage.'],
   ['Frail', '25% less block.'],
@@ -7587,35 +7589,43 @@ const GLOSSARY = [
   ['Focus', 'Mana each turn.'],
   ['Might', 'Adds damage to every hit.'],
   ['Thorns', 'Hurts attackers.'],
-  ['Vampirism', 'Heals a share of damage dealt.'],
-  ['(Angel) / (Demon)', 'Works only in that form.'],
+  
+  ['(Angel) / (Demon)', 'Works only on that side.'],
   ['Judgement', 'Gold. Angel cards fill it, the Demon\'s next attack spends it: +2 damage a point. Drains 2 a turn.'],
   ['Sin', 'Red. Demon cards fill it, the Angel\'s next block spends it: +2 block a point, heals half.'],
   ['Streak', 'Cards played this turn. From the 3rd, each adds damage.'],
   ['One Body', 'Chain Bound: spending one meter fills the other by half.'],
   ['Thermal Cycle', 'Chain Bound: becoming Rime turns Heat into block and Chill.'],
-  ['Unbound', 'Chain at an end: one form goes big, the other suffers.'],
+  ['Unbound', 'Chain at an end: one side goes big, the other suffers.'],
   ['Verdict ×2', 'Spends Judgement for double.'],
   ['Absolve ×2', 'Spends Sin for double.'],
+  ['Purge', 'Empties a meter: every enemy takes the amount per point, ignoring block.'],
+  ['Pour', 'Moves one meter into the other.'],
   ['Empower', '+50% damage of that type.'],
   ['Heat', 'Ember & Rime meter. Heat cards fill it. +1 Ember damage per 2.'],
   ['Overheat', 'At 10 Heat: 10 to every enemy (+3 each act), 4 to you, back to 0.'],
-  ['Vent', 'Spends all Heat for the bonus shown per point.'],
-  ['Chill', '25% less damage. Ember hits on it deal +4.'],
+  ['Vent', 'Spends all your Heat for the bonus shown per point.'],
+  ['Chill', 'Weak, and Ember hits on it deal +4.'],
   ['Freeze', 'The enemy skips its next turn.'],
   ['Rage', 'Bonus damage on every hit.'],
   ['Expose', 'Takes +50% from that type.'],
-  ['Cursed', 'Has any affliction or debuff.'],
-  ['Bless', 'Heals each turn. Double as the Demon.'],
-  ['Blood ward', 'Switch to Angel this turn: block equal to life paid.'],
+  ['Afflicted', 'Has any affliction or debuff.'],
+  ['Detonate', 'Burn or Poison goes off now for double, then ends.'],
+  ['Spread', 'Copies the target\'s status to every enemy.'],
+  ['Undying', 'You can\'t die until your next turn.'],
+  ['Bless', 'Regen, doubled as the Demon.'],
+  
   ['Stagger', 'Deal the shown damage before a signature hit and it loses that turn.'],
-  ['Spent', 'Leaves this fight once played.'],
+  ['Banish', 'Leaves this fight once played.'],
   ['Door bonus', 'Better chest from this fight: gold, a potion, a spell or a rarer chest.'],
   ['Cure', 'Removes your Poison, Burn and Doom. Backlash gives them to an enemy.'],
-  ['Held', 'Hurts you if held at end of turn.'],
-  ['× after switch', 'Bonus if you switched this turn.'],
+  ['Fester', 'Hurts you if still in your hand at end of turn.'],
+  ['Kept:', 'Bonus if the card was kept from last turn.'],
+  ['Kill:', 'Happens if this card kills.'],
+  ['Life cost', 'The card costs life as well as energy.'],
+  ['Switched:', 'Bonus if you switched this turn.'],
   ['Ult', 'Charges your ultimate.'],
-  ['Echo', 'Companions copy your other form\'s cards, weaker.'],
+  ['Echo', 'Companions copy your other side\'s cards, weaker.'],
   ['Dread', 'Optional difficulty. Harder, with better rewards.'],
 ];
 /* ---------- the story: two opposites chained together and sent down; campfire talk and the lore in the codex ---------- */
@@ -8655,6 +8665,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
+  {v: '0.120', d: '26 Nov', n: ["Clearer card words: Toll (was Frenzy), Fester (was Held), Banish (was Spent), Lasting, Afflicted, Break all, Undying", "Shatter now means ×2 against Chilled or Frozen enemies. Stripping all block is Break all", "Trigger words read the same on every card: Switched:, Kept:, Kill:", "Vent covers every card that spends all your Heat. Purge empties a meter. Pour moves one meter into the other", "Turns show as '· 2 turns' instead of '2t'", "Final Verdict is now Last Rites"]},
   {v: '0.119.1', d: '26 Nov', n: ["New icons: Weak is a snapped sword, Sin is a pair of horns, Thorns is a bramble, Ward is a shield", "The Honed vow adds a quarter of the card's base numbers and can be picked once, so fully upgraded cards stay in check", "Low block cards grow every other rank"]},
   {v: '0.119', d: '26 Nov', n: ["Every card has its own upgrade path. Upgrades make a card stronger at what it already does, and never turn it into something else", "Some cards stop at a lower max rank instead of gaining filler", "Pierce, Lifesteal and lasting block show as badges on the card", "The rank sits beside the cost, so card names stay readable", "Clearer wording on about 30 cards, and 18 renamed so the name says what they do", "New art for Wounds, Contrition, Tithe, Searing Brand and Cold Bite", "Lifesteal from upgrades now actually heals", "Fixes: Cold Bite is no longer a copy of Frost Nip; Ash Veil, Warmth, Flare, Hailstorm, Banked Coals and Doomsday are stronger; Divided Soul's cap grows with it"]},
   {v: '0.118.1', d: '26 Nov', n: ["Forging or sharpening a card shows both sides at the new rank, with what changes under each"]},
@@ -9920,7 +9931,7 @@ const FTIPS = [
   ['energy', () => S.screen === 'fight', '<b>Energy</b> pays for cards. You get 5 a turn.'],
   ['mana', () => S.screen === 'fight' && F().turn >= 2, '<b>Mana</b> pays for switching and spells. It carries over between fights.'],
   ['bleed', () => S.screen === 'fight' && !HEATD() && P().form === 'demon', '<b>Bleed</b>: the Demon loses health every turn, more the longer it stays. Switch to reset it.'],
-  ['meters', () => S.screen === 'fight' && !HEATD() && (P().judg > 0 || P().sin > 0), '<b>Judgement</b> and <b>Sin</b>: one form fills its meter, the other form spends it.'],
+  ['meters', () => S.screen === 'fight' && !HEATD() && (P().judg > 0 || P().sin > 0), '<b>Judgement</b> and <b>Sin</b>: one side fills its meter, the other side spends it.'],
   ['heat', () => S.screen === 'fight' && HEATD() && P().heat > 0, () => `<b>Heat</b> builds as Ember. At ${heatMax()} you Overheat and hit all enemies.`],
   ['ult', () => S.screen === 'fight' && P().ult > 0, 'Your <b>ultimate</b> charges as you play, switch and get hurt. Tap it when full.'],
   ['brk', () => S.screen === 'fight' && alive().some(e => e.brk), 'Big attack coming. Deal the shown damage first to stop it.'],
