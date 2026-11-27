@@ -2767,7 +2767,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy life and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.127-test'; // bump for every build you send to testers
+const VERSION = '0.127.1-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -7440,7 +7440,7 @@ function gearHub(list, slots) { const mine = list.filter(x => META.arm.own[x.id]
         ${max ? '<span class="gmax">Max</span>' : `<button class="gbtn${ok ? ' pri' : ''}" data-act="forgeup" data-i="${x.id}" ${ok ? '' : 'disabled'} aria-label="Raise ${x.n} to item level ${n} for ${c} bone dust">${dust()}${c}</button>`}</div>`; }).join('');
     return bar + `<div class="ghint">Each raise changes a number. Tap to raise.</div><div class="glist">${rows}</div>`; }
   if (m === 'salv') { const free = ord.filter(x => !worn(x)), tot = free.reduce((a, x) => a + salvVal(ilv(x.id)), 0), armAll = S.sellArm === 'many';
-    const rows = ord.map(x => { const v = salvVal(ilv(x.id)), arm = S.sellArm === x.id;
+    const rows = free.concat(ord.filter(worn)).map(x => { const v = salvVal(ilv(x.id)), arm = S.sellArm === x.id; // salvageable first, worn gear last
       return `<div class="grow sv${worn(x) ? ' locked' : ''}">${gTile(x)}<span class="gtx">${name(x)}<small>${worn(x) ? '<span class="gworn">Worn</span> ' : ''}${fw(gT(x, ilv(x.id)))}</small></span>${worn(x) ? (S.p ? `<button class="gbtn glock" data-act="gsalv1" data-i="${x.id}" aria-label="${x.n} is worn">${pxi('lock')}</button>` : `<button class="gbtn goff" data-act="goff" data-i="${x.id}" aria-label="Take off ${x.n}">Take off</button>`) : `<button class="gbtn${arm ? ' warn' : ''}" data-act="gsalv1" data-i="${x.id}" aria-label="Salvage ${x.n} for ${v} bone dust">${arm ? 'Sure?' : dust() + v}</button>`}</div>`; }).join('');
     return bar + `<div class="glist">${rows}</div>
       <div class="gsbar${free.length ? ' on' : ''}"><button class="btn ${armAll ? 'warn' : 'pri'}" data-act="gsalvgo" ${free.length ? '' : 'disabled'}>${free.length ? (armAll ? `Tap again · salvage ${free.length}` : `Salvage all · +${dust()}${tot}`) : 'Only worn gear left'}</button></div>`; }
@@ -8741,6 +8741,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
+  {v: '0.127.1', d: '27 Nov', n: ["Salvage lists what you can salvage first, worn gear last"]},
   {v: '0.127', d: '27 Nov', n: ["Companion balance pass, each one tested on its own", "Ashwing is weaker: Overheat hurts 2 less, and its combo gives +1 energy only", "Omen's crit chance now grows with loyalty (7% to 19%)", "Cinder: more max mana, and Siphon and its combo give more mana", "Morrow: Block 2 per kill, rising with loyalty", "Gnaw: afflictions +1 to +3 with loyalty, and a bigger combo"]},
   {v: '0.126', d: '27 Nov', n: ["Gear upgrades now always change a number: each raise jumps to the next level that does something, and costs what it skips", "Upgrades show old → new numbers", "Thrift Beads, Twin Halo, Gilded Ring, Studded Collar, Silver Bell, Oilskin Coat and Soul-cured Jerky keep growing past their first upgrade", "Boon balance pass: Phoenix Feather (20%), Reaper (heals 2), Early Grave (from turn 4), Sanguine Font (heal 2), Loaded Die (1 or 2 bites), Lonely Executioner (20%) and Coin of Three Faces (no draw) are weaker", "Easier drawbacks: Blood Price (2 life), Stubborn Chain (3 life), Cursed Locket (10% max life), Martyr's Turn (2 life), Crown of Last Breath (5 max life)", "Cursed Locket's text now says what it really does"]},
   {v: '0.125', d: '27 Nov', n: ["The Den is cleaner: companions you own come first, the one with you is tagged, and companions you haven't found stay a mystery", "Card balance pass, every card tested on its own", "Stronger: Atonement, Sanctuary, Hellfire, Stigmata, Carnage, Halo and Wrath (now 1 energy), Hellbrand, Tithe, Bloodtithe, Lance, Impale, Slaughter, Cinderstorm, Whiteout, Bonfire, Avalanche, Firefall, Glacier Fall, Meteor, Ice Comet, Sear", "Weaker: Banked Coals, Cold Storage, Ashen Guard, Sacrament, Lantern Vigil"]},
