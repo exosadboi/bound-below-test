@@ -1148,7 +1148,7 @@ img.cfig{width:auto}
 /* store + cosmetics */
 .abtn.cash{font:800 15px/1 var(--num);color:#9be8a6;letter-spacing:0}
 .aearn{font:700 12px/1 var(--num);color:var(--dim)}
-.fswatch{display:block;width:40px;height:54px;border:3px solid transparent;background:#100d14} .ccwith{position:absolute;left:50%;bottom:-1px;transform:translateX(-50%);padding:3px 8px 2px;font:400 10.667px/1 var(--display);letter-spacing:.06em;text-transform:uppercase;color:#1a1208;background:#e2c676;box-shadow:0 0 0 2px #07060a;white-space:nowrap} .ccq{font:400 44px/1 var(--display);color:#4e4554;text-shadow:0 2px 0 #07060a} .ci-fig .ccq{font-size:56px;display:grid;place-items:center;width:100%;height:100%} .drafts.d4{display:grid;grid-template-columns:repeat(2,112px);justify-content:center;gap:4px 18px} .drafts.d4 .cslot{width:112px;max-width:none;flex:none} .acard.mx .ac-face{filter:drop-shadow(0 0 2px #ffcf6e) drop-shadow(0 0 5px rgba(255,190,80,.45))} img.cfig.fsw{width:40px!important;height:55px!important;object-fit:contain;image-rendering:pixelated}
+.fswatch{display:block;width:40px;height:54px;border:3px solid transparent;background:#100d14} span.gold{color:#8a8090} b.gupn{color:#9be07a;font-weight:inherit} .ccwith{position:absolute;left:50%;bottom:-1px;transform:translateX(-50%);padding:3px 8px 2px;font:400 10.667px/1 var(--display);letter-spacing:.06em;text-transform:uppercase;color:#1a1208;background:#e2c676;box-shadow:0 0 0 2px #07060a;white-space:nowrap} .ccq{font:400 44px/1 var(--display);color:#4e4554;text-shadow:0 2px 0 #07060a} .ci-fig .ccq{font-size:56px;display:grid;place-items:center;width:100%;height:100%} .drafts.d4{display:grid;grid-template-columns:repeat(2,112px);justify-content:center;gap:4px 18px} .drafts.d4 .cslot{width:112px;max-width:none;flex:none} .acard.mx .ac-face{filter:drop-shadow(0 0 2px #ffcf6e) drop-shadow(0 0 5px rgba(255,190,80,.45))} img.cfig.fsw{width:40px!important;height:55px!important;object-fit:contain;image-rendering:pixelated}
 .fswatch.obsidian{border-image:var(--frt-obsidian) 3 / 6px stretch}.fswatch.bone{border-image:var(--frt-bone) 3 / 6px stretch}
 #app.cfr-obsidian .gcard:not(.back),#app.cfr-obsidian .gcard.demon{border-image:var(--frt-obsidian) 3 / 8px stretch}
 #app.cfr-bone .gcard:not(.back),#app.cfr-bone .gcard.demon{border-image:var(--frt-bone) 3 / 8px stretch}
@@ -2767,7 +2767,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy life and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.125-test'; // bump for every build you send to testers
+const VERSION = '0.126-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -3181,12 +3181,12 @@ const compOn = id => !!S && S.comp === id;
 // companion equipment: four slots of things a pet would have; helps whichever companion you bring
 const COMP_SLOTS = ['Collar', 'Coat', 'Treat', 'Bed'];
 const COMP_GEAR = [
-  {id:'irontether', s:'Collar', n:'Studded Collar', t:'Echo companions hold 4 echoes instead of 3', cost:80, tl:l => `Echo companions hold ${l >= 6 ? 5 : 4} echoes instead of 3`},
-  {id:'bellcollar', s:'Collar', n:'Silver Bell', t:'Echo companions start each fight with 1 echo', cost:70, tl:l => `Echo companions start each fight with ${l >= 6 ? 2 : 1} echo${l >= 6 ? 'es' : ''}`},
-  {id:'palelantern', s:'Coat', n:'Oilskin Coat', t:'Each echo heals you 1', cost:75, tl:l => `Each echo heals you ${l >= 5 ? 2 : 1}`},
+  {id:'irontether', s:'Collar', n:'Studded Collar', t:'Echo companions hold 4 echoes instead of 3', cost:80, tl:l => `Echo companions hold ${stp(l, 4, 5)} echoes instead of 3`},
+  {id:'bellcollar', s:'Collar', n:'Silver Bell', t:'Echo companions start each fight with 1 echo', cost:70, tl:l => `Echo companions start each fight with ${stp(l, 1, 5)} echo${stp(l, 1, 5) > 1 ? 'es' : ''}`},
+  {id:'palelantern', s:'Coat', n:'Oilskin Coat', t:'Each echo heals you 1', cost:75, tl:l => `Each echo heals you ${1 + Math.floor(l / 5)}`},
   {id:'spikeharness', s:'Coat', n:'Spiked Harness', t:'Attackers take 3 damage', cost:75, tl:l => `Whoever hits you gets bitten for ${3 + Math.floor((l - 1) / 2)}`},
   {id:'hungryvessel', s:'Treat', n:'Marrow Bone', t:'Echoes are 10% stronger. With Omen: +15% crit chance instead.', cost:90, tl:l => `Echoes are ${10 + 2 * (l - 1)}% stronger. Omen's crit chance is ${15 + (l - 1)}%.`},
-  {id:'soulthread', s:'Treat', n:'Soul-cured Jerky', t:'Your first switch each fight gives 3 echoes, not 2', cost:70, tl:l => `Your first switch each fight gives ${l >= 6 ? 4 : 3} echoes, not 2`},
+  {id:'soulthread', s:'Treat', n:'Soul-cured Jerky', t:'Your first switch each fight gives 3 echoes, not 2', cost:70, tl:l => `Your first switch each fight gives ${stp(l, 3, 5)} echoes, not 2`},
   {id:'strawbed', s:'Bed', n:'Straw Bed', t:'Rests heal 10 more', cost:60, tl:l => `Rests heal ${10 + 2 * (l - 1)} more`},
   {id:'blanket', s:'Bed', n:'Wool Blanket', t:'Start each fight with 4 block', cost:65, tl:l => `Start each fight with ${4 + Math.floor((l - 1) / 2)} block`},
 ];
@@ -3202,7 +3202,7 @@ const SUPPLIES = ['xh', 'xm', 'xb', 'xa', 'xf'].map(k => ({k, get cost() { retur
 const RAR = {common:{n:'Common'}, rare:{n:'Rare'}, epic:{n:'Epic'}, legendary:{n:'Legendary'}};
 const ECHO_HALF = ['dmg','blk','heal','bless','mana','burst','sunder','vuln','draw','ap','selfP','cross','mark','cursed','cHeal','reapS','reapJ'];
 const ECHO_DROP = ['self','selfP','flip','freeSw','bp','hold','holdP','mc','uc','regen','fury','blkdmg','emp','exp','leech','weak','nextFree','swBlk','swDmg','wound','heatBurst','tick','tickV'];
-const echoCap = () => { const cp = COMPANIONS[S && S.comp]; return cp && cp.cap ? cp.cap : eqd('irontether') ? (ilv('irontether') >= 6 ? 5 : 4) : 3; };
+const echoCap = () => { const cp = COMPANIONS[S && S.comp]; return cp && cp.cap ? cp.cap : eqd('irontether') ? gstp('irontether', 4, 5) : 3; };
 const echoPct = cp => (cp.starter ? cp.pct : .4 + .05 * (compLv() - 1)) + gs('hungryvessel', .1, .02) + .04 * TR('echobond');
 function scaleFace(e, pct) {
   if (!pct) return null;
@@ -3325,7 +3325,7 @@ const BOONS = [
   {id:'tide', n:'Turning Tide', art:'twin', f:'angel', d:'Each switch deals 4 to all enemies'},
   {id:'bastion', n:'Bastion', art:'shield', f:'angel', d:'Keep a third of your block between turns'},
   {id:'glass', n:'Glass Cannon', art:'slash', f:'demon', d:'+30% damage', x:'15 less max life'},
-  {id:'reaper', n:'Reaper', art:'skull', f:'demon', d:'Kills heal 4. Your hits finish off enemies below 10% life'},
+  {id:'reaper', n:'Reaper', art:'skull', f:'demon', d:'Kills heal 2. Your hits finish off enemies below 10% life'},
   {id:'storm', n:'Stormcaller', art:'rune', f:'angel', d:'Your ultimate starts each fight half charged'},
   {id:'twinsoul', n:'Twin Soul', art:'twin', f:'demon', d:'Side-only buffs work on both sides'},
   {id:'knell', duo:'fallen', n:'Death Knell', art:'hourglass', f:'demon', d:'Doom deals 40% more'},
@@ -3333,14 +3333,14 @@ const BOONS = [
   {id:'brambles', n:'Brambles', art:'shield', f:'demon', d:'Start each fight with Thorns 4 for 3 turns'},
   {id:'sight', n:'Second Sight', art:'tome', f:'angel', d:'Draw 1 extra card each turn', x:'8 less max life'},
   {id:'opening', n:'Opening Strike', art:'slash', f:'demon', d:'Your first attack each fight deals double'},
-  {id:'phoenix', n:'Phoenix Feather', art:'heart', f:'angel', d:'Once a run: survive a killing blow at 30% life', x:'10 less max life'},
+  {id:'phoenix', n:'Phoenix Feather', art:'heart', f:'angel', d:'Once a run: survive a killing blow at 20% life', x:'10 less max life'},
   {id:'fever', n:'Gold Fever', art:'orb', f:'demon', d:'+40% gold this run'},
-  {id:'sanguine', duo:'fallen', n:'Sanguine Font', art:'heart', f:'demon', d:'As the Demon, heal 3 at the start of each turn'},
+  {id:'sanguine', duo:'fallen', n:'Sanguine Font', art:'heart', f:'demon', d:'As the Demon, heal 2 at the start of each turn'},
   {id:'aegis', n:'Holy Aegis', art:'shield', f:'angel', d:'Start each fight with 10 block'},
   // keystones: rare boons that bend a rule. At most 2 per run; gatekeepers and bosses always offer one.
-  {id:'martyr', k:1, n:"Martyr's Turn", art:'twin', f:'angel', d:'Switching costs no mana', x:'Each switch costs 3 life'},
+  {id:'martyr', k:1, n:"Martyr's Turn", art:'twin', f:'angel', d:'Switching costs no mana', x:'Each switch costs 2 life'},
   {id:'holyfire', duo:'fallen', k:1, n:'Holy Fire', art:'burst', f:'angel', d:'Holy hits also apply Burn 2 for 2 turns'},
-  {id:'bloodprice', k:1, n:'Blood Price', art:'heart', f:'demon', d:'Demon cards cost no energy', x:'Each one costs 3 life'},
+  {id:'bloodprice', k:1, n:'Blood Price', art:'heart', f:'demon', d:'Demon cards cost no energy', x:'Each one costs 2 life'},
   {id:'overflow', k:1, n:'Overflow', art:'shield', f:'angel', d:'At turn end: Block 4 per unspent energy', x:'Every block card gives 2 less'},
   {id:'glasshalo', duo:'fallen', k:1, n:'Glass Halo', art:'shield', f:'angel', d:'The Angel\'s block doubles', x:'The Angel deals 30% less'},
   {id:'twinflame', k:1, n:'Twin Flame', art:'rage', f:'demon', d:'Each switch: +3 damage on hits this turn', x:'Switching costs 1 more mana'},
@@ -3367,9 +3367,9 @@ const BOONS = [
   {id:'veil', t:'weak', n:"Mourner's Veil", art:'mercy-a', f:'angel', d:'Each fight, the first hit of 10 or more deals 5 less'},
   {id:'knot', t:'weak', n:"Binder's Knot", art:'leash-a', f:'angel', d:'Each switch: Block 3'},
   {id:'idol', t:'weak', n:'Feeding Idol', art:'feast-d', f:'demon', d:'After 25 kills: +1 energy every turn'},
-  {id:'loadeddie', t:'mid', n:'Loaded Die', art:'debt-a', f:'demon', d:'Each fight, roll a die: Might equal to the roll · 3 turns', x:'On a 1: lose 6 life instead'},
+  {id:'loadeddie', t:'mid', n:'Loaded Die', art:'debt-a', f:'demon', d:'Each fight, roll a die: Might equal to the roll · 3 turns', x:'On a 1 or 2: lose 6 life instead'},
   {id:'oddprayers', t:'mid', n:'Odd Prayers', art:'hymn-a', f:'angel', d:'Odd turns: +2 energy', x:'Even turns: −1 energy'},
-  {id:'lonely', t:'mid', n:'Lonely Executioner', art:'lance-d', f:'demon', d:'Deal 25% more to a lone enemy', x:'Against 3 or more enemies, they deal 30% more'},
+  {id:'lonely', t:'mid', n:'Lonely Executioner', art:'lance-d', f:'demon', d:'Deal 20% more to a lone enemy', x:'Against 3 or more enemies, they deal 30% more'},
   {id:'tollgate', t:'mid', n:'Turnstile', art:'crossing-a', f:'angel', d:'Your first switch each turn is free', x:'Other switches that turn cost double'},
   {id:'lash', t:'mid', n:"Penitent's Lash", art:'penance-d', f:'demon', d:'Each time you lose life on your turn: +1 damage this fight (max +4)', x:'Cards that cost life cost 1 more'},
   {id:'bloodward', t:'mid', n:'Living Wall', art:'bastion-a', f:'angel', d:'At turn start, heal 1 per 3 block left', x:'Your block cards give 1 less'},
@@ -3385,17 +3385,17 @@ const BOONS = [
   {id:'rotgarden', duo:'fallen', t:'strong', n:'Rot Garden', art:'plague-d', f:'demon', d:'Poison on enemies never wears off', x:'You can\'t apply Burn'},
   {id:'kindled', duo:'ember', t:'strong', n:'Kindled Blood', art:'er_phoenix-d', f:'demon', d:'Overheat doesn\'t hurt you', x:'Overheat deals 3 less'},
   {id:'wilting', t:'strong', n:'Wilting Crown', art:'halo-a', f:'angel', d:'+1 energy each turn', x:'Lost the first time you rest'},
-  {id:'stubborn', t:'strong', n:'Stubborn Chain', art:'unbind-d', f:'demon', d:'Each turn you don\'t switch: +2 damage (max 10)', x:'Switching costs 6 life and resets it'},
+  {id:'stubborn', t:'strong', n:'Stubborn Chain', art:'unbind-d', f:'demon', d:'Each turn you don\'t switch: +2 damage (max 10)', x:'Switching costs 3 life and resets it'},
   {id:'deeptoll', t:'strong', n:'Deep Debt', art:'er_offering-d', f:'demon', d:'Take 250 gold now', x:'Each door costs 10 gold, or 5 life'},
   {id:'heavypurse', t:'strong', n:'Heavy Purse', art:'tithe-a', f:'demon', d:'Double gold this run', x:'Start each fight by taking 1 damage per 50 gold you hold (max 4)'},
-  {id:'earlygrave', t:'strong', n:'Early Grave', art:'doomsday-a', f:'demon', d:'Turn 1: +3 energy and draw 3', x:'From turn 5: −1 energy'},
+  {id:'earlygrave', t:'strong', n:'Early Grave', art:'doomsday-a', f:'demon', d:'Turn 1: +3 energy and draw 3', x:'From turn 4: −1 energy'},
   {id:'woundtithe', t:'strong', n:'Wound Tithe', art:'wound-d', f:'demon', d:'Life you lose becomes mana next turn (max 4)', x:'Block cards give 25% less'},
   {id:'contract', t:'strong', n:'Contract in Blood', art:'bloodmark-d', f:'demon', d:'+1 energy each turn', x:'End a turn with energy left: lose 3 life'},
   {id:'gravegoods', t:'strong', n:'Grave Goods', art:'oath-a', f:'angel', d:'Start each fight with a random potion effect', x:'You earn half gold'},
-  {id:'coin', k:1, n:'Coin of Three Faces', art:'twinflame-a', f:'angel', d:'Each turn you are switched for free and draw 1', x:'You can\'t switch by choice'},
-  {id:'locket', k:1, n:'Cursed Locket', art:'covenant-d', f:'demon', d:'Your ultimate starts every fight full', x:'Using it costs 20% of your max life'},
+  {id:'coin', k:1, n:'Coin of Three Faces', art:'twinflame-a', f:'angel', d:'Each turn you are switched for free', x:'You can\'t switch by choice'},
+  {id:'locket', k:1, n:'Cursed Locket', art:'covenant-d', f:'demon', d:'Your ultimate starts every fight full', x:'10% less max life'},
   {id:'stillborn', k:1, n:'Forfeit', art:'tornsoul-d', f:'demon', d:'Draw 2 more cards each turn', x:'Cards you don\'t play are Banished'},
-  {id:'lastbreath', k:1, n:'Crown of Last Breath', art:'martyr-a', f:'angel', d:'Below half life: +2 energy each turn', x:'10 less max life'},
+  {id:'lastbreath', k:1, n:'Crown of Last Breath', art:'martyr-a', f:'angel', d:'Below half life: +2 energy each turn', x:'5 less max life'},
   {id:'splitsoul', k:1, n:'Split Soul', art:'duality-a', f:'angel', d:'Switching costs 1 energy instead of mana', x:'3 less max mana'},
   {id:'redcommunion', duo:'fallen', k:1, n:'Red Communion', art:'exsang-a', f:'demon', d:'Each time Bleed hurts you: +2 damage this fight', x:'Bleed is doubled'},
   {id:'twinwounds', duo:'fallen', k:1, n:'Twin Wounds', art:'twohearts-a', f:'angel', d:'Every card fills Judgement and Sin', x:'Switching empties both'},
@@ -3411,7 +3411,7 @@ function offerBoon(title, then) { S.boonPick = boonPicks(!!(S.f && S.fromFight &
 function gainBoon(id) { const p = S.p; (S.boons = S.boons || []).push(id); if (isKey(id)) stat('keys');
   const hpCut = n => { p.maxHp = Math.max(10, p.maxHp - n); p.hp = Math.min(p.hp, p.maxHp); };
   if (id === 'reservoir') { p.maxMana += 4; p.mana += 4; } if (id === 'glass') hpCut(15); if (id === 'sight') hpCut(8); if (id === 'quicken') hpCut(5); if (id === 'phoenix') hpCut(10);
-  if (id === 'lastbreath') hpCut(10); if (id === 'locket') hpCut(Math.floor(p.maxHp * .2)); if (id === 'splitsoul') { p.maxMana = Math.max(3, p.maxMana - 3); p.mana = Math.min(p.mana, p.maxMana); }
+  if (id === 'lastbreath') hpCut(5); if (id === 'locket') hpCut(Math.floor(p.maxHp * .1)); if (id === 'splitsoul') { p.maxMana = Math.max(3, p.maxMana - 3); p.mana = Math.min(p.mana, p.maxMana); }
  if (id === 'hairtrigger') p.ultNeed = Math.max(4, Math.round(p.ultNeed * .8));
   if (id === 'deeptoll') { S.gold += 250; S.goldRun = (S.goldRun || 0) + 250; } if (id === 'vane') S.vane = rnd(3); }
 function takeBoon(id) { gainBoon(id);
@@ -3455,7 +3455,7 @@ function addSt(h, id, v, t, f) { if (id === 'burn' && S.p && h !== S.p && boon('
   if (id === 'burn' && h !== S.p && S.p && S.p.evb) v += 1; // Everburn
   if (h !== S.p && S.f && S.p && ['poison', 'burn', 'doom'].includes(id)) { if (compOn('rat')) v += compLv() >= 4 ? 2 : 1; S.p.affT = (S.p.affT || 0) + 1; compCombo('aff', S.p.affT); }
   if (h !== S.p && S.f && ST_FX[id] && !FXQ.some(q => q.k === 'stap' && q.t === h && q.id === id)) fxe('stap', {t: h, id});
-  if (h === S.p) { if (f && t && eqd('twinhalo')) t += ilv('twinhalo') >= 6 ? 2 : 1; if (f && id !== 'weak' && id !== 'frail') v = Math.ceil(v * (1 + .2 * TR('oathkeeper'))); if (id === 'regen' || id === 'ward') v = Math.ceil(v * (1 + .15 * TR('sanctity'))); }
+  if (h === S.p) { if (f && t && eqd('twinhalo')) t += gstp('twinhalo', 1, 7); if (f && id !== 'weak' && id !== 'frail') v = Math.ceil(v * (1 + .2 * TR('oathkeeper'))); if (id === 'regen' || id === 'ward') v = Math.ceil(v * (1 + .15 * TR('sanctity'))); }
   const o = h.st[id];
   if (!o) { h.st[id] = {v, t: t || 0, f: f || null}; return; }
   if (id === 'poison' || id === 'doom') { o.v += v; if (id === 'doom' && !o.t) o.t = t || 0; return; }
@@ -3761,7 +3761,7 @@ function trMap() { const c = S && S.p && S.chain != null ? S.chain : null, key =
 const ARM = [
   {id:'reliquary',s:'Relic',n:'Cracked Reliquary',t:'+6 max life',cost:40, tl:l => `+${6 + 2 * (l - 1)} max life`},
   {id:'wellstone',s:'Ring',n:'Wellstone Ring',t:'+2 max mana',cost:60, tl:l => `+${2 + Math.floor((l - 1) / 2)} max mana`},
-  {id:'thriftbeads',s:'Charm',n:'Thrift Beads',t:'Your first spell each fight costs 1 less',cost:55, tl:l => l >= 6 ? 'Your first two spells each fight cost 1 less' : 'Your first spell each fight costs 1 less'},
+  {id:'thriftbeads',s:'Charm',n:'Thrift Beads',t:'Your first spell each fight costs 1 less',cost:55, tl:l => stp(l, 1, 5) === 1 ? 'Your first spell each fight costs 1 less' : `Your first ${stp(l, 1, 5)} spells each fight cost 1 less`},
   {id:'emberheart',s:'Relic',n:'Ember Heart',t:'+3 mana at the start of each fight',cost:55, tl:l => `+${3 + Math.floor((l - 1) / 2)} mana at the start of each fight`},
   {id:'bonecharm',s:'Charm',n:'Bone Charm',t:'Start each run with an extra potion',cost:45, tl:l => `Start each run with ${1 + Math.floor(l / 5)} extra potion${l >= 5 ? 's' : ''}`},
   {id:'thiefcoin',s:'Charm',n:"Thief's Coin",t:'+25% gold',cost:50, tl:l => `+${25 + 4 * (l - 1)}% gold`},
@@ -3773,10 +3773,10 @@ const ARM = [
   {id:'thornring',s:'Ring',n:'Thorn Ring',t:'Start each fight with Thorns 3 for 3 turns',cost:50, tl:l => `Start each fight with Thorns ${3 + Math.floor((l - 1) / 2)} for 3 turns`},
   {id:'dawnstone',s:'Sigil',n:'Dawnstone',t:'Becoming the Angel gives Ward 3 for 2 turns',cost:70, tl:l => `Becoming the Angel gives Ward ${3 + Math.floor((l - 1) / 2)} for 2 turns`},
   {id:'duskstone',s:'Sigil',n:'Duskstone',t:'Becoming the Demon gives Might 2 for 2 turns',cost:70, tl:l => `Becoming the Demon gives Might ${2 + Math.floor((l - 1) / 3)} for 2 turns`},
-  {id:'twinhalo',s:'Charm',n:'Twin Halo',t:'Side-only buffs you gain last 1 turn longer',cost:65, tl:l => `Side-only buffs you gain last ${l >= 6 ? 2 : 1} turn${l >= 6 ? 's' : ''} longer`},
+  {id:'twinhalo',s:'Charm',n:'Twin Halo',t:'Side-only buffs you gain last 1 turn longer',cost:65, tl:l => `Side-only buffs you gain last ${stp(l, 1, 7)} turn${stp(l, 1, 7) > 1 ? 's' : ''} longer`},
   {id:'plaguemask',s:'Idol',n:'Plague Mask',t:'Enemies start each fight with Poison 3',cost:75, tl:l => `Enemies start each fight with Poison ${3 + Math.floor((l - 1) / 2)}`},
   {id:'hungeridol',s:'Idol',n:'Idol of Hunger',t:'Each kill heals you 2',cost:60, tl:l => `Each kill heals you ${2 + Math.floor((l - 1) / 2)}`},
-  {id:'gildring',s:'Ring',n:'Gilded Ring',t:'+1 energy on the first turn of each fight',cost:70, tl:l => `+${l >= 6 ? 2 : 1} energy on the first turn of each fight`},
+  {id:'gildring',s:'Ring',n:'Gilded Ring',t:'+1 energy on the first turn of each fight',cost:70, tl:l => `+${stp(l, 1, 7)} energy on the first turn of each fight`},
   {id:'pairamulet',s:'Amulet',n:'Amulet of the Pair',t:'Each switch heals you 2',cost:65, tl:l => `Each switch heals you ${2 + Math.floor((l - 1) / 3)}`},
   {id:'judgeseal',s:'Sigil',n:"Judge's Seal",t:'Judgement and Sin +2 max, drain 1 less',cost:70, tl:l => `Judgement and Sin hold ${2 + Math.floor(l / 6)} more and fade 1 less`},
   {id:'censer',s:'Relic',n:'Twin Censer',t:'Start each fight with 2 Judgement and 2 Sin',cost:65, tl:l => `Start each fight with ${2 + Math.floor(l / 4)} Judgement and ${2 + Math.floor(l / 4)} Sin`},
@@ -4108,6 +4108,7 @@ let RUNKIT = null; const kit = () => RUNKIT || (S && S.p && S.daily && S.daily.k
 const eqd = id => kit() ? kit().gear.includes(id) : Object.values(META.arm.eq).includes(id);
 // item levels: META.arm.own[id] holds the best item level you own (old saves: 1). Worn gear's numbers grow with it.
 const ilv = id => kit() ? KIT_IL : Math.max(1, +META.arm.own[id] || 1), gil = id => eqd(id) ? ilv(id) : 0;
+const stp = (l, a, every) => a + Math.floor(((l || 1) - 1) / every), gstp = (id, a, every) => stp(ilv(id), a, every); // a count that grows by 1 every few item levels
 const gs = (id, base, per) => eqd(id) ? base + per * (ilv(id) - 1) : 0;      // e.g. gs('reliquary', 6, 2): +6 life, +2 per item level
 const gsr = (id, base, per) => Math.round(gs(id, base, per));
 const dropIL = k => Math.max(1, Math.min(40, 2 * (S.act || 1) - 1 + Math.floor(hRew() / 2) + (k === 'boss' || k === 'guardian' ? 1 : 0) + (S.endless ? Math.floor((S.round || 0) / 3) : 0)));
@@ -4118,6 +4119,13 @@ const IL_MAX = 20, salvVal = l => 4 * l + 2, dupVal = l => 3 * l, dustUp = l => 
 const dust = () => `<span class="dustic">${pxi('skull')}</span>`;
 // gear text at a given item level: {n} placeholders are filled by x.sc(l)
 const gT = (x, l) => x.tl ? x.tl(l || 1) : x.t;
+// gear upgrades skip item levels where nothing changes: one upgrade goes to the next level that changes the text, and costs the levels it skips
+const gNext = (x, l) => { const t = gT(x, l); for (let n = l + 1; n <= IL_MAX; n++) if (gT(x, n) !== t) return n; return null; };
+const gCost = (x, l) => { const n = gNext(x, l); if (!n) return 0; let c = 0; for (let i = l; i < n; i++) c += dustUp(i); return c; };
+const gSteps = x => { let k = 0, l = 1; while ((l = gNext(x, l))) k++; return k; }, gStep = (x, l) => { let k = 0, n = 1; while ((n = gNext(x, n)) && n <= l) k++; return k; };
+// the new text with each changed number shown as old → new
+const gDiff = (a, b) => { a = fw(a); b = fw(b); const A = a.split(/(\d+)/), B = b.split(/(\d+)/); if (A.length !== B.length || A.some((p, i) => i % 2 === 0 && p !== B[i])) return fw(b);
+  return B.map((p, i) => i % 2 && p !== A[i] ? `<span class="gold">${A[i]}</span>→<b class="gupn">${p}</b>` : p).join(''); };
 function duoLevel(xp) { let L = 1, need = 41; while (xp >= need) { xp -= need; L++; need = 40 + L; } return {L, into: xp, need}; }
 const earned = () => duoLevel(DUO().xp).L - 1;
 const dtPoints = () => chOpen(); // perks waiting to be picked
@@ -4135,13 +4143,13 @@ function dmgMult(e, t, ty) { const p = P();
   if (t && t.hp < t.max / 2) m += .05 * TR('exec');
   if (t && p.shpt && stOn(t, 'chill')) m += .3; // Shatterpoint
   if (t && t.id === 'colossus' && alive().some(x => x.id === 'bonearcher')) m *= .5; // Bone Wall
-  if (boon('lonely') && S.f && alive().length === 1) m += .25;
+  if (boon('lonely') && S.f && alive().length === 1) m += .2;
   if (!HEATD()) { const dm = dmode(); if ((dm === 'unA' && p.form === 'demon') || (dm === 'unD' && p.form === 'angel')) m *= .75; }
   return m; }
 const impMana = () => META.comp === 'imp' && META.comps.imp ? 3 + Math.floor((loyLv('imp') - 1) / 2) : 0;
 const wellMana = () => eqd('wellstone') ? 2 + Math.floor((ilv('wellstone') - 1) / 2) : 0;
 // what a spell costs right now: Frugal Prayers takes 1 off, Thrift Beads 1 off the first spell(s) of a fight; a costed spell never drops below 1
-const spM = s => { if (!s.m) return 0; if (S.p && S.f && compOn('imp') && !S.p.spN) return 0; const p = S.p, bead = eqd('thriftbeads') && p && (p.spN || 0) < (ilv('thriftbeads') >= 6 ? 2 : 1) ? 1 : 0; return Math.max(1, s.m - (boon('frugal') ? 1 : 0) - bead); };
+const spM = s => { if (!s.m) return 0; if (S.p && S.f && compOn('imp') && !S.p.spN) return 0; const p = S.p, bead = eqd('thriftbeads') && p && (p.spN || 0) < gstp('thriftbeads', 1, 5) ? 1 : 0; return Math.max(1, s.m - (boon('frugal') ? 1 : 0) - bead); };
 const swCost = () => { const c0 = swCost0(), c = c0 + (boon('twinflame') && c0 > 0 ? 1 : 0) + (boon('lentlight') ? 1 : 0); if (boon('splitsoul')) return 0; if (boon('tollgate') && S.f && S.p) return S.p.swT ? 2 * c : 0; return c; };
 const rageT = () => (hz(2) ? 3 : 4) - (mut('tide') ? 1 : 0); // enemies enrage after this turn
 const swCost0 = () => boon('martyr') || mut('thin') ? 0 : Math.max(0, (mut('flow') ? 4 : SWITCH) - TR('lightchain') - (boon('loosechain') ? 1 : 0)) + (pen('sever') ? 1 : 0) + (hz(15) && S.f && !(P().swF > 0) ? 2 : 0);
@@ -4322,7 +4330,7 @@ function startFight(kind, pre) { S.lastKind = arguments[0]; S.rested = false; if
   if (S.fights) p.mana = Math.min(p.maxMana, p.mana + 2 * p.regen);
   S.fights = (S.fights || 0) + 1;
   Object.assign(p, {spN: 0, sunH: 0, shpt: 0, evb: 0, judg: 0, sin: 0, vUsed: false, shatterN: 0, seal: false, sealHp: 0, ramp: TR('rampage') ? S.rampN || 0 : 0, swBlk: 0, swDmg: 0, woundP: 0, woundN: 0, tickB: 0, tickC: 0, cov: null, lastC: null, lastPrev: null, heat: HEATD() ? 2 + Math.ceil(TR('kindling') * .6) : 0, thermal: false, em:{holy:0, shadow:0}, nextFree:null, blk:0, stack:0, furyT:0, haloT:0, sil:0, burst:0, blessT:0, lostT:0, bp:false, echoes:0, compFirst:false, cds:{}, free:false, freeLeft:stepRoll(AT('firstbreath')) + TR('easyturn'), lsAcc:0, edge:false, flowFree:false, wallUsed:false, kindle:compOn('imp'), bones:0, st:{}});
-  if (S.comp && COMPANIONS[S.comp] && eqd('bellcollar')) p.echoes = ilv('bellcollar') >= 6 ? 2 : 1;
+  if (S.comp && COMPANIONS[S.comp] && eqd('bellcollar')) p.echoes = gstp('bellcollar', 1, 5);
   if (S.comp && eqd('blanket')) p.blk += 4 + Math.floor((ilv('blanket') - 1) / 2);
   if (eqd('thornring')) addSt(p, 'thorns', gsr('thornring', 3, .5), 3);
   if (boon('brambles')) addSt(p, 'thorns', 4, 3);
@@ -4331,7 +4339,7 @@ function startFight(kind, pre) { S.lastKind = arguments[0]; S.rested = false; if
   if (boon('aegis')) p.blk += 10;
   p.lash = 0; p.stub = 0; p.redM = 0; p.wtM = 0; p.patient = 0; p.ggAp = 0;
   if (boon('saltline')) en.forEach(x => addSt(x, 'weak', 1, 2));
-  if (boon('loadeddie')) { const r = 1 + rnd(6); if (r === 1) { loseHp(Math.min(6, Math.max(0, p.hp - 1)), 'the Loaded Die'); log('The die shows 1. It bites for 6.'); } else { addSt(p, 'might', r, 3); log('The die shows ' + r + ': Might ' + r + '.'); } }
+  if (boon('loadeddie')) { const r = 1 + rnd(6); if (r <= 2) { loseHp(Math.min(6, Math.max(0, p.hp - 1)), 'the Loaded Die'); log('The die shows ' + r + '. It bites for 6.'); } else { addSt(p, 'might', r, 3); log('The die shows ' + r + ': Might ' + r + '.'); } }
   if (boon('lentlight')) p.mana = p.maxMana;
   if (boon('heavypurse')) { const d = Math.min(4, Math.floor((S.gold || 0) / 50)); if (d) { loseHp(Math.min(d, Math.max(0, p.hp - 1)), 'the Heavy Purse'); log('Your purse drags you down: ' + d + ' damage.'); } }
   if (boon('gravegoods')) { const r = rnd(4); if (r === 0) healP(15); else if (r === 1) p.mana = Math.min(p.maxMana, p.mana + 5); else if (r === 2) p.blk += 18; else p.ggAp = 2; log('Grave Goods: ' + ['a healing draught', 'a mana draught', 'a stone skin', '+2 energy'][r] + '.'); }
@@ -4370,12 +4378,12 @@ function startTurn() {
   p.atkT = 0; p.critT = 0; p.spT = 0; p.swT = 0; p.blkG = 0; p.affT = 0; p.healT = 0; p.comboT = 0; const blkWas = p.blk;
   p.chain = 0; p.jsFullT = 0; p.dAtk = 0; p.formT0 = p.form; p.j0 = p.judg || 0; p.s0 = p.sin || 0; p.playedT = 0; p.ap = 5; p.qUsed = false; p.switched = false; p.burst = 0; p.twf = 0; p.lostT = 0; p.bp = false; p.nextFree = null; p.ovhT = false;
   p.turnDrew = false;
-  if (f.turn === 1 && eqd('gildring')) p.ap += ilv('gildring') >= 6 ? 2 : 1;
+  if (f.turn === 1 && eqd('gildring')) p.ap += gstp('gildring', 1, 7);
   if (f.turn === 1 && p.mirrorAp) { p.ap += p.mirrorAp; p.mirrorAp = 0; log('The mirror\'s gift: +2 energy.'); }
   p.wallUsed = false;
   if (boon('oddprayers')) p.ap += f.turn % 2 ? 2 : -1;
   if (boon('fist')) { p.ap += 1; if (f.turn > 1) loseHp(2, 'the Clenched Fist'); }
-  if (boon('earlygrave')) p.ap += f.turn === 1 ? 3 : f.turn >= 5 ? -1 : 0;
+  if (boon('earlygrave')) p.ap += f.turn === 1 ? 3 : f.turn >= 4 ? -1 : 0;
   if (boon('wilting')) p.ap += 1; if (boon('contract')) p.ap += 1;
   if (boon('idol') && (S.idolK || 0) >= 25) p.ap += 1;
   if (boon('lastbreath') && p.hp < p.maxHp / 2) p.ap += 2;
@@ -4384,13 +4392,13 @@ function startTurn() {
   if (f.turn > 1 && p.wtM) { const m = Math.min(4, p.wtM); p.mana = Math.min(p.maxMana, p.mana + m); p.wtM = 0; log('Wound Tithe: +' + m + ' mana.'); }
   if (f.turn > 1 && boon('bloodward') && blkWas >= 3) { const v = Math.floor(blkWas / 3); p.hp = Math.min(p.maxHp, p.hp + v); log('Bloodward: ' + v + ' life from your block.'); }
   if (f.turn === 8 && boon('bell')) { S.shake = true; fxe('call', {txt: 'The bell tolls'}); alive().forEach(t => pureHit(t, 25, 'The bell tolls: ')); loseHp(25, "the Undertaker's Bell"); }
-  if (f.turn > 1 && boon('coin') && !f.bound) { flipForm(); charge(2); draw(1); log('The coin turns. You become the ' + FN(p.form) + '.'); }
+  if (f.turn > 1 && boon('coin') && !f.bound) { flipForm(); charge(2); log('The coin turns. You become the ' + FN(p.form) + '.'); }
   if (p.blessT > 0) { const h = healP((p.blessV + TR('mercy')) * (p.form === 'demon' ? 2 : 1)); p.blessT--; log('Your blessing heals ' + h + '.'); }
   const rage = rageT();
   if (f.turn > rage) { alive().forEach(e => e.str += hz(16) ? 4 : 3); log(f.turn === rage + 1 ? 'Their patience snaps. They hit harder every turn now.' : 'Their fury grows.'); }
   if (f.turn > 1 && p.form === 'demon' && TR('winterrest')) healP(Math.ceil(TR('winterrest') / 2));
   if (f.turn > 1 && compOn('tortoise')) p.blkCarry = Math.floor(blkWas * (.1 + .02 * (compLv() - 1)));
-  if (f.turn > 1) { p.blk = p.keepBlk ? (p.keepBlk = false, p.blk) : Math.max(p.form === 'angel' && TR('vigil') ? Math.floor(p.blk * .1 * TR('vigil')) : p.form === 'demon' && TR('permafrost') ? Math.floor(p.blk * .1 * TR('permafrost')) : 0, boon('bastion') ? Math.floor(p.blk / 3) : 0); if (boon('spring')) p.mana = Math.min(p.maxMana, p.mana + 1); if (mut('flow')) p.mana = Math.min(p.maxMana, p.mana + 2); if (boon('sanguine') && p.form === 'demon') healP(3); if (p.form === 'demon') p.blk += TR('hide'); p.blk += p.bones || 0; p.mana = Math.min(p.maxMana, p.mana + Math.ceil((p.regen + (p.haloT ? 2 : 0)) / (mut('thin') ? 2 : 1))); if (p.haloT) p.haloT--; }
+  if (f.turn > 1) { p.blk = p.keepBlk ? (p.keepBlk = false, p.blk) : Math.max(p.form === 'angel' && TR('vigil') ? Math.floor(p.blk * .1 * TR('vigil')) : p.form === 'demon' && TR('permafrost') ? Math.floor(p.blk * .1 * TR('permafrost')) : 0, boon('bastion') ? Math.floor(p.blk / 3) : 0); if (boon('spring')) p.mana = Math.min(p.maxMana, p.mana + 1); if (mut('flow')) p.mana = Math.min(p.maxMana, p.mana + 2); if (boon('sanguine') && p.form === 'demon') healP(2); if (p.form === 'demon') p.blk += TR('hide'); p.blk += p.bones || 0; p.mana = Math.min(p.maxMana, p.mana + Math.ceil((p.regen + (p.haloT ? 2 : 0)) / (mut('thin') ? 2 : 1))); if (p.haloT) p.haloT--; }
   if (p.blkCarry) { p.blk += p.blkCarry; p.blkCarry = 0; }
   for (const k in p.cds) if (p.cds[k] > 0) p.cds[k]--;
   if (f.turn > 1) stTick(p, true);
@@ -4473,7 +4481,7 @@ function hit(t, d, pierce) { const a = pierce ? 0 : Math.min(t.blk, d), h0 = t.h
 function brkHit(t, d) { if (!t.brk || !(d > 0) || t.hp <= 0) return; t.brk.got += d; if (t.brk.got < t.brk.need) return;
   log(t.n + "'s " + (t.next && t.next.sig || 'charge') + ' falters! It staggers.'); t.brk = null; t.stag = 1; charge(2); fxe('stag', {t}); fxe('call', {txt: 'Staggered!'}); S.shake = true; }
 function nineLives() { const p = P(); if (p.hp <= 0 && compOn('cat') && !S.nineUsed) { S.nineUsed = true; p.hp = 1; S.echoed = true; log('Omen spends a life. You cling on at 1 life.'); }
-  if (p.hp <= 0 && boon('phoenix') && !S.phoenixUsed) { S.phoenixUsed = true; p.hp = Math.ceil(p.maxHp * .3); log('The Phoenix Feather burns. You rise again.'); } }
+  if (p.hp <= 0 && boon('phoenix') && !S.phoenixUsed) { S.phoenixUsed = true; p.hp = Math.ceil(p.maxHp * .2); log('The Phoenix Feather burns. You rise again.'); } }
 function woundCap(n) { const p = P(); if (!p.woundP) return n; n = Math.min(n, Math.max(0, p.hp - 1)); p.woundN += n; return n; } // Sacred Wound: never below 1, and every point is banked
 function loseHp(n, why) { const p = P(); if (boon('lash') && S.f && !S.f.eTurn && n > 0) { n++; p.lash = Math.min(4, (p.lash || 0) + 1); } n = woundCap(n); if (n > 0) S.hurt = {why: why || 'a price you paid', v: n}; p.hp = Math.max(0, p.hp - n); p.lostT = (p.lostT || 0) + n; p.fx = '-' + n; nineLives(); }
 function pureHit(t, d, tag) { const h = hit(t, d, true); stat('dmg', h); fxe('hit', {t, d, col: P().form, dead: t.hp <= 0}); log(tag + d + ' damage.'); sfx(d >= 15 ? 'big' : 'hit'); if (t.hp <= 0) { t.dying = true; sfx('kill'); } }
@@ -4496,7 +4504,7 @@ function applyEff(e) {
     fxe('hit', {t, d: dd, sh: dd - ab, blk: ab, crit, col: e.ty ? 'phys' : p.form, dead: t.hp <= 0, n, ch: p.chain || 0}); if (t.hp <= 0) { t.dying = true; charge(1); } if (t.leechT) leeched += Math.floor(h / 2); if (t.mark && p.form === 'demon') t.mark = 0;
     S.bigHit = Math.max(S.bigHit || 0, dd); if (dd >= 25) bounty('bighit', dd);
     if (t.hp <= 0) { kills++; if (dd >= Math.max(20, hp0 * 2)) over = true; bounty('kills'); const V = VENG(); if (V && t.id === V.id && !V.paid && !S.daily && !S.endless) { V.paid = 1; META.souls = (META.souls || 0) + 20; fxe('call', {txt: 'Vengeance! +20 souls'}); save(); }
-      sfx('kill'); if (boon('reaper')) healP(4); if (boon('idol')) { S.idolK = (S.idolK || 0) + 1; if (S.idolK === 25) { fxe('call', {txt: 'The idol wakes'}); log('The Feeding Idol wakes: +1 energy every turn.'); } } if (eqd('hungeridol')) healP(2 + Math.floor((ilv('hungeridol') - 1) / 2)); if (compOn('wolf')) { healP(cs(2)); S.echoed = true; } if (compOn('crow')) { p.bones = (p.bones || 0) + 1; p.blk += 1; S.echoed = true; } }
+      sfx('kill'); if (boon('reaper')) healP(2); if (boon('idol')) { S.idolK = (S.idolK || 0) + 1; if (S.idolK === 25) { fxe('call', {txt: 'The idol wakes'}); log('The Feeding Idol wakes: +1 energy every turn.'); } } if (eqd('hungeridol')) healP(2 + Math.floor((ilv('hungeridol') - 1) / 2)); if (compOn('wolf')) { healP(cs(2)); S.echoed = true; } if (compOn('crow')) { p.bones = (p.bones || 0) + 1; p.blk += 1; S.echoed = true; } }
     if (t.hp <= 0) { if (TR('feast')) healP(Math.round(p.maxHp * .05)); if (TR('rampage')) p.ramp = S.rampN = Math.min(3, (S.rampN || 0) + 1); }
     if (t.hp <= 0 && p.form === 'demon') { if (TR('gorge')) log('You gorge. +' + healP(TR('gorge')) + ' life.'); if (TR('heartwrath')) { p.ap += 2; draw(1); log('Heart of Wrath: +2 energy, draw 1.'); } } });
   if (kills >= 2) { fxe('call', {txt: kills >= 3 ? 'Triple kill!' : 'Double kill!'}); bounty('multi'); S.shake = true; } else if (over) fxe('call', {txt: 'Overkill!', small: 1});
@@ -4592,7 +4600,7 @@ function echo(c, formAtPlay) {
   const f = F(); if (f.en[f.tgt].hp <= 0) f.tgt = f.en.findIndex(x => x.hp > 0);
   const keep = {form: p.form, stack: p.stack};
   p.form = of; p.stack = 0;
-  applyEff(face); p.echoes--; if (eqd('palelantern')) healP(ilv('palelantern') >= 5 ? 2 : 1);
+  applyEff(face); p.echoes--; if (eqd('palelantern')) healP(1 + Math.floor(ilv('palelantern') / 5));
   if (cp.steal) p.mana = Math.min(p.maxMana, p.mana + cp.steal);
   p.form = keep.form; p.stack = keep.stack;
   S.echoed = true; log(cp.n + ' echoes ' + face.n + '.');
@@ -4620,7 +4628,7 @@ function playCard(i) {
   if (p.mana < (e.mc || 0)) { log(e.n + ' also needs ' + e.mc + ' mana.'); toast(e.n + ' needs ' + e.mc + ' mana'); buzz(30); return render(); }
   p.qUsed = true;
   if (p.kindle) p.kindle = false; else if (p.flowFree) p.flowFree = false; else if (p.nextFree === p.form) p.nextFree = null;
-  if (boon('bloodprice') && p.form === 'demon' && side(c).c > 0) loseHp(3);
+  if (boon('bloodprice') && p.form === 'demon' && side(c).c > 0) loseHp(2);
   p.ap -= e.c; p.mana -= e.mc || 0; f.hand.splice(i, 1); (e.spent ? (f.gone = f.gone || []) : f.disc).push(c); sfx('card'); stat('cards');
   const formAtPlay = p.form; if (formAtPlay === 'demon') f.cD = (f.cD || 0) + 1; else f.cA = (f.cA || 0) + 1; if (p.swPend) { p.swPend = false; f.sw = (f.sw || 0) + 1; } // the Chain: a switch counts once a card follows it
   S.heroAct = e.dmg != null || e.blkdmg ? 'atk' : e.blk ? 'blk' : 'cast';
@@ -4672,9 +4680,9 @@ function switchForm() {
   if (cost && Math.random() < .15 * TR('quick')) { cost = 0; log('Quick change: the switch is free.'); }
   p.mana -= cost;
   if (cost && p.form === 'demon' && Math.random() < .2 * TR('clarity')) { p.mana = Math.min(p.maxMana, p.mana + cost); log('Clarity refunds the switch.'); }
-  if (boon('stubborn')) { loseHp(6, 'the Stubborn Chain'); p.stub = 0; }
+  if (boon('stubborn')) { loseHp(3, 'the Stubborn Chain'); p.stub = 0; }
   flipForm(); if (boon('twinwounds') && !HEATD()) { p.judg = 0; p.sin = 0; } P().swPend = true; P().swT = (P().swT || 0) + 1; compCombo('switch', P().swT); tutEvent('switch'); S.medalFx = 'sw'; charge(2); reactSwitch();
-  if (boon('martyr')) { loseHp(3); log("Martyr's Turn: the change costs 3 life."); return after(); }
+  if (boon('martyr')) { loseHp(2); log("Martyr's Turn: the change costs 2 life."); return after(); }
   if (P().swDmg) return after();
   render();
 }
@@ -4700,7 +4708,7 @@ function flipForm() {
     if (boon('twinflame')) { p.twf = (p.twf || 0) + 3; log('Twin Flame: hits +' + p.twf + ' this turn.'); }
     if (boon('tide')) alive().forEach(x => { const h = hit(x, 4); fxe('hit', {t: x, d: 4, col: p.form, dead: x.hp <= 0}); if (x.hp <= 0) x.dying = true; }); }
   const cp = COMPANIONS[S.comp];
-  if (cp) { p.echoes = Math.min(echoCap(), (p.echoes || 0) + (eqd('soulthread') && !p.compFirst ? (ilv('soulthread') >= 6 ? 4 : 3) : 2)); p.compFirst = true; }
+  if (cp) { p.echoes = Math.min(echoCap(), (p.echoes || 0) + (eqd('soulthread') && !p.compFirst ? gstp('soulthread', 3, 5) : 2)); p.compFirst = true; }
 }
 function usePot(i) {
   const p = P(), x = p.pots[i], k = potK(x), D = POTS[k]; if (!D) return;
@@ -5165,7 +5173,7 @@ function respec() { const c = respecCost(); if (META.souls < c || !talSpent()) r
 const SHOP = {
   buy: id => { const it = ALL_GEAR().find(x => x.id === id), l = shopIL(), c = ilCost(it || {cost: 0}, l); if (!it || (+META.arm.own[id] || 0) >= l || META.souls < c) return; META.souls -= c; META.arm.own[id] = l; if (!META.arm.eq[it.s]) META.arm.eq[it.s] = id; },
   sell: id => { const it = ALL_GEAR().find(x => x.id === id); if (!it || !META.arm.own[id]) return; const v = salvVal(ilv(id)); delete META.arm.own[id]; if (META.arm.eq[it.s] === id) META.arm.eq[it.s] = null; META.dust = (META.dust || 0) + v; },
-  forgeup: id => { const it = ALL_GEAR().find(x => x.id === id), l = ilv(id); if (!it || !META.arm.own[id] || l >= IL_MAX || (META.dust || 0) < dustUp(l)) return; META.dust -= dustUp(l); META.arm.own[id] = l + 1; },
+  forgeup: id => { const it = ALL_GEAR().find(x => x.id === id), l = ilv(id), n = it && gNext(it, l), c = it && gCost(it, l); if (!it || !META.arm.own[id] || !n || (META.dust || 0) < c) return; META.dust -= c; META.arm.own[id] = n; },
   equip: id => { const it = ALL_GEAR().find(x => x.id === id); if (!it || !META.arm.own[id]) return; META.arm.eq[it.s] = META.arm.eq[it.s] === id ? null : id; },
   comp: id => { const c = COMPANIONS[id]; if (!c || META.comps[id] || META.souls < c.cost) return; META.souls -= c.cost; META.comps[id] = 1; if (!META.comp) META.comp = id; },
   deal: i => buyDeal(+i), prov: id => buyProv(id),
@@ -7427,10 +7435,10 @@ function gearHub(list, slots) { const mine = list.filter(x => META.arm.own[x.id]
   const RO = ['legendary', 'epic', 'rare', 'common'], wn = x => META.arm.eq[x.s] === x.id ? 1 : 0;
   const ord = mine.slice().sort((a, b) => wn(b) - wn(a) || RO.indexOf(gRar(a.id)) - RO.indexOf(gRar(b.id)) || ilv(b.id) - ilv(a.id) || slots.indexOf(a.s) - slots.indexOf(b.s));
   const name = x => `<b class="gn rn-${gRar(x.id)}">${x.n}</b>`, worn = x => META.arm.eq[x.s] === x.id;
-  if (m === 'up') { const rows = ord.map(x => { const l = ilv(x.id), c = dustUp(l), max = l >= IL_MAX, ok = !max && dn >= c;
-      return `<div class="grow up${ok ? '' : ' poor'}">${gTile(x)}<span class="gtx">${name(x)}<small>${max ? fw(gT(x, l)) : `<span class="gnext">iL ${l + 1}</span> ${fw(gT(x, l + 1))}`}</small></span>
-        ${max ? '<span class="gmax">Max</span>' : `<button class="gbtn${ok ? ' pri' : ''}" data-act="forgeup" data-i="${x.id}" ${ok ? '' : 'disabled'} aria-label="Raise ${x.n} to item level ${l + 1} for ${c} bone dust">${dust()}${c}</button>`}</div>`; }).join('');
-    return bar + `<div class="ghint">Next level shown. Tap to raise.</div><div class="glist">${rows}</div>`; }
+  if (m === 'up') { const rows = ord.map(x => { const l = ilv(x.id), n = gNext(x, l), c = gCost(x, l), max = !n, ok = !max && dn >= c;
+      return `<div class="grow up${ok ? '' : ' poor'}">${gTile(x)}<span class="gtx">${name(x)}<small>${max ? fw(gT(x, l)) : `<span class="gnext">iL ${n}</span> ${gDiff(gT(x, l), gT(x, n))}`}</small></span>
+        ${max ? '<span class="gmax">Max</span>' : `<button class="gbtn${ok ? ' pri' : ''}" data-act="forgeup" data-i="${x.id}" ${ok ? '' : 'disabled'} aria-label="Raise ${x.n} to item level ${n} for ${c} bone dust">${dust()}${c}</button>`}</div>`; }).join('');
+    return bar + `<div class="ghint">Each raise changes a number. Tap to raise.</div><div class="glist">${rows}</div>`; }
   if (m === 'salv') { const free = ord.filter(x => !worn(x)), tot = free.reduce((a, x) => a + salvVal(ilv(x.id)), 0), armAll = S.sellArm === 'many';
     const rows = ord.map(x => { const v = salvVal(ilv(x.id)), arm = S.sellArm === x.id;
       return `<div class="grow sv${worn(x) ? ' locked' : ''}">${gTile(x)}<span class="gtx">${name(x)}<small>${worn(x) ? '<span class="gworn">Worn</span> ' : ''}${fw(gT(x, ilv(x.id)))}</small></span>${worn(x) ? (S.p ? `<button class="gbtn glock" data-act="gsalv1" data-i="${x.id}" aria-label="${x.n} is worn">${pxi('lock')}</button>` : `<button class="gbtn goff" data-act="goff" data-i="${x.id}" aria-label="Take off ${x.n}">Take off</button>`) : `<button class="gbtn${arm ? ' warn' : ''}" data-act="gsalv1" data-i="${x.id}" aria-label="Salvage ${x.n} for ${v} bone dust">${arm ? 'Sure?' : dust() + v}</button>`}</div>`; }).join('');
@@ -7442,11 +7450,11 @@ function gearHub(list, slots) { const mine = list.filter(x => META.arm.own[x.id]
 const duoPick = () => !S.p && Object.keys(DUOS).filter(duoOwned).length > 1 ? `<div class="wduosel"><button class="kib dcyc" data-act="duocycle" data-i="-1" aria-label="Previous duo">${pxi('back')}</button><b>${DUO_DEF().n}</b><button class="kib dcyc" data-act="duocycle" data-i="1" aria-label="Next duo">${pxi('next')}</button></div>` : '';
 // one piece of gear at the Forge: what it does, what the next level does, raise or salvage
 function vGearSheet(id) { const x = ALL_GEAR().find(g => g.id === id); if (!x || !META.arm.own[id]) return '<h2>Gone</h2><p class="dim">That piece was salvaged.</p>';
-  const l = ilv(id), cost = dustUp(l), max = l >= IL_MAX, dn = META.dust || 0, on = META.arm.eq[x.s] === id, arm = S.sellArm === id;
+  const l = ilv(id), nx = gNext(x, l), cost = gCost(x, l), max = !nx, dn = META.dust || 0, on = META.arm.eq[x.s] === id, arm = S.sellArm === id;
   return `<div class="gshead">${sprite(gearIcon(x), 'gsic')}<div><h2>${x.n}</h2><span class="dim small">${x.s} · iL ${l}${on ? ' · worn' : ''}${GEAR_DUO[id] ? ` · ${DUOS[GEAR_DUO[id]].n} only` : ''}</span></div></div><i class="pg-split"></i>
     <div class="gsnow"><small>Now</small><p>${fw(gT(x, l))}</p></div>
-    ${max ? '<div class="gsnext"><small>At its strongest</small></div>' : `<div class="gsnext"><small>At iL ${l + 1}</small><p>${fw(gT(x, l + 1))}</p></div>`}
-    ${max ? '' : `<button class="btn pri gsup" data-act="forgeup" data-i="${id}" ${dn >= cost ? '' : 'disabled'}>Raise to iL ${l + 1} · ${dust()} ${cost}</button>${dn >= cost ? '' : `<p class="dim small gsneed">You have ${dn} bone dust</p>`}`}
+    ${max ? '<div class="gsnext"><small>At its strongest</small></div>' : `<div class="gsnext"><small>At iL ${nx}</small><p>${gDiff(gT(x, l), gT(x, nx))}</p></div>`}
+    ${max ? '' : `<button class="btn pri gsup" data-act="forgeup" data-i="${id}" ${dn >= cost ? '' : 'disabled'}>Raise to iL ${nx} · ${dust()} ${cost}</button>${dn >= cost ? '' : `<p class="dim small gsneed">You have ${dn} bone dust</p>`}`}
     ${S.p ? '' : `<button class="btn${on ? '' : ' pri'} gseq" data-act="equip" data-i="${id}">${on ? 'Take off' : 'Equip'}</button>`}
     ${on ? `<button class="btn gssalv" disabled>${pxi('lock')} Take it off to salvage</button>` : `<button class="btn${arm ? ' warn' : ''} gssalv" data-act="gearsalv" data-i="${id}">${arm ? `Tap again to salvage for ${dust()} ${salvVal(l)}` : `Salvage for ${dust()} ${salvVal(l)}`}</button>`}`; }
 function vDuo() {
@@ -8733,6 +8741,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
+  {v: '0.126', d: '27 Nov', n: ["Gear upgrades now always change a number: each raise jumps to the next level that does something, and costs what it skips", "Upgrades show old → new numbers", "Thrift Beads, Twin Halo, Gilded Ring, Studded Collar, Silver Bell, Oilskin Coat and Soul-cured Jerky keep growing past their first upgrade", "Boon balance pass: Phoenix Feather (20%), Reaper (heals 2), Early Grave (from turn 4), Sanguine Font (heal 2), Loaded Die (1 or 2 bites), Lonely Executioner (20%) and Coin of Three Faces (no draw) are weaker", "Easier drawbacks: Blood Price (2 life), Stubborn Chain (3 life), Cursed Locket (10% max life), Martyr's Turn (2 life), Crown of Last Breath (5 max life)", "Cursed Locket's text now says what it really does"]},
   {v: '0.125', d: '27 Nov', n: ["The Den is cleaner: companions you own come first, the one with you is tagged, and companions you haven't found stay a mystery", "Card balance pass, every card tested on its own", "Stronger: Atonement, Sanctuary, Hellfire, Stigmata, Carnage, Halo and Wrath (now 1 energy), Hellbrand, Tithe, Bloodtithe, Lance, Impale, Slaughter, Cinderstorm, Whiteout, Bonfire, Avalanche, Firefall, Glacier Fall, Meteor, Ice Comet, Sear", "Weaker: Banked Coals, Cold Storage, Ashen Guard, Sacrament, Lantern Vigil"]},
   {v: '0.124', d: '27 Nov', n: ["Five place events, one per place: The Grave Angel, The Last Coal, The Bog Spring, The Frozen Font, The Watcher", "Five new bosses are built and waiting for their art"]},
   {v: '0.123', d: '27 Nov', n: ["Card frames work again, and recolour the real card art. Four new frames: Blood, Ashen, Gilt (600 souls) and Verdigris (win 25 runs)", "Cards at +15 get a gold edge and glow", "Bosses are tougher: 10% more life and harder hits (Act I at Dread 0 keeps its old hits)", "Dread 6 to 10 ramps a little harder", "Four new Daily modifiers: Thin Air, Long Night, Hoard, Swift Tide", "Three new passives: Keen Eye (4-card rewards), Hearth (better rests), Spare Flask (extra potion)"]},
