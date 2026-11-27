@@ -1148,7 +1148,7 @@ img.cfig{width:auto}
 /* store + cosmetics */
 .abtn.cash{font:800 15px/1 var(--num);color:#9be8a6;letter-spacing:0}
 .aearn{font:700 12px/1 var(--num);color:var(--dim)}
-.fswatch{display:block;width:40px;height:54px;border:3px solid transparent;background:#100d14} .drafts.d4{display:grid;grid-template-columns:repeat(2,112px);justify-content:center;gap:4px 18px} .drafts.d4 .cslot{width:112px;max-width:none;flex:none} .acard.mx .ac-face{filter:drop-shadow(0 0 2px #ffcf6e) drop-shadow(0 0 5px rgba(255,190,80,.45))} img.cfig.fsw{width:40px!important;height:55px!important;object-fit:contain;image-rendering:pixelated}
+.fswatch{display:block;width:40px;height:54px;border:3px solid transparent;background:#100d14} .ccwith{position:absolute;left:50%;bottom:-1px;transform:translateX(-50%);padding:3px 8px 2px;font:400 10.667px/1 var(--display);letter-spacing:.06em;text-transform:uppercase;color:#1a1208;background:#e2c676;box-shadow:0 0 0 2px #07060a;white-space:nowrap} .ccq{font:400 44px/1 var(--display);color:#4e4554;text-shadow:0 2px 0 #07060a} .ci-fig .ccq{font-size:56px;display:grid;place-items:center;width:100%;height:100%} .drafts.d4{display:grid;grid-template-columns:repeat(2,112px);justify-content:center;gap:4px 18px} .drafts.d4 .cslot{width:112px;max-width:none;flex:none} .acard.mx .ac-face{filter:drop-shadow(0 0 2px #ffcf6e) drop-shadow(0 0 5px rgba(255,190,80,.45))} img.cfig.fsw{width:40px!important;height:55px!important;object-fit:contain;image-rendering:pixelated}
 .fswatch.obsidian{border-image:var(--frt-obsidian) 3 / 6px stretch}.fswatch.bone{border-image:var(--frt-bone) 3 / 6px stretch}
 #app.cfr-obsidian .gcard:not(.back),#app.cfr-obsidian .gcard.demon{border-image:var(--frt-obsidian) 3 / 8px stretch}
 #app.cfr-bone .gcard:not(.back),#app.cfr-bone .gcard.demon{border-image:var(--frt-bone) 3 / 8px stretch}
@@ -2767,7 +2767,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy life and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.124-test'; // bump for every build you send to testers
+const VERSION = '0.125-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -2791,12 +2791,12 @@ const CARDS = {
   prayer:   {a:{n:'Prayer',c:1,mana:2},           d:{n:'Pact',c:0,mana:3,selfP:4}},
   aegis:    {a:{n:'Aegis',c:2,blk:12},            d:{n:'Crush',c:2,dmg:8,shatter:1}},
   judgement:{a:{n:'Gavel',c:2,dmg:5,perJ:3},      d:{n:'Wages',c:2,dmg:5,perS:3}},
-  halo:     {a:{n:'Halo',c:2,regen:3,turns:3},    d:{n:'Wrath',c:2,st:[['might',3,3]]}},
+  halo:     {a:{n:'Halo',c:1,regen:3,turns:3},    d:{n:'Wrath',c:1,st:[['might',3,3]]}},
   purge:    {a:{n:'Quell',c:1,silence:2},         d:{n:'Rot',c:1,st:[['poison',6]]}},
-  sanctuary:{a:{n:'Sanctuary',c:2,blk:6,heal:3},  d:{n:'Hellfire',c:3,dmg:12,all:1,mc:2}},
+  sanctuary:{a:{n:'Sanctuary',c:2,blk:9,heal:4},  d:{n:'Hellfire',c:3,dmg:14,all:1,mc:1}},
   insight:  {a:{n:'Insight',c:1,draw:2},          d:{n:'Hunger',c:0,draw:1,selfP:4}},
   radiance: {a:{n:'Radiance',c:1,dmg:9,judge:2},  d:{n:'Ash',c:1,dmg:3,all:1,sinN:2,st:[['burn',1,2]]}},
-  whisper:  {a:{n:'Stigmata',c:0,blk:3,blkL:1},   d:{n:'Carnage',c:2,dmg:18,selfP:6}},
+  whisper:  {a:{n:'Stigmata',c:0,blk:4,blkL:1},   d:{n:'Carnage',c:2,dmg:18,selfP:4}},
   martyr:   {a:{n:'Martyrdom',c:1,healL:.5,mana:1}, d:{n:'Wounds',c:1,dmg:4,dmgL:1}},
   // Judgement & Sin meters: Judge cards fill Judgement for the Demon to spend; Sin cards fill Sin for the Angel to spend
   chorus:   {a:{n:'Litany',c:1,dmg:2,hits:3},     d:{n:'Flurry',c:1,dmg:2,hits:3}},
@@ -2810,10 +2810,10 @@ const CARDS = {
   unbind:   {a:{n:'Unbind',c:1,freeSw:1,draw:1},  d:{n:'Unbind',c:1,freeSw:1,burst:3}},
   blessing: {a:{n:'Conflagrate',c:1,detonate:'burn'}, d:{n:'Contagion',c:1,spread:'poison'}},
   consecrate:{a:{n:'Consecrate',c:1,dmg:4,st:[['burn',3,3]]}, d:{n:'Black Brand',c:0,st:[['doom',10,2]],selfP:3}},
-  bloodprice:{a:{n:'Atonement',c:1,blk:6,mana:1},    d:{n:'Blood Rite',c:0,ap:2,bp:1,selfP:10}},
-  lance:    {a:{n:'Lance',c:2,dmg:8,pierce:1},     d:{n:'Impale',c:2,dmg:12,pierce:1,selfP:4}},
+  bloodprice:{a:{n:'Atonement',c:1,blk:7,mana:2},    d:{n:'Blood Rite',c:0,ap:2,bp:1,selfP:10}},
+  lance:    {a:{n:'Lance',c:2,dmg:10,pierce:1},     d:{n:'Impale',c:2,dmg:14,pierce:1,selfP:4}},
   bulwark:  {a:{n:'Bulwark',c:2,blk:10,draw:1},    d:{n:'Spite',c:1,blkdmg:1}},
-  grace:    {a:{n:'Grace',c:0,ap:1,heal:2},        d:{n:'Slaughter',c:2,dmg:22,selfP:7}},
+  grace:    {a:{n:'Grace',c:0,ap:1,heal:2},        d:{n:'Slaughter',c:2,dmg:22,selfP:5}},
   vigil:    {a:{n:'Vigil',c:1,blk:5,uc:2},         d:{n:'Bloodlust',c:1,burst:4,selfP:4}},
   mercy:    {a:{n:'Mercy',c:1,dmg:4,all:1,heal:3}, d:{n:'Ruin',c:3,dmg:9,all:1,shatter:1,mc:2}},
   pillar:   {a:{n:'Rampart',c:2,blk:8,keepBlk:1},  d:{n:'Maw',c:2,dmg:8,ls:50}},
@@ -2824,16 +2824,16 @@ const CARDS = {
   dawn:     {a:{n:'Dawnbreak',c:2,dmg:7,all:1,exp:'shadow',expT:1}, d:{n:'Nightfall',c:2,dmg:7,all:1,exp:'holy',expT:1}},
   kindle:   {a:{n:'Kindle the Dark',c:0,draw:1,emp:'shadow',empT:1}, d:{n:'Blacken the Light',c:0,selfP:4,emp:'holy',empT:1}},
   haste:    {a:{n:'Halo of Blades',c:1,dmg:4,nextFree:'demon'}, d:{n:'Pact of Haste',c:1,dmg:4,nextFree:'angel'}},
-  ashen:    {a:{n:'Ashen Guard',c:2,blk:9,weak:1}, d:{n:'Ashen Grip',c:1,dmg:5,leech:1}},
+  ashen:    {a:{n:'Ashen Guard',c:2,blk:8,weak:1}, d:{n:'Ashen Grip',c:1,dmg:5,leech:1}},
   debt:     {a:{n:'Debt of Light',c:1,dmg:4,all:1,leech:1}, d:{n:'Debt of Blood',c:2,dmg:12,selfP:7,exp:'holy',expT:1}},
   feast:    {a:{n:'Purging Light',c:2,dmg:6,perCurse:3}, d:{n:'Devour',c:2,dmg:6,healCurse:2}},
-  lanternv: {a:{n:'Lantern Vigil',c:1,blk:5,leech:2}, d:{n:'Rend the Veil',c:1,dmg:5,shatter:1,exp:'holy',expT:1}},
+  lanternv: {a:{n:'Lantern Vigil',c:1,blk:4,leech:2}, d:{n:'Rend the Veil',c:1,dmg:5,shatter:1,exp:'holy',expT:1}},
   // status cards: several set up a buff for the other form (the 4th value locks it to that form)
   oath:     {a:{n:'Dawn Oath',c:1,blk:5,st:[['might',2,2,'demon']]}, d:{n:'Dusk Oath',c:1,dmg:5,st:[['ward',3,2,'angel']]}},
-  brand3:   {a:{n:'Cleansing Fire',c:1,dmg:4,st:[['burn',3,3]],cleanse:'burn'}, d:{n:'Hellbrand',c:1,dmg:3,st:[['burn',4,3]],selfP:5}},
+  brand3:   {a:{n:'Cleansing Fire',c:1,dmg:4,st:[['burn',3,3]],cleanse:'burn'}, d:{n:'Hellbrand',c:1,dmg:3,st:[['burn',4,3]],selfP:2}},
   venom:    {a:{n:'Holy Water',c:1,heal:3,st:[['regen',3,3]]}, d:{n:'Venom',c:1,dmg:2,st:[['poison',5]]}},
   thorn:    {a:{n:'Thornguard',c:2,blk:8,st:[['thorns',3,2]]}, d:{n:'Barbed Hide',c:1,dmg:4,st:[['thorns',5,2]]}},
-  sacrament:{a:{n:'Sacrament',c:1,heal:3,leech:2}, d:{n:'Bloodfeast',c:2,dmg:9,ls:50}},
+  sacrament:{a:{n:'Sacrament',c:1,heal:2,leech:2}, d:{n:'Bloodfeast',c:2,dmg:9,ls:50}},
   doomsday: {a:{n:'Doomsday',c:2,st:[['doom',24,2]]}, d:{n:'Death Mark',c:1,st:[['doom',12,1]]}},
   sanctify: {a:{n:'Confession',c:1,blk:4,judge:2}, d:{n:'Original Sin',c:1,sinN:2,all:1,weak:1}},
   meditate: {a:{n:'Meditate',c:0,mana:1,draw:1}, d:{n:'Gluttony',c:0,mana:4,selfP:8}},
@@ -2848,7 +2848,7 @@ const CARDS = {
   pestilence:{a:{n:'Holy Pyre',c:1,stX:'burn',all:1}, d:{n:'Pestilence',c:1,stX:'poison',all:1}},
   // v0.40: the first rarity set
   lantern:  {a:{n:'Lantern Swing',c:1,dmg:5,cross:4}, d:{n:'Chain Whip',c:1,dmg:5,twin:1}},
-  tithe:    {a:{n:'Tithe',c:1,self:3,mana:2,blk:4}, d:{n:'Bloodtithe',c:1,self:3,st:[['might',2,0]]}},
+  tithe:    {a:{n:'Tithe',c:1,self:2,mana:2,blk:5}, d:{n:'Bloodtithe',c:1,self:2,st:[['might',2,0]]}},
   halotoss: {a:{n:'Halo Toss',c:1,dmg:4,retKill:1}, d:{n:'Horn Gore',c:1,dmg:8,apKill:1}},
   alms:     {a:{n:'Alms',c:1,heal:4,goldFull:6},   d:{n:'Extortion',c:1,dmg:6,goldKill:8}},
   bell:     {a:{n:'Judgement Bell',c:0,bellJ:1},     d:{n:"Sinner's Bell",c:0,bellS:1}},
@@ -3625,14 +3625,14 @@ const ER_CARDS = {
   er_ignite:   {a:{n:'Ignition',c:1,dmg:4,ht:4},               d:{n:'Cold Bite',c:1,dmg:3,all:1,st:[['chill',1,2]]}},
   er_heatwave: {a:{n:'Heatwave',c:1,draw:1,ht:5},              d:{n:'Frost Wall',c:1,blk:2,vent:3}},
   er_backdraft:{a:{n:'Backdraft',c:1,dmg:7,ht:-2},             d:{n:'Steam Burst',c:1,dmg:5,all:1}},
-  er_pyre:     {a:{n:'Bonfire',c:3,dmg:19,ht:4},                  d:{n:'Avalanche',c:3,dmg:12,all:1}},
+  er_pyre:     {a:{n:'Bonfire',c:3,dmg:22,ht:4},                  d:{n:'Avalanche',c:3,dmg:14,all:1}},
   er_smoke:    {a:{n:'Smoke',c:1,weak:2},                 d:{n:'Deep Freeze',c:2,freeze:1}},
   er_bellows:  {a:{n:'Bellows',c:1,ap:1,ht:3},                 d:{n:'Cold Focus',c:1,draw:2}},
-  er_meteor:   {a:{n:'Meteor',c:3,dmg:13,all:1,ht:4},          d:{n:'Ice Comet',c:3,dmg:16,vent:2}},
+  er_meteor:   {a:{n:'Meteor',c:3,dmg:15,all:1,ht:4},          d:{n:'Ice Comet',c:3,dmg:18,vent:2}},
   er_cauter:   {a:{n:'Cauterise',c:1,heal:6,cleanse:'rot'},             d:{n:'Frost Ward',c:1,st:[['ward',4,2]]}},
   er_ash:      {a:{n:'Ash Veil',c:1,blk:5,keepBlk:1},               d:{n:'Mist',c:1,blk:3,draw:1}},
   er_wildfire: {a:{n:'Wildfire',c:2,all:1,st:[['burn',3,3]]}, d:{n:'Rime Field',c:2,blk:6,all:1,st:[['chill',1,2]]}},
-  er_sear:     {a:{n:'Sear',c:1,dmg:9,selfP:3},           d:{n:'Ice Pick',c:1,dmg:5,xFrozen:2}},
+  er_sear:     {a:{n:'Sear',c:1,dmg:9,selfP:2},           d:{n:'Ice Pick',c:1,dmg:5,xFrozen:2}},
   er_forge:    {a:{n:'Forge',c:2,st:[['might',2,3]]},     d:{n:'Slow Thaw',c:2,st:[['regen',3,3]]}},
   er_phoenix:  {a:{n:'Phoenix Flame',c:2,heal:8},         d:{n:'Snowfall',c:2,heal:4,all:1,st:[['chill',1,2]]}},
   er_combust:  {a:{n:'Combust',c:2,dmg:6,hits:2},         d:{n:'Splinter',c:2,dmg:4,hits:3}},
@@ -3640,7 +3640,7 @@ const ER_CARDS = {
   er_magma:    {a:{n:'Magma Hide',c:2,blk:7,st:[['thorns',3,2]]}, d:{n:'Rime Mail',c:2,blk:7,st:[['chill',1,2]]}},
   er_fan:      {a:{n:'Fan the Flames',c:0,draw:2,ht:4},        d:{n:'Deep Breath',c:1,mana:3}},
   er_blaze:    {a:{n:'Blaze',c:2,dmg:9,st:[['burn',2,2]]}, d:{n:'Glacial Spike',c:2,dmg:8,st:[['chill',1,2]]}},
-  er_storm:    {a:{n:'Cinderstorm',c:3,dmg:6,all:1,hits:2}, d:{n:'Whiteout',c:3,blk:8,all:1,st:[['chill',1,3]]}},
+  er_storm:    {a:{n:'Cinderstorm',c:3,dmg:7,all:1,hits:2}, d:{n:'Whiteout',c:3,blk:10,all:1,st:[['chill',1,3]]}},
   er_offering: {a:{n:'Burnt Offering',c:0,selfP:3,ap:2,spent:1},  d:{n:'Cold Blood',c:0,selfP:2,mana:3,spent:1}},
   er_lantern:  {a:{n:'Lantern',c:1,heal:3,draw:1},        d:{n:'Snow Globe',c:1,blk:4,draw:1}},
   er_searing:  {a:{n:'Searing Brand',c:2,dmg:8,st:[['burn',3,3]]}, d:{n:'Frozen Heart',c:2,blk:5,st:[['regen',2,3]]}},
@@ -3652,8 +3652,8 @@ const ER_CARDS = {
   er_fuel:     {a:{n:'Fuel the Core',c:0,ht:4,selfP:3},        d:{n:'Flash Freeze',c:2,freeze:1,all:0,st:[['chill',1,2]]}},
   // v0.53: the first rarity set for this duo
   er_tinder:   {a:{n:'Tinderbox',c:1,st:[['burn',4,3]],draw:1}, d:{n:'Snowblind',c:1,st:[['chill',1,2]],weak:1,draw:1}},
-  er_coals:    {a:{n:'Banked Coals',c:1,blk:6,keepBlk:1,ht:2}, d:{n:'Cold Storage',c:1,blk:6,keepBlk:1}},
-  er_cascade:  {a:{n:'Firefall',c:2,dmg:3,hits:2,all:1},  d:{n:'Glacier Fall',c:2,dmg:7,all:1,xFrozen:2}},
+  er_coals:    {a:{n:'Banked Coals',c:1,blk:5,keepBlk:1,ht:2}, d:{n:'Cold Storage',c:1,blk:5,keepBlk:1}},
+  er_cascade:  {a:{n:'Firefall',c:2,dmg:4,hits:2,all:1},  d:{n:'Glacier Fall',c:2,dmg:8,all:1,xFrozen:2}},
   er_boiling:  {a:{n:'Boiling Point',c:1,heatBurst:2},         d:{n:'Glass Armour',c:1,blk:4,vent:3}},
   // v0.85: a Burn payoff and a legendary per build
   er_smoulder: {a:{n:'Smoulder',c:1,all:1,st:[['burn',2,2]],burnUp:2}, d:{n:'Steam Cloud',c:1,blk:4,blkBurn:10}},
@@ -8718,13 +8718,13 @@ function vCompanions() {
   const esl = COMP_SLOTS.includes(S.eslot) ? S.eslot : 'Collar', nOwn = sl => COMP_GEAR.filter(x => x.s === sl && META.arm.own[x.id]).length;
   const worn = slotGrid(COMP_GEAR, COMP_SLOTS, esl, 'eslot');
   const rt = S.rtab || 'comps', rtabs = [['comps', 'Companions'], ['gear', 'Equipment']].map(([k, n]) => `<button class="dtab ${k === rt ? 'on' : ''}" data-act="rtab" data-i="${k}">${n}</button>`).join('');
-  const rows = Object.entries(COMPANIONS).map(([id, c]) => { const own = META.comps[id], on = cs === id;
+  const rows = Object.entries(COMPANIONS).sort((x, y) => (META.comps[y[0]] ? 1 : 0) - (META.comps[x[0]] ? 1 : 0)).map(([id, c]) => { const own = META.comps[id], on = cs === id;
     const act = (own ? `<button class="abtn ${on ? 'eqd' : 'eq'}" data-act="comp" data-i="${on ? 'none' : id}">${on ? '✓ Coming' : 'Bring'}</button>` : '<span class="alock">Locked</span>') + `<button class="alink" data-act="compinfo" data-i="${id}" aria-label="About ${own ? c.n : 'this companion'}">Info</button>`;
     // a collection card: big figure in a frame, name, and one action; tap the figure to read about it
-    return `<div class="ccard${on ? ' on' : ''}${own ? '' : ' lk'}" data-comp="${id}"><button class="ccfig ktile ${on ? 'r-legendary' : own ? 'r-epic' : ''}" data-act="compinfo" data-i="${id}" aria-label="About ${own ? c.n : 'this companion'}">${rdot(own && !META.compSeen[id])}${compFig(id, own ? '' : 'unseen')}${own ? '' : `<span class="cclock">${pxi('lock')}</span>`}</button>
-      <b>${own ? c.n : '???'}</b><small>${own ? c.kind : ''}</small>${own ? `<button class="btn${on ? '' : ' pri'} ccbtn" data-act="comp" data-i="${on ? 'none' : id}">${on ? 'With you' : 'Bring'}</button>` : ''}</div>`; }).join('');
+    return `<div class="ccard${on ? ' on' : ''}${own ? '' : ' lk'}" data-comp="${id}"><button class="ccfig ktile ${on ? 'r-legendary' : own ? 'r-epic' : ''}" data-act="compinfo" data-i="${id}" aria-label="About ${own ? c.n : 'this companion'}">${rdot(own && !META.compSeen[id])}${own ? compFig(id, '') : '<span class="ccq">?</span>'}${on ? '<i class="ccwith">With you</i>' : ''}</button>
+      <b>${own ? c.n : '???'}</b><small>${own ? c.kind : '&nbsp;'}</small></div>`; }).join('');
   return `<div class="screen armory"><div class="ahead">${hback('camp')}${sprite('gear-den', 'arack')}<div><h2>The Den</h2></div></div>
-    <i class="pg-split"></i>${true ? `<div class="ccards">${rows}</div><p class="mintro"><button class="alink" data-act="petgear">Companion gear is on the Gear screen</button></p>`
+    <i class="pg-split"></i>${true ? `<p class="mintro">Tap a companion to bring it</p><div class="ccards">${rows}</div><p class="mintro"><button class="alink" data-act="petgear">Companion gear is on the Gear screen</button></p>`
       : `<p class="mintro">Helps any companion</p><div class="cslots four big">${worn}</div><div class="mksec"><span>${esl}</span><em class="mtimer">${COMP_SLOTS.filter(sl => META.arm.eq[sl]).length} of 4 equipped</em></div>${equipList(COMP_GEAR, esl, 'Nothing for this slot yet. Find pet gear in fights or the <button class="alink" data-act="market">Black Market</button>.')}`}
 </div>`;
 }
@@ -8733,6 +8733,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
+  {v: '0.125', d: '27 Nov', n: ["The Den is cleaner: companions you own come first, the one with you is tagged, and companions you haven't found stay a mystery", "Card balance pass, every card tested on its own", "Stronger: Atonement, Sanctuary, Hellfire, Stigmata, Carnage, Halo and Wrath (now 1 energy), Hellbrand, Tithe, Bloodtithe, Lance, Impale, Slaughter, Cinderstorm, Whiteout, Bonfire, Avalanche, Firefall, Glacier Fall, Meteor, Ice Comet, Sear", "Weaker: Banked Coals, Cold Storage, Ashen Guard, Sacrament, Lantern Vigil"]},
   {v: '0.124', d: '27 Nov', n: ["Five place events, one per place: The Grave Angel, The Last Coal, The Bog Spring, The Frozen Font, The Watcher", "Five new bosses are built and waiting for their art"]},
   {v: '0.123', d: '27 Nov', n: ["Card frames work again, and recolour the real card art. Four new frames: Blood, Ashen, Gilt (600 souls) and Verdigris (win 25 runs)", "Cards at +15 get a gold edge and glow", "Bosses are tougher: 10% more life and harder hits (Act I at Dread 0 keeps its old hits)", "Dread 6 to 10 ramps a little harder", "Four new Daily modifiers: Thin Air, Long Night, Hoard, Swift Tide", "Three new passives: Keen Eye (4-card rewards), Hearth (better rests), Spare Flask (extra potion)"]},
   {v: '0.122.1', d: '27 Nov', n: ["Fixed: loot said 'Healing Potion potion'", "Fixed: the deck builder could crash on an empty deck", "The satchel's free potion is named Healing Potion"]},
@@ -8912,6 +8913,7 @@ function vSheet() {
 }
 // the companion info panel: what it does in a fight, its passive bonus, its run perk, and the gear that helps it
 function vCompInfo(id) { const c = COMPANIONS[id]; if (!c) return '<h2>Unknown</h2>';
+  if (!META.comps[id]) return `<h2>???</h2><div class="ci-head"><span class="ci-fig"><span class="ccq">?</span></span><span class="ci-meta"><b>???</b><small>Not found yet</small></span></div><p class="ci-lock">A rare Legendary drop, or sold at the Black Market.</p>`; // nothing about a companion shows until you have it
   const own = META.comps[id], on = META.comp === id && own, wrong = c.duo && c.duo !== META.duoSel;
   const sec = (tag, cls, n, d) => `<div class="ci-sec ${cls}"><b class="ci-n">${n}</b> <span class="ci-tag">${tag}</span><p class="ci-d">${d}</p></div>`;
   const lv = loyLv(id), x = LOY()[id] || 0, nx = LOY_AT[lv] || null, prev = LOY_AT[lv - 1] || 0, S0 = S.comp; S.comp = id; // read the numbers at this companion's loyalty
