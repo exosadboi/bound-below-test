@@ -2767,7 +2767,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy life and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.126-test'; // bump for every build you send to testers
+const VERSION = '0.127-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -3109,19 +3109,19 @@ const COMPANIONS = {
     secret:'Extra loot from elites. Loyalty 3: the Wolf Den. Loyalty 5: more from the Twin Seraph.',
     door:{n:'The Wolf Den', t:'Ashfang growls at a gap in the rocks. Something big sleeps inside.', o:[{l:'Let it hunt', d:'Lose 6 life, take an epic reward', ok: () => P().hp > 6, go: () => { hurt(6); eventDrop('epic', 'The den gives up its hoard'); }}]}},
   cat:{n:'Omen', kind:'Black cat', cost:260, tag:'lucky', boss:'witch',
-    focus:() => `Crits: +${5 + compLv()}% crit chance. Once a run, survive a killing blow.`,
+    focus:() => `Crits: +${4 + 3 * compLv()}% crit chance. Once a run, survive a killing blow.`,
     combo:{on:'crit', need:2, n:'Lucky streak', d:() => '2 crits in a turn: draw 1', go: p => { draw(1); }},
     spell:{n:'Black Luck', m:2, cd:4, e:{}, fx: p => { p.critNext = 1; log('Your next hit will crit.'); }, txt:'Your next hit crits'},
     secret:'Better chests 25% of the time, better Gambler odds. Loyalty 3: the Crossroads. Loyalty 5: more from the Witch.',
     door:{n:'The Crossroads', t:'Omen sits where four roads meet and will not move.', o:[{l:'Follow the cat', d:'Choose a boon', go: () => { offerBoon('Omen found something', 'event'); }}]}},
   imp:{n:'Cinder', kind:'Imp', cost:290, tag:'steals', boss:'tyrant',
-    focus:() => `Spells: +${3 + Math.floor((compLv() - 1) / 2)} max mana, and your first spell each fight is free. +25% gold.`,
-    combo:{on:'spell', need:2, n:'Pocket mana', d:() => `Cast 2 spells in a turn: +${cs(3)} mana, draw 1`, go: p => { p.mana = Math.min(p.maxMana, p.mana + cs(3)); draw(1); }},
-    spell:{n:'Siphon', m:0, cd:2, e:{}, fx: p => { p.mana = Math.min(p.maxMana, p.mana + cs(3)); }, txt:() => `+${cs(3)} mana`},
+    focus:() => `Spells: +${3 + compLv()} max mana, and your first spell each fight is free. +25% gold.`,
+    combo:{on:'spell', need:2, n:'Pocket mana', d:() => `Cast 2 spells in a turn: +${cs(4)} mana, draw 1`, go: p => { p.mana = Math.min(p.maxMana, p.mana + cs(4)); draw(1); }},
+    spell:{n:'Siphon', m:0, cd:2, e:{}, fx: p => { p.mana = Math.min(p.maxMana, p.mana + cs(4)); }, txt:() => `+${cs(4)} mana`},
     secret:'Merchant prices 15% lower. Loyalty 3: the Black Bargain. Loyalty 5: more from the Ember Tyrant.',
     door:{n:'The Black Bargain', t:'Cinder knows a stall that only opens for imps.', o:[{l:'Strike the deal', d:'Lose 5 max life, choose a card', ok: () => P().maxHp > 30, go: () => { const p = P(); p.maxHp -= 5; p.hp = Math.min(p.hp, p.maxHp); S.picks = cardPicks(); S.screen = 'reward'; }}]}},
   crow:{n:'Morrow', kind:'Crow', cost:320, tag:'watches', boss:'starfall',
-    focus:() => `Block ${cs(1)} each turn per kill. Doors show what is behind them.`,
+    focus:() => `Block ${cs(2)} each turn per kill. Doors show what is behind them.`,
     combo:{on:'switch', need:1, n:'Circle', d:() => 'Your first switch each turn: draw 1', go: p => { draw(1); }},
     spell:{n:'Peck', m:1, cd:1, e:{dmg:6}, pre: () => { const t = F().en[F().tgt]; if (t) t.blk = Math.max(0, t.blk - cs(6)); }, txt:() => `${cs(6)} damage, strips ${cs(6)} block`},
     secret:'Every door is scouted. Loyalty 3: the Carrion Field. Loyalty 5: more from the Fallen Star.',
@@ -3133,8 +3133,8 @@ const COMPANIONS = {
     secret:'Rest sites also give 4 max life. Loyalty 3: the Stone Shrine. Loyalty 5: more from the Rime Colossus.',
     door:{n:'The Stone Shrine', t:'Grimshell crawls to a mossy altar and settles against it.', o:[{l:'Rest with it', d:'+6 max life', go: () => { const p = P(); p.maxHp += 6; p.hp += 6; return 'The stone is warm. +6 max life.'; }}]}},
   rat:{n:'Gnaw', kind:'Plague rat', cost:300, tag:'spreads', boss:'plague',
-    focus:() => `Afflictions: every Poison, Burn or Doom you apply is +${compLv() >= 4 ? 2 : 1}.`,
-    combo:{on:'aff', need:3, n:'Infestation', d:() => `Apply 3 afflictions in a turn: Poison ${cs(3)} on all`, go: p => { alive().forEach(t => addSt(t, 'poison', cs(3))); }},
+    focus:() => `Afflictions: every Poison, Burn or Doom you apply is +${1 + Math.floor((compLv() - 1) / 2)}.`,
+    combo:{on:'aff', need:3, n:'Infestation', d:() => `Apply 3 afflictions in a turn: Poison ${cs(4)} on all`, go: p => { alive().forEach(t => addSt(t, 'poison', cs(4))); }},
     spell:{n:'Infest', m:1, cd:2, e:{st:[['poison',4]]}},
     secret:'+10% gold. Loyalty 3: the Rat Warren. Loyalty 5: more from the Plague Mother.',
     door:{n:'The Rat Warren', t:'Gnaw squeezes into a crack and comes back with something shiny.', o:[{l:'See what it found', d:'40 gold and a potion', go: () => { const g = gold(40); S.gold += g; S.goldRun = (S.goldRun || 0) + g; if (P().pots.length < 3) P().pots.push('h'); save(); return 'Gnaw drops ' + g + ' gold at your feet, and a potion.'; }}]}},
@@ -3157,8 +3157,8 @@ const COMPANIONS = {
     secret:'Loyalty 3: the Confessional. Loyalty 5: more from the Gatekeeper.',
     door:{n:'The Confessional', t:'Vesper beats against a grille. A voice behind it waits.', o:[{l:'Confess', d:'Heal 10. Start the next fight with 4 Judgement and 4 Sin', go: () => { heal(10); S.evMet = {judg: 4, sin: 4}; return 'The grille closes. You feel lighter, and heavier.'; }}]}},
   ashwing:{n:'Ashwing', kind:'Kiln moth', cost:300, tag:'fans', duo:'ember', boss:'furnace',
-    focus:() => 'Overheat hurts you 3 less. Each Vent: Block 2.',
-    combo:{on:'ovh', need:1, n:'Draft', d:() => 'Overheat: +1 energy and draw 1', go: p => { p.ap += 1; draw(1); }},
+    focus:() => `Overheat hurts you 2 less. Each Vent: Block ${cs(2)}.`,
+    combo:{on:'ovh', need:1, n:'Draft', d:() => 'Overheat: +1 energy', go: p => { p.ap += 1; }},
     spell:{n:'Cool Wings', m:1, cd:2, e:{blk:4}, fx: p => { p.heat = Math.max(0, (p.heat || 0) - 3); }, txt:() => `${cs(4)} block, -3 Heat`},
     secret:'Loyalty 3: the Furnace door. Loyalty 5: more from the Furnace guardian.',
     door:{n:'The Old Furnace', t:'Ashwing circles a cold furnace until the coals catch.', o:[{l:'Warm yourself', d:'Heal 10. Start the next fight with 6 Heat', go: () => { heal(10); S.evMet = {heat: 6}; return 'The fire takes. You leave warm.'; }}]}},
@@ -3453,7 +3453,7 @@ const stV = (h, id) => { const x = stOn(h, id); return x ? x.v : 0; };
 function addSt(h, id, v, t, f) { if (id === 'burn' && S.p && h !== S.p && boon('rotgarden')) return; if (!h.st) h.st = {}; if (id === 'chill' && t && TR('winterheart')) t++; if (id === 'chill' && t && S.p && h !== S.p && boon('hoarfrost')) t++;
   if (id === 'chill' && S.p && h !== S.p && HEATD() && dmode() === 'unD') { h.chN = (h.chN || 0) + 1; if (h.chN >= 4 && !h.frzd) { h.chN = 0; h.frzd = 1; h.frozen = Math.max(h.frozen || 0, 1); fxe('frz', {t: h}); log(h.n + ' freezes solid.'); } }
   if (id === 'burn' && h !== S.p && S.p && S.p.evb) v += 1; // Everburn
-  if (h !== S.p && S.f && S.p && ['poison', 'burn', 'doom'].includes(id)) { if (compOn('rat')) v += compLv() >= 4 ? 2 : 1; S.p.affT = (S.p.affT || 0) + 1; compCombo('aff', S.p.affT); }
+  if (h !== S.p && S.f && S.p && ['poison', 'burn', 'doom'].includes(id)) { if (compOn('rat')) v += 1 + Math.floor((compLv() - 1) / 2); S.p.affT = (S.p.affT || 0) + 1; compCombo('aff', S.p.affT); }
   if (h !== S.p && S.f && ST_FX[id] && !FXQ.some(q => q.k === 'stap' && q.t === h && q.id === id)) fxe('stap', {t: h, id});
   if (h === S.p) { if (f && t && eqd('twinhalo')) t += gstp('twinhalo', 1, 7); if (f && id !== 'weak' && id !== 'frail') v = Math.ceil(v * (1 + .2 * TR('oathkeeper'))); if (id === 'regen' || id === 'ward') v = Math.ceil(v * (1 + .15 * TR('sanctity'))); }
   const o = h.st[id];
@@ -4146,7 +4146,7 @@ function dmgMult(e, t, ty) { const p = P();
   if (boon('lonely') && S.f && alive().length === 1) m += .2;
   if (!HEATD()) { const dm = dmode(); if ((dm === 'unA' && p.form === 'demon') || (dm === 'unD' && p.form === 'angel')) m *= .75; }
   return m; }
-const impMana = () => META.comp === 'imp' && META.comps.imp ? 3 + Math.floor((loyLv('imp') - 1) / 2) : 0;
+const impMana = () => META.comp === 'imp' && META.comps.imp ? 3 + loyLv('imp') : 0;
 const wellMana = () => eqd('wellstone') ? 2 + Math.floor((ilv('wellstone') - 1) / 2) : 0;
 // what a spell costs right now: Frugal Prayers takes 1 off, Thrift Beads 1 off the first spell(s) of a fight; a costed spell never drops below 1
 const spM = s => { if (!s.m) return 0; if (S.p && S.f && compOn('imp') && !S.p.spN) return 0; const p = S.p, bead = eqd('thriftbeads') && p && (p.spN || 0) < gstp('thriftbeads', 1, 5) ? 1 : 0; return Math.max(1, s.m - (boon('frugal') ? 1 : 0) - bead); };
@@ -4418,7 +4418,7 @@ function addHeat(n) { const p = P(); if (!HEATD() || !n || dmode() === 'unD') re
 function overheat() { P().ovhT = true; charge(2); const p = P(), d = (dmode() === 'unA' ? 12 : 10) + 3 * Math.min(2, (S.act || 1) - 1) + TR('pyreheart') + (boon('wildheat') ? 5 : 0) - (boon('kindled') ? 3 : 0) + (eqd('coalheart') ? 3 + Math.floor((ilv('coalheart') - 1) / 2) : 0), burn = TR('livingflame') || p.sunH || boon('kindled') ? 0 : Math.floor(Math.max(1, 4 - Math.ceil(TR('fireproof') * .6)) * chEase('angel'));
   p.heat = 0; log('OVERHEAT! Flame engulfs every enemy for ' + d + '.'); sfx('big'); S.shake = true; fxe('ovh'); fxe('ult', {form: 'angel'});
   alive().forEach(x => { const h = hit(x, d); stat('dmg', h); fxe('hit', {t: x, d, col: 'angel', dead: x.hp <= 0}); if (x.hp <= 0) { x.dying = true; sfx('kill'); } });
-  const burnX = compOn('ashwing') ? Math.max(0, burn - 3) : burn; if (burnX) { loseHp(burnX, 'Overheat'); log('The heat sears you for ' + burnX + '.'); }
+  const burnX = compOn('ashwing') ? Math.max(0, burn - 2) : burn; if (burnX) { loseHp(burnX, 'Overheat'); log('The heat sears you for ' + burnX + '.'); }
   if (TR('ashborn')) healP(Math.ceil(TR('ashborn') / 2)); if (TR('flashpoint')) p.blk += TR('flashpoint'); stat('overheats'); compCombo('ovh', 1); }
 const immOf = e => { const q = e.p2on && FOES[e.id].p2; return q && q.immune ? (e.boss ? (e.form === 'light' ? 'holy' : 'shadow') : e.imm || 'holy') : null; }; // phase two: one damage type does nothing
 // the enemy a card in hand would hit, so its number shows that enemy's weakness or resistance
@@ -4494,7 +4494,7 @@ function applyEff(e) {
   if (e.sunder) ts.forEach(t => { t.blk = Math.max(0, t.blk - e.sunder); });
   let dealt = 0, leeched = 0, kills = 0, over = false; const feast = e.cHeal && tg.hp > 0 && cursed(tg), curses = e.healCurse && tg.hp > 0 ? curseN(tg) : 0;
   if (e.dmg != null || e.blkdmg) for (let n = 0; n < (e.hits || 1); n++) ts.forEach(t => {
-    if (t.hp <= 0) return; let dd = calc(e, t); if (p.opener && dd > 0) dd *= 2; if (boon('brittle') && t.frozen && dd > 0) { dd *= 3; t.frozen = 0; log('Brittle Ice: the Freeze shatters.'); } const crit = dd > 0 && (p.critNext ? !(p.critNext = 0) : Math.random() < (2 * AT('precision') + (p.form === 'demon' ? 2 * TR('savage') + 2 * TR('coldhands') : 2 * TR('stoked')) + (compOn('cat') ? 5 + compLv() + (eqd('hungryvessel') ? 5 + ilv('hungryvessel') - 1 : 0) : 0)) / 100); if (crit) { p.critT = (p.critT || 0) + 1; compCombo('crit', p.critT); }
+    if (t.hp <= 0) return; let dd = calc(e, t); if (p.opener && dd > 0) dd *= 2; if (boon('brittle') && t.frozen && dd > 0) { dd *= 3; t.frozen = 0; log('Brittle Ice: the Freeze shatters.'); } const crit = dd > 0 && (p.critNext ? !(p.critNext = 0) : Math.random() < (2 * AT('precision') + (p.form === 'demon' ? 2 * TR('savage') + 2 * TR('coldhands') : 2 * TR('stoked')) + (compOn('cat') ? 4 + 3 * compLv() + (eqd('hungryvessel') ? 5 + ilv('hungryvessel') - 1 : 0) : 0)) / 100); if (crit) { p.critT = (p.critT || 0) + 1; compCombo('crit', p.critT); }
     if (crit) { dd = Math.round(dd * 2); sfx('crit'); bounty('crits'); } if (t.id === 'gargoyle' && dd < 6) dd = 0; const hp0 = t.hp, ab = e.pierce ? 0 : Math.min(t.blk || 0, Math.max(0, dd)); // ab: what the enemy's block soaks, shown apart from the number
     const h = hit(t, dd, e.pierce); stat('dmg', h); if (dd > (STATS().maxHit || 0)) STATS().maxHit = dd; if ((boon('holyfire') || TR('holyfire')) && h > 0 && !e.ty && p.form === 'angel' && t.hp > 0) addSt(t, 'burn', 2, 2); if (boon('reaper') && t.hp > 0 && t.hp < t.max * .1) t.hp = 0; dealt += h; p.lsAcc = (p.lsAcc || 0) + h * (AT('siphon') / 2 + (p.form === 'demon' ? TR('bloodaura') / 2 : 0) + stV(p, 'vamp')) / 100;
     if (stV(t, 'thorns') && h > 0) loseHp(stV(t, 'thorns')); // status: thorns on enemies
@@ -4504,7 +4504,7 @@ function applyEff(e) {
     fxe('hit', {t, d: dd, sh: dd - ab, blk: ab, crit, col: e.ty ? 'phys' : p.form, dead: t.hp <= 0, n, ch: p.chain || 0}); if (t.hp <= 0) { t.dying = true; charge(1); } if (t.leechT) leeched += Math.floor(h / 2); if (t.mark && p.form === 'demon') t.mark = 0;
     S.bigHit = Math.max(S.bigHit || 0, dd); if (dd >= 25) bounty('bighit', dd);
     if (t.hp <= 0) { kills++; if (dd >= Math.max(20, hp0 * 2)) over = true; bounty('kills'); const V = VENG(); if (V && t.id === V.id && !V.paid && !S.daily && !S.endless) { V.paid = 1; META.souls = (META.souls || 0) + 20; fxe('call', {txt: 'Vengeance! +20 souls'}); save(); }
-      sfx('kill'); if (boon('reaper')) healP(2); if (boon('idol')) { S.idolK = (S.idolK || 0) + 1; if (S.idolK === 25) { fxe('call', {txt: 'The idol wakes'}); log('The Feeding Idol wakes: +1 energy every turn.'); } } if (eqd('hungeridol')) healP(2 + Math.floor((ilv('hungeridol') - 1) / 2)); if (compOn('wolf')) { healP(cs(2)); S.echoed = true; } if (compOn('crow')) { p.bones = (p.bones || 0) + 1; p.blk += 1; S.echoed = true; } }
+      sfx('kill'); if (boon('reaper')) healP(2); if (boon('idol')) { S.idolK = (S.idolK || 0) + 1; if (S.idolK === 25) { fxe('call', {txt: 'The idol wakes'}); log('The Feeding Idol wakes: +1 energy every turn.'); } } if (eqd('hungeridol')) healP(2 + Math.floor((ilv('hungeridol') - 1) / 2)); if (compOn('wolf')) { healP(cs(2)); S.echoed = true; } if (compOn('crow')) { p.bones = (p.bones || 0) + cs(2); p.blk += cs(2); S.echoed = true; } }
     if (t.hp <= 0) { if (TR('feast')) healP(Math.round(p.maxHp * .05)); if (TR('rampage')) p.ramp = S.rampN = Math.min(3, (S.rampN || 0) + 1); }
     if (t.hp <= 0 && p.form === 'demon') { if (TR('gorge')) log('You gorge. +' + healP(TR('gorge')) + ' life.'); if (TR('heartwrath')) { p.ap += 2; draw(1); log('Heart of Wrath: +2 energy, draw 1.'); } } });
   if (kills >= 2) { fxe('call', {txt: kills >= 3 ? 'Triple kill!' : 'Double kill!'}); bounty('multi'); S.shake = true; } else if (over) fxe('call', {txt: 'Overkill!', small: 1});
@@ -4640,7 +4640,7 @@ function playCard(i) {
   if (p.twice) { p.twice = 0; applyEff(e); log('Coffer copies it.'); }
   if (boon('seventh') && (f.nC = (f.nC || 0) + 1) === 7) { applyEff(e); fxe('call', {txt: 'Seventh Nail!', small: 1}); log('The Seventh Nail: ' + e.n + ' plays twice.'); }
   if (boon('twinwounds') && !HEATD()) addJS(fm0 === 'angel' ? 'sin' : 'judg', 1);
-  if (compOn('ashwing') && (e.vent || e.heatBurst) && h0 > 0) p.blk += 2;
+  if (compOn('ashwing') && (e.vent || e.heatBurst) && h0 > 0) p.blk += cs(2);
   if (eqd('frostvalve') && HEATD() && (e.vent || e.heatBurst) && h0 > (p.heat || 0)) p.blk += (h0 - (p.heat || 0)) * (1 + Math.floor(ilv('frostvalve') / 6));
   if (p.blk > b0) { p.blkG = (p.blkG || 0) + p.blk - b0; compCombo('block', p.blkG); } if (e.dmg != null) { p.atkT = (p.atkT || 0) + 1; compCombo('atk', p.atkT); } compCombo('card', p.playedT);
   if (p.seal && !e.seal) { const o = side(c, p.form === 'angel' ? 'demon' : 'angel'); applyEff({...o, self: 0, selfP: 0}); if (p.sealHp && p.form === 'demon') loseHp(p.sealHp); }
@@ -8741,6 +8741,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
+  {v: '0.127', d: '27 Nov', n: ["Companion balance pass, each one tested on its own", "Ashwing is weaker: Overheat hurts 2 less, and its combo gives +1 energy only", "Omen's crit chance now grows with loyalty (7% to 19%)", "Cinder: more max mana, and Siphon and its combo give more mana", "Morrow: Block 2 per kill, rising with loyalty", "Gnaw: afflictions +1 to +3 with loyalty, and a bigger combo"]},
   {v: '0.126', d: '27 Nov', n: ["Gear upgrades now always change a number: each raise jumps to the next level that does something, and costs what it skips", "Upgrades show old → new numbers", "Thrift Beads, Twin Halo, Gilded Ring, Studded Collar, Silver Bell, Oilskin Coat and Soul-cured Jerky keep growing past their first upgrade", "Boon balance pass: Phoenix Feather (20%), Reaper (heals 2), Early Grave (from turn 4), Sanguine Font (heal 2), Loaded Die (1 or 2 bites), Lonely Executioner (20%) and Coin of Three Faces (no draw) are weaker", "Easier drawbacks: Blood Price (2 life), Stubborn Chain (3 life), Cursed Locket (10% max life), Martyr's Turn (2 life), Crown of Last Breath (5 max life)", "Cursed Locket's text now says what it really does"]},
   {v: '0.125', d: '27 Nov', n: ["The Den is cleaner: companions you own come first, the one with you is tagged, and companions you haven't found stay a mystery", "Card balance pass, every card tested on its own", "Stronger: Atonement, Sanctuary, Hellfire, Stigmata, Carnage, Halo and Wrath (now 1 energy), Hellbrand, Tithe, Bloodtithe, Lance, Impale, Slaughter, Cinderstorm, Whiteout, Bonfire, Avalanche, Firefall, Glacier Fall, Meteor, Ice Comet, Sear", "Weaker: Banked Coals, Cold Storage, Ashen Guard, Sacrament, Lantern Vigil"]},
   {v: '0.124', d: '27 Nov', n: ["Five place events, one per place: The Grave Angel, The Last Coal, The Bog Spring, The Frozen Font, The Watcher", "Five new bosses are built and waiting for their art"]},
