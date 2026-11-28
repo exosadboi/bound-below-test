@@ -2772,7 +2772,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy life and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.129-test'; // bump for every build you send to testers
+const VERSION = '0.129.1-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -7495,6 +7495,7 @@ const TUT = [
   {scr:'fight', ev:'switch', hl:'[data-act=switch]', t:() => `Tap your portrait to become the ${FN('demon')}. Every card flips to its other side.`},
   {scr:'fight', ev:'play', hl:'.hand', t:() => HEATD() ? 'Rime chills. Ember hits Chilled enemies harder. Play a card.' : 'The Demon hits harder but bleeds each turn. Play a card.'},
   {scr:'fight', ev:'end', hl:'[data-act=end]', t:'Out of energy? Press End turn for a fresh hand.'},
+  {scr:'fight', ev:'speed', hl:'.intent', t:'Enemy turn speed? Change it any time in Options.'}, // asked right after the first enemy turn
   {scr:'fight', ev:'ok', hl:'.intent', t:'Icons above enemies show their next move. Switch forms to survive.'},
 ];
 const tutStep = () => S.tut && S.p ? TUT[S.tut - 1] : null;
@@ -7506,7 +7507,7 @@ function tutEvent(ev) {
 function tutDone() { S.tut = 0; META.tut = true; save(); }
 function coach() {
   const s = tutStep(); if (!s || s.scr !== S.screen) return '';
-  return `<div class="coach"><span>${typeof s.t === 'function' ? s.t() : s.t}</span><span class="row" style="justify-content:center">${s.ev === 'ok' ? '<button class="mini on" data-act="tutok">Got it</button>' : ''}<button class="mini" data-act="tutskip">Skip tutorial</button></span></div>`;
+  return `<div class="coach"><span>${typeof s.t === 'function' ? s.t() : s.t}</span><span class="row" style="justify-content:center">${s.ev === 'ok' ? '<button class="mini on" data-act="tutok">Got it</button>' : ''}${s.ev === 'speed' ? `<button class="mini${META.opt.fast ? '' : ' on'}" data-act="tutspeed" data-i="0">Normal</button><button class="mini${META.opt.fast ? ' on' : ''}" data-act="tutspeed" data-i="1">Fast</button>` : ''}${s.ev === 'speed' ? '' : '<button class="mini" data-act="tutskip">Skip tutorial</button>'}</span></div>`;
 }
 function endlessPanel() { const L = LB.local().endless || [];
   return `<div class="dailyp"><div class="dmod"><b>Draft</b><small>Build a ${edraftN()}-card deck from your library, one pick of three at a time</small></div>
@@ -8753,6 +8754,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
+  {v: '0.129.1', d: '28 Nov', n: ["The tutorial asks how fast enemy turns should play"]},
   {v: '0.129', d: '28 Nov', n: ["New players meet their duo and go straight into their first run", "The camp only shows places you can use, plus the next one to open", "A raised attack shows its damage on the target's life bar, with a skull if it kills", "Online leaderboard for Endless and the Daily", "Your companion stays tappable when an enemy's name drifts over it"]},
   {v: '0.128', d: '28 Nov', n: ["Loads about twice as fast: the art is packed smaller, pixel for pixel the same", "A title shows while the game loads, not a black screen", "Enemy debuff intents are bigger and easier to read", "Status turn counters no longer sit on enemy life bars", "End turn glows when nothing is left to play", "Doors fit on small phones again"]},
   {v: '0.127.1', d: '27 Nov', n: ["Salvage lists what you can salvage first, worn gear last"]},
@@ -9799,7 +9801,7 @@ const ACT = {
   card: d => { if (busy) return; const f = F(), i = +d.i; if (f.keepMode) { const c = f.hand[i]; c.keep = !c.keep; render(); return; }
     if (!f.hand[i]) return; if (f.cArm === i) return tapPlay(i);
     f.cArm = i; render(); if (!META.tapTold) { META.tapTold = 1; save(); toast(aimed(costed(side(f.hand[i]))) ? 'Tap an enemy, or tap the card again' : 'Tap again to play'); } },
-  tutok: () => { tutEvent('ok'); render(); }, tutskip: () => { tutDone(); render(); },
+  tutok: () => { tutEvent('ok'); render(); }, tutspeed: d => { META.opt.fast = d.i === '1'; save(); tutEvent('speed'); render(); }, tutskip: () => { tutDone(); render(); },
   tutreplay: () => { META.tut = false; save(); render(); },
   resetX: () => { S.resetArm = false; render(); },
   endAsk: () => endTurn(),
