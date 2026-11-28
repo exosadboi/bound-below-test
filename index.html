@@ -2711,6 +2711,19 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
 #app .dcode{display:flex;gap:6px} #app .dcode input{flex:1;min-width:0;min-height:40px;padding:0 8px;background:#0e0c12;border:1px solid #3a3446;color:#e8dcc4;font:400 14px/1 var(--num);letter-spacing:.04em}
 #app .emvp{margin:6px 0 2px;text-align:center;font-size:13px;color:#a69cad} #app .emvp b{color:var(--gold);font-weight:400}
 
+#app .dk2 .dpin{position:sticky;top:0;z-index:6;margin:0;padding:6px 0;background:#0b0a0e;box-shadow:0 8px 10px -6px #000}
+#app .dk2 .dchain{gap:6px 5px;padding:6px 9px} #app .dk2 .dchain .acard{width:100%}
+#app .dk2 .sc:not(.empty){display:block;aspect-ratio:auto;background:none;box-shadow:none;overflow:visible;padding:0;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:pan-y}
+#app .dk2 .sc.empty{aspect-ratio:40/58} #app .dk2 .sc.in{opacity:.4}
+#app .dk2 .dpinf{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 2px 0;font-size:12px;color:#8a7e6a}
+#app .dk2 .dflip{display:flex;align-items:center;gap:6px;min-height:36px;padding:2px 8px 2px 2px;background:rgba(10,8,12,.8);border:0;box-shadow:inset 0 0 0 1px #5a5048;color:#d8cfbc;cursor:pointer}
+#app .dk2 .dflip img{width:30px;height:30px;border-radius:50%;object-fit:cover;image-rendering:pixelated;box-shadow:0 0 0 2px #c9a95a} #app .dk2 .dflip.f-demon img{box-shadow:0 0 0 2px #c0392b} #app .dk2 .dflip small{font-size:12px}
+#app .dk2 .scgrid.cgrid{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px 6px}
+.sc.dgrab{transform:scale(1.06);transition:transform .12s} .sc.dsrc{opacity:.25!important}
+#app .sc.dghost{display:block;aspect-ratio:auto;background:none;box-shadow:none;overflow:visible;padding:0} .dghost{transform:rotate(-3deg) scale(1.08);filter:drop-shadow(0 10px 14px rgba(0,0,0,.8))} .dghost .dcheck{display:none}
+body.ddin #app .dk2 .dchain{box-shadow:inset 0 0 0 2px rgba(242,212,138,.7)} #app .dk2 .dchain.dhot{background:rgba(242,212,138,.14)}
+body.ddout.ddrop .dghost{filter:grayscale(1) brightness(.55) drop-shadow(0 10px 14px rgba(0,0,0,.8))}
+
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -2812,7 +2825,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy life and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.130-test'; // bump for every build you send to testers
+const VERSION = '0.130.1-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -7696,33 +7709,31 @@ function splitTile(id, o) { o = o || {}; const lv = cLv(id), A = faceOf(id, lv, 
 function liftPanel(id) { const lv = cLv(id), d = curDeck(), inD = d.includes(id), full = d.length >= DECK_SIZE, r = crec(id);
   const rec = r.p >= 10 ? `Played ${r.p} · ${Math.round(r.o / r.p)} a play · won ${r.w} of ${r.r} runs` : r.p ? `Played ${r.p} · its record shows after 10 plays` : 'Not played yet';
   const face = f => { const e = faceOf(id, lv, f).e; return `<div class="dlside"><span class="zlab ${f} k-${acKey(f)}">${FN(f)}</span>${archCard(e, f, false, {cls: 'dlc'})}<small class="dlw">${cardWords(e, false).join(' · ')}</small></div>`; };
-  const ro = Object.entries(cardRoles(id)).map(([t, x]) => `<span class="dlrole" style="--bc:${BUILDS[t].c}">${BUILDS[t].n}${x.includes('f') ? ' ▲ fills' : ''}${x.includes('s') ? ' ◆ spends' : ''}</span>`).join('');
-  return `<div class="dlift" role="dialog" aria-label="${cName(id)}"><button class="dlx" data-act="dliftx" aria-label="Close">✕</button><div class="dlpair">${face('angel')}${face('demon')}</div>${ro ? `<div class="dlroles">${ro}</div>` : ''}<p class="dlrec">${rec}</p>
+  return `<div class="dlift" role="dialog" aria-label="${cName(id)}"><button class="dlx" data-act="dliftx" aria-label="Close">✕</button><div class="dlpair">${face('angel')}${face('demon')}</div><p class="dlrec">${rec}</p>
     <button class="btn${inD ? '' : ' pri'}" data-act="dtog" data-i="${id}" ${!inD && full ? 'disabled' : ''}>${inD ? 'Take out' : full ? 'Deck is full' : 'Add to deck'}</button></div>`; }
 function vDecks() {
   const i = curDeckI(), d = curDeck(), lift = S.lift && DUO().coll[S.lift] ? S.lift : null; S.lift = lift;
   const ww = new Set(lift ? ownedIds().filter(id => id !== lift && cardTags(id).some(t => cardTags(lift).includes(t))) : []), dealing = performance.now() - (S.dealt || -1e6) < 1500;
   const tabs = [0, 1, 2].map(k => { const R = deckRec(k), n = DUO().decks[k].length; return `<button class="dtab${k === i ? ' on' : ''}" data-act="dedit" data-i="${k}">Deck ${k + 1}${k === DUO().deckSel ? ' ✓' : n < DECK_SIZE ? ` <small>${n}/${DECK_SIZE}</small>` : ''}</button>`; }).join(''), RC = deckRec(i);
   const bl = deckBuilds(d).filter(x => BUILDS[x[0]]), top = bl[0] && bl[0][1] >= 3 ? bl[0][0] : null;
-  const chain = Array.from({length: DECK_SIZE}, (_, k) => d[k] ? splitTile(d[k], {slot: k, cls: 'inch' + (lift === d[k] ? ' lift' : '') + (ww.has(d[k]) ? ' ww' : '') + (dealing ? ' deal' : ''), style: `--k:${k}`}) : `<span class="sc empty" data-slot="${k}"></span>`).join('');
-  const meter = bl.slice(0, 3).map(([t, n]) => { let f = 0, s = 0; d.forEach(id => { const r = cardRoles(id)[t]; if (r) { if (r.includes('f')) f++; if (r.includes('s')) s++; } });
-    return `<div class="bmr" style="--bc:${BUILDS[t].c}"><b>${BUILDS[t].n}</b><span class="bpips">${[0, 1, 2, 3, 4].map(k => `<i class="${k < n ? 'on' : ''}"></i>`).join('')}${n > 5 ? `<em>+${n - 5}</em>` : ''}</span><small${s && !f ? ' class="neg"' : ''}>${s && !f ? 'Nothing fills it' : `fills ${f} · spends ${s}`}</small></div>`; }).join('');
+  const face = S.face || 'angel', card = (id, cls, k) => `<div class="sc${cls}" data-drag="1" data-i="${id}"${k != null ? ` style="--k:${k}"` : ''}>${bigCard(id, 'dlift', id, 0, '', d.includes(id) && k == null ? '<span class="dcheck">✓</span>' : '')}</div>`;
+  const chain = Array.from({length: DECK_SIZE}, (_, k) => d[k] ? card(d[k], ' inch' + (lift === d[k] ? ' lift' : '') + (ww.has(d[k]) ? ' ww' : '') + (dealing ? ' deal' : ''), k) : `<span class="sc empty" data-slot="${k}"></span>`).join('');
   const bf = S.bfilt && BUILDS[S.bfilt] ? S.bfilt : null, own = ownedIds(), tags = Object.keys(BUILDS).filter(t => own.some(id => cardTags(id).includes(t)));
-  const cells = own.filter(id => !bf || cardTags(id).includes(bf)).map(id => splitTile(id, {cls: (d.includes(id) ? 'in' : '') + (lift === id ? ' lift' : '') + (ww.has(id) ? ' ww' : ''), badge: d.includes(id) ? '<span class="dcheck">✓</span>' : ''})).join('');
+  const cells = own.filter(id => !bf || cardTags(id).includes(bf)).map(id => card(id, (d.includes(id) ? ' in' : '') + (lift === id ? ' lift' : '') + (ww.has(id) ? ' ww' : ''))).join('');
+  const por = Pix.get(DK('duo-' + (face === 'angel' ? 'demon' : 'angel')));
   const forge = Object.values(DUO().coll).some(canForge) ? '<button class="mini up glow" data-act="forge">▲ Forge</button>' : '';
   return `<div class="screen decks dk2 mk${lift ? ' lifted' : ''}"><div class="ahead">${hback(S.fromCheck ? 'deckcheck' : 'camp')}${sprite('gear-decks', 'arack')}<div><h2>Decks</h2><span class="agold">${DECK_SIZE} cards</span></div></div>
     <div class="dtabs">${tabs}</div>${duoPick()}
     <div class="dnmrow"><button class="dnm" data-act="dname">${escH(deckName(i))} <i>✎</i>${RC.r ? `<small>Won ${RC.w} of ${RC.r}</small>` : ''}</button>${i === DUO().deckSel ? '<span class="duse">In use</span>' : `<button class="abtn eq" data-act="duse" data-i="${i}" ${deckValid(d) ? '' : 'disabled'}>Use for runs</button>`}</div>
-    <div class="dchain${top ? ' tb' : ''}" style="--bc:${top ? BUILDS[top].c : '#a8823a'}">${chain}</div>
-    ${meter ? `<div class="bmeter">${meter}</div>` : ''}
-    <div class="dtools"><button class="btn" data-act="dsug">Suggest</button><button class="btn" data-act="dprove" ${deckValid(d) ? '' : 'disabled'}>Proving Ground${(DUO().deckBest || {})[i] ? `<small>Best ${DUO().deckBest[i]}</small>` : ''}</button><button class="btn" data-act="dcode">Code</button>${S.undoDeck ? '<button class="btn" data-act="dundo">Undo</button>' : ''}</div>
-    <i class="pg-split"></i>
+    <div class="dtools"><button class="btn" data-act="dsug">Suggest</button><button class="btn" data-act="dprove" ${deckValid(d) ? '' : 'disabled'}>Proving Ground${(DUO().deckBest || {})[i] ? `<small>Best ${DUO().deckBest[i]}</small>` : ''}</button><button class="btn" data-act="dcode">Import</button>${S.undoDeck ? '<button class="btn" data-act="dundo">Undo</button>' : ''}</div>
+    <div class="dpin"><div class="dchain${top ? ' tb' : ''}" style="--bc:${top ? BUILDS[top].c : '#a8823a'}">${chain}</div>
+      <div class="dpinf"><span>Drag cards in or out</span><button class="dflip f-${face === 'angel' ? 'demon' : 'angel'}" data-act="faceflip" aria-label="Show the ${FN(face === 'angel' ? 'demon' : 'angel')} sides">${por ? `<img src="${por.url}" alt="">` : ''}<small>Flip</small></button></div></div>
     <div class="bchips">${buildChip('all', null, !bf, 'bfilt')}${tags.map(t => buildChip(t, null, bf === t, 'bfilt')).join('')}${forge}</div>
-    <div class="scgrid">${cells}</div>
+    <div class="scgrid cgrid">${cells}</div>
 </div>`;
 }
 // a card added to the deck flies from where it was into its link of the Chain
-function flyCard(id, from) { if (!from) return; requestAnimationFrame(() => { const to = document.querySelector(`.dchain .sc[data-i="${id}"]`); if (!to) return; const r = to.getBoundingClientRect(), g = to.cloneNode(true);
+function deckFly(id, from) { if (!from) return; requestAnimationFrame(() => { const to = document.querySelector(`.dchain .sc[data-i="${id}"]`); if (!to) return; const r = to.getBoundingClientRect(), g = to.cloneNode(true);
   if (REDUCED) { to.classList.add('clink'); sfx('chain'); return; }
   g.classList.add('flyc'); Object.assign(g.style, {position: 'fixed', left: from.left + 'px', top: from.top + 'px', width: from.width + 'px', height: from.height + 'px', margin: 0, zIndex: 200, transition: 'left .38s cubic-bezier(.3,.7,.3,1),top .38s cubic-bezier(.3,.7,.3,1),width .38s,height .38s', pointerEvents: 'none'});
   document.body.appendChild(g); to.style.visibility = 'hidden'; void g.offsetWidth; Object.assign(g.style, {left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px'});
@@ -7752,8 +7763,8 @@ function vSuggest() { const d = curDeck(), own = ownedIds(), bl = Object.keys(BU
 const deckCode = d => 'BB-' + META.duoSel.slice(0, 1).toUpperCase() + '-' + d.map(id => DUO_DEF().cards.indexOf(id).toString(36).padStart(2, '0')).join('');
 function readCode(s) { const m = String(s || '').trim().toUpperCase().match(/^BB-([A-Z])-([0-9A-Z]+)$/); if (!m || m[1] !== META.duoSel.slice(0, 1).toUpperCase() || m[2].length % 2) return null;
   return m[2].match(/../g).map(x => DUO_DEF().cards[parseInt(x, 36)]).filter(Boolean); }
-function vCodeSheet() { const d = curDeck(); return `<h2>Deck code</h2><i class="pg-split"></i>${d.length ? `<p class="psec-h">This deck</p><div class="dcode"><input readonly value="${deckCode(d)}" aria-label="Deck code"><button class="abtn eq" data-act="dcopy">Copy</button></div>` : ''}
-  <p class="psec-h">Load a code</p><div class="dcode"><input id="dcin" placeholder="BB-…" autocomplete="off" autocapitalize="characters" aria-label="Paste a deck code"><button class="abtn eq" data-act="dload">Load</button></div><p class="dim small">Cards you don't own yet are left out.</p>`; }
+function vCodeSheet() { const d = curDeck(); return `<h2>Import</h2><i class="pg-split"></i><div class="dcode"><input id="dcin" placeholder="Paste a deck code" autocomplete="off" autocapitalize="characters" aria-label="Paste a deck code"><button class="abtn eq" data-act="dload">Import</button></div><p class="dim small">Cards you don't own yet are left out.</p>
+  ${d.length ? `<p class="psec-h">Share this deck</p><div class="dcode"><input readonly value="${deckCode(d)}" aria-label="This deck's code"><button class="abtn eq" data-act="dcopy">Copy</button></div>` : ''}`; }
 // an icon for a glossary term, when the game has one for it
 const GLOSS_IC = {cure:'st-poison', block:'shield', breakall:'shield', lasting:'lock', toll:'heart', fester:'heart', banish:'skull', lifecost:'heart', detonate:'st-burn', spread:'st-poison', afflicted:'skull', purge:'st-judge', pour:'st-sin', undying:'heart', hourglass:'hourglass', vulnerableresists:'crit', switch:'switch', judgement:'st-judge', sin:'st-sin', heat:'heat', overheat:'heat', mark:'st-expose', lifesteal:'st-vamp', leech:'st-leech', silence:'st-silence', streak:'energy', pierce:'sword', shatter:'shield', break:'shield', mana:'mana', energy:'energy', physical:'sword'};
 const glossIc = k => { const n = k.toLowerCase().replace(/[^a-z]/g, ''), c = GLOSS_IC[n] || (PIC['st-' + n] ? 'st-' + n : PIC[n] ? n : null); return c && PIC[PIC_ALIAS[c] || c] ? pxi(c) + ' ' : ''; };
@@ -8872,6 +8883,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
+  {v: '0.130.1', d: '28 Nov', n: ["Decks show real card faces again, with a Flip button for the other side", "Hold and drag cards into or out of your deck", "Your deck stays pinned while the collection scrolls", "Build counters removed: find the combos yourself", "Code is now Import", "Fixed: cards fly from your hand again when played"]},
   {v: '0.130', d: '28 Nov', n: ["New deck builder: your ten cards sit in the Chain, and every card shows both sides", "Tap a card to read both faces, its builds and its record", "Builds show what fills and what spends, and cards that work together glow", "Suggest builds a deck for you, or offers one swap", "Proving Ground: test a deck on a straw dummy for three turns", "Cards keep records, and each run names its MVP", "Name your decks, see their wins, share them as codes", "New bounty: win fights with 4+ cards of one build"]},
   {v: '0.129.1', d: '28 Nov', n: ["The tutorial asks how fast enemy turns should play"]},
   {v: '0.129', d: '28 Nov', n: ["New players meet their duo and go straight into their first run", "The camp only shows places you can use, plus the next one to open", "A raised attack shows its damage on the target's life bar, with a skull if it kills", "Online leaderboard for Endless and the Daily", "Your companion stays tappable when an enemy's name drifts over it"]},
@@ -9880,7 +9892,7 @@ const ACT = {
   duse: d => { if (deckValid(DUO().decks[+d.i])) { DUO().deckSel = +d.i; save(); } render(); },
   dtog: d => { if (!DUO().decks[S.dsel]) S.dsel = DUO().decks[DUO().deckSel] ? DUO().deckSel : 0; if (!DUO().decks[S.dsel]) DUO().decks[S.dsel] = []; const deck = DUO().decks[S.dsel], k = deck.indexOf(d.i);
     const src = document.querySelector(`.scgrid .sc[data-i="${d.i}"]`), rr = src && src.getBoundingClientRect(); let added = false;
-    if (k >= 0) deck.splice(k, 1); else if (deck.length < DECK_SIZE && DUO().coll[d.i]) { deck.push(d.i); added = true; } else return; S.lift = null; S.undoDeck = null; save(); render(); if (added) flyCard(d.i, rr && rr.bottom > 0 && rr.top < innerHeight ? rr : null); else sfx('tap'); },
+    if (k >= 0) deck.splice(k, 1); else if (deck.length < DECK_SIZE && DUO().coll[d.i]) { deck.push(d.i); added = true; } else return; S.lift = null; S.undoDeck = null; save(); render(); if (added) deckFly(d.i, rr && rr.bottom > 0 && rr.top < innerHeight ? rr : null); else sfx('tap'); },
   dlift: d => { S.lift = S.lift === d.i ? null : d.i; sfx('card'); render(); }, dliftx: () => { S.lift = null; render(); },
   dsug: () => { S.lift = null; S.sheet = {sug: 1}; render(); },
   dsugb: d => { const i = curDeckI(), old = DUO().decks[i].slice(), K = d.i === 'daily' ? dailyKit() : null, nd = K ? suggestDeck(K.tag, K.deck) : suggestDeck(d.i === 'all' ? null : d.i); if (!nd.length) return;
@@ -10246,6 +10258,36 @@ function startProving() { const i = curDeckI(), d = DUO().decks[i]; if (!deckVal
 function practiceDone() { const pr = S.practice; if (!pr) return; const e = S.f && S.f.en && S.f.en[0], dmg = e ? Math.max(0, e.max - Math.max(0, e.hp)) : 0, B = DUO().deckBest || (DUO().deckBest = {}), best = dmg > (B[pr.i] || 0);
   if (best) B[pr.i] = dmg; save(); dropRun(); Math.random = NATIVE_RANDOM; busy = false;
   S = {screen: 'decks', dsel: pr.i, fromCheck: false, sheet: {msg: best ? 'New best!' : 'Proving Ground', body: `${dmg} damage and ${pr.blk} block in ${PROVE_TURNS} turns.${best ? '' : ` Best: ${B[pr.i] || 0}.`}`}}; render(); }
+
+// deck builder drag: hold a card a moment, then drag it up into the Chain to add it, or out of the Chain to take it out. A quick swipe still scrolls.
+{ let dd = null, block = 0;
+  const startAt = (el, x, y, now) => { if (dd) return; dd = {el, id: el.dataset.i, inChain: !!el.closest('.dchain'), x, y, on: false, ready: !!now};
+    if (!now) dd.t = setTimeout(() => { if (dd && !dd.on) { dd.ready = true; Hold.hide(); el.classList.add('dgrab'); buzz(10); } }, 170); };
+  const begin = () => { const r = dd.el.getBoundingClientRect(), g = dd.el.cloneNode(true); g.classList.add('dghost'); g.classList.remove('dgrab', 'lift', 'ww', 'in', 'deal');
+    Object.assign(g.style, {position: 'fixed', left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px', zIndex: 300, pointerEvents: 'none', margin: 0}); $app.appendChild(g); /* inside #app so the card styles reach it */
+    Object.assign(dd, {g, ox: dd.x - r.left, oy: dd.y - r.top, on: true}); dd.el.classList.add('dsrc'); document.body.classList.add('ddrag', dd.inChain ? 'ddout' : 'ddin'); if (S.lift) { S.lift = null; const L = document.querySelector('.dlift'); if (L) L.remove(); } };
+  const move = (x, y) => { if (!dd) return false;
+    if (!dd.on) { if (!dd.ready) { if (Math.hypot(x - dd.x, y - dd.y) > 8) { clearTimeout(dd.t); dd = null; } return false; } if (Math.hypot(x - dd.x, y - dd.y) < 3) return true; begin(); }
+    dd.g.style.left = (x - dd.ox) + 'px'; dd.g.style.top = (y - dd.oy) + 'px';
+    const ch = $app.querySelector('.dchain'), r = ch && ch.getBoundingClientRect(), over = !!r && x >= r.left - 10 && x <= r.right + 10 && y >= r.top - 16 && y <= r.bottom + 16; dd.over = over;
+    if (ch) ch.classList.toggle('dhot', over && !dd.inChain); document.body.classList.toggle('ddrop', dd.inChain ? !over : over); return true; };
+  const end = () => { if (!dd) return; clearTimeout(dd.t); const d = dd; dd = null; d.el.classList.remove('dgrab', 'dsrc'); document.body.classList.remove('ddrag', 'ddout', 'ddin', 'ddrop'); const ch = $app.querySelector('.dchain'); if (ch) ch.classList.remove('dhot'); if (!d.on) return;
+    block = performance.now() + 400; noClickUntil = block; const g = d.g, deck = curDeck(), add = !d.inChain && d.over && !deck.includes(d.id) && deck.length < DECK_SIZE && !!DUO().coll[d.id], out = d.inChain && !d.over;
+    if (add) deck.push(d.id); else if (out) { const k = deck.indexOf(d.id); if (k >= 0) deck.splice(k, 1); }
+    if (add || out) { S.undoDeck = null; save(); render(); sfx(add ? 'chain' : 'tap'); buzz(15); }
+    const to = add ? document.querySelector(`.dchain .sc[data-i="${d.id}"]`) : !out ? d.el : null;
+    if (to && document.body.contains(to)) { const r = to.getBoundingClientRect(); g.style.transition = 'left .18s ease-out,top .18s ease-out,width .18s,height .18s'; Object.assign(g.style, {left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px'}); if (add) to.style.visibility = 'hidden';
+      setTimeout(() => { g.remove(); to.style.visibility = ''; if (add) to.classList.add('clink'); }, 190); return; }
+    g.style.transition = 'opacity .2s,transform .2s'; g.style.opacity = 0; g.style.transform = 'scale(.6)'; setTimeout(() => g.remove(), 210); };
+  const target = ev => S.screen === 'decks' && !S.sheet && ev.target.closest ? ev.target.closest('.dk2 [data-drag]') : null;
+  $app.addEventListener('touchstart', ev => { const el = target(ev); if (el && ev.touches.length === 1) startAt(el, ev.touches[0].clientX, ev.touches[0].clientY, false); }, {passive: true});
+  addEventListener('touchmove', ev => { if (dd && move(ev.touches[0].clientX, ev.touches[0].clientY) && ev.cancelable) ev.preventDefault(); }, {passive: false});
+  addEventListener('touchend', () => end()); addEventListener('touchcancel', () => { if (dd && dd.on) dd.over = dd.inChain; end(); });
+  $app.addEventListener('mousedown', ev => { if (performance.now() - (window.__lastTouch || 0) < 800) return; const el = target(ev); if (el && !ev.button) startAt(el, ev.clientX, ev.clientY, true); });
+  addEventListener('touchstart', () => { window.__lastTouch = performance.now(); }, {passive: true, capture: true});
+  addEventListener('mousemove', ev => { if (dd && !('ontouchstart' in window && performance.now() - (window.__lastTouch || 0) < 800)) move(ev.clientX, ev.clientY); });
+  addEventListener('mouseup', () => { if (dd && performance.now() - (window.__lastTouch || 0) >= 800) end(); });
+  $app.addEventListener('click', ev => { if (performance.now() < block) { ev.stopPropagation(); ev.preventDefault(); } }, true); }
 addEventListener('pagehide', saveRun); document.addEventListener('visibilitychange', () => { if (document.hidden) saveRun(); });
 { let r = null; try { r = JSON.parse(localStorage.getItem(RUN_KEY) || 'null'); } catch (e) {}
   if (r && r.S && r.S.p) { S = r.S; uid = Math.max(uid, r.uid || 0); if (r.duo && DUOS[r.duo]) META.duoSel = r.duo; busy = false; S.opening = false;
