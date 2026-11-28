@@ -2835,7 +2835,7 @@ body.ddin #app .dk2 .dchain{border-image:var(--k-pri) 16 / 12px stretch;box-shad
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy life and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.130.2-test'; // bump for every build you send to testers
+const VERSION = '0.130.3-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -8893,6 +8893,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
+  {v: '0.130.3', d: '28 Nov', n: ["Fixed: Flip and other deck taps no longer jump back to the top"]},
   {v: '0.130.2', d: '28 Nov', n: ["Status numbers on cards now sit in small plaques with their icon", "Deck screen frames match the rest of the game", "Build filters are one swipeable row"]},
   {v: '0.130.1', d: '28 Nov', n: ["Decks show real card faces again, with a Flip button for the other side", "Hold and drag cards into or out of your deck", "Your deck stays pinned while the collection scrolls", "Build counters removed: find the combos yourself", "Code is now Import", "Fixed: cards fly from your hand again when played"]},
   {v: '0.130', d: '28 Nov', n: ["New deck builder: your ten cards sit in the Chain, and every card shows both sides", "Tap a card to read both faces, its builds and its record", "Builds show what fills and what spends, and cards that work together glow", "Suggest builds a deck for you, or offers one swap", "Proving Ground: test a deck on a straw dummy for three turns", "Cards keep records, and each run names its MVP", "Name your decks, see their wins, share them as codes", "New bounty: win fights with 4+ cards of one build"]},
@@ -9133,7 +9134,7 @@ function render() {
     rest: vRest}[S.screen];
   const html = v(), entering = S.screen !== lastScreen; lastScreen = S.screen;
   const snap = fxSnap();
-  const ob = $app.querySelector('.pg-body'); if (ob && $app.dataset.sk) SCROLL[$app.dataset.sk] = ob.scrollTop;
+  const ob = $app.querySelector('.pg-body') || $app.querySelector('.screen.dk2'); if (ob && $app.dataset.sk) SCROLL[$app.dataset.sk] = ob.scrollTop;
   $app.dataset.form = S.p ? S.p.form : 'angel'; $app.dataset.duo = META.duoSel;
   ['obsidian', 'bone'].forEach(k => $app.classList.toggle('cfr-' + k, COS().frame === k));
   if (S.shake) { S.shake = false; $app.classList.remove('shake'); void $app.offsetWidth; $app.classList.add('shake'); }
@@ -9150,7 +9151,7 @@ function render() {
   if (S.screen === 'camp' && entering) campTalk(); else if (S.screen !== 'camp' || S.sheet || S.duo) Talk.stop();
   { const run = S.p && !['camp', 'end', 'journal'].includes(S.screen), mk = !run ? 'camp' : S.screen === 'act' ? (BIOMES[(S.acts || [])[S.act]] || BIOMES.graves).scene : biome().scene;
     Music.set(mk, S.screen === 'fight' && S.f ? ({boss: 2, guardian: 1.5, elite: 1.5}[S.f.kind] || 1) : 0); }
-  const sk = scrollKey(), nb = $app.querySelector('.screen>.pg-body'); $app.dataset.sk = sk;
+  const sk = scrollKey(), nb = $app.querySelector('.screen>.pg-body') || $app.querySelector('.screen.dk2'); $app.dataset.sk = sk;
   if (nb) { if (entering) delete SCROLL[sk]; nb.scrollTop = SCROLL[sk] || 0; }
   if (entering && !FAST) { void $app.offsetWidth; $app.classList.add('enter'); }
   document.body.classList.toggle('calm', S.screen !== 'fight' && S.screen !== 'camp' && !S.reveal); // ambient dust sits behind the text outside fights
