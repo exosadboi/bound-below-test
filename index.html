@@ -2196,6 +2196,9 @@ body.calm #fx{z-index:0} /* dust drifts behind the text, not over it */
 .field.stg .en .traits .tsep{display:none} .field.stg .en .elab{max-width:160px}
 @media (max-width:400px){#app .dtabs.wrap4 .dtab,#app .dtabs.wrap .dtab{padding-inline:3px!important;letter-spacing:0!important}}
 .cgate.first{animation:cfirst 1.4s ease-in-out infinite} @keyframes cfirst{50%{filter:brightness(1.25) drop-shadow(0 0 10px rgba(255,210,120,.8))}}
+#app .cnext{position:relative;z-index:2;margin:4px auto 0;padding:3px 10px;max-width:92%;text-align:center;font:400 12px/1.3 var(--body);color:#b8ac98;background:rgba(10,8,12,.72);box-shadow:inset 0 0 0 1px rgba(168,130,58,.35)} #app .cnext b{color:#e8cf86;font-weight:400} /* the one locked place that opens next */
+.bar u.pv{position:absolute;top:0;bottom:0;background:#fff3d6;opacity:.6;animation:pvb .7s ease-in-out infinite alternate;pointer-events:none} .bar u.pv.kill{background:#ff6a5a;opacity:.85} @keyframes pvb{from{opacity:.42}} .erow .pvk{position:absolute;left:calc(100% + 3px);top:50%;transform:translateY(-50%);display:inline-flex;animation:pvb .7s ease-in-out infinite alternate} .erow .pvk .pi{width:14px;height:14px} /* armed-card damage preview */
+#app .field .comp2{z-index:80} /* the companion stays tappable when an enemy's name plate drifts over it */
 .cstart{position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);white-space:nowrap;font-style:normal;padding:3px 8px;background:rgba(12,10,14,.85);box-shadow:inset 0 0 0 1px rgba(242,212,138,.6);font:400 10.667px/1 var(--display);letter-spacing:.14em;text-transform:uppercase;color:#f2d48a;text-shadow:0 1px 0 #000;pointer-events:none;animation:cfirst 1.4s ease-in-out infinite}
 /* thumb-sized taps: info pills, face toggles, text links and filter chips */
 #app .facebar{flex:none;justify-content:stretch;margin:6px 0 10px!important} #app .facetog{--ft:#e2c676;--ftbg:rgba(226,198,118,.26);--fi:-8deg;position:relative;isolation:isolate;overflow:hidden;flex:1;justify-content:center;gap:14px;min-height:54px;padding:0 12px;border:0;box-shadow:none;background:#17121d;clip-path:polygon(0 3px,3px 3px,3px 0,calc(100% - 3px) 0,calc(100% - 3px) 3px,100% 3px,100% calc(100% - 3px),calc(100% - 3px) calc(100% - 3px),calc(100% - 3px) 100%,3px 100%,3px calc(100% - 3px),0 calc(100% - 3px));font:400 18px/1 var(--body);letter-spacing:.02em;text-transform:none;color:var(--dim)}
@@ -2769,7 +2772,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy life and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.128-test'; // bump for every build you send to testers
+const VERSION = '0.129-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -4242,13 +4245,14 @@ function nextRound() {
    and answers GET <url>?mode=endless|daily with [{name, duo, score, ts}] sorted best first. Nothing else needs to change. ---------- */
 const escH = v => String(v == null ? '' : v).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'})[c]);
 const LB = {
-  url: null,
+  url: null, /* set to STATS_URL once the stats script is loaded below: scores post as 'lb' rows, the board reads back ?lb=<mode> */
+  tag: () => 'Bound-' + String(META.pid || '0000').slice(0, 4).toUpperCase(), /* no names asked for: a short tag from the anonymous device id */
   local: () => META.lb || (META.lb = {endless: [], daily: []}),
-  submit(mode, score, extra) { const e = Object.assign({mode, score, duo: DUO_DEF().n, name: META.name || 'You', ts: Date.now(), day: dayKey()}, extra || {});
+  submit(mode, score, extra) { const e = Object.assign({mode, score, duo: DUO_DEF().n, name: META.name || 'You', ts: Date.now(), day: dayKey(), pid: META.pid}, extra || {});
     const L = LB.local()[mode] || (LB.local()[mode] = []); L.push(e); L.sort((a, b) => b.score - a.score || a.ts - b.ts); if (L.length > 25) L.length = 25; save();
-    if (LB.url) fetch(LB.url, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(e)}).catch(() => {});
+    if (LB.url && META.opt.stats !== false && !navigator.webdriver) fetch(LB.url, {method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify([Object.assign({}, e, {ev: 'lb', name: LB.tag(), v: VERSION})])}).catch(() => {});
     return {rank: L.indexOf(e) + 1, ts: e.ts}; },
-  async top(mode) { if (LB.url) try { const r = await fetch(LB.url + '?mode=' + mode); if (r.ok) return await r.json(); } catch (e) { /* offline: fall back to local */ } return LB.local()[mode] || []; },
+  async top(mode) { if (LB.url) try { const r = await fetch(LB.url + '?lb=' + mode + '&day=' + dayKey() + '&pid=' + encodeURIComponent(META.pid || '')); if (r.ok) { const a = await r.json(); if (Array.isArray(a) && a.length) return a.map(x => Object.assign(x, {web: 1})); } } catch (e) { /* offline, or the sheet can't answer yet: the local board */ } return LB.local()[mode] || []; },
 };
 const KIT_IL = 3, kitLv = id => 1;
 // today's shared build: one theme of 6 cards topped up from the starter deck, a curio in every slot, a set companion. No Legendaries.
@@ -5658,6 +5662,11 @@ function zoomPair(id, lv, cur, c) {
   return `<div class="zpair">${one('angel')}${one('demon')}</div>${vs.length ? `<div class="zvows">${vs.map(k => `<span>${pxi(VOWS[k].ic)}${VOWS[k].n}</span>`).join('')}</div>` : ''}${notes.length ? `<div class="znotes">${notes.map(n => `<p>${n}</p>`).join('')}</div>` : ''}`;
 }
 const sfoot = html => `<div class="sfoot">${html}</div>`;
+// a raised attack shows what it will take off its target's life (after block) as a pale chunk, red with a skull when it kills
+const pvEff = f => { const c = f && f.cArm != null && !f.eTurn && f.hand[f.cArm]; if (!c) return null; const e = costed(side(c)); return e.dmg != null || e.blkdmg ? e : null; };
+function pvBar(en, i, f) { const h = bar(en.hp, en.max, '', en.hp, 'e' + S.fights + '_' + i), pe = pvEff(f); if (!pe || !(pe.all || i === f.tgt) || en.hp <= 0) return h;
+  let tot = 0; try { tot = pe.blkdmg ? calc(pe, en) : hitTotal(pe, en).tot; } catch (x) { return h; } const loss = Math.min(en.hp, Math.max(0, tot - (en.blk || 0))); if (!loss) return h; const kill = loss >= en.hp;
+  return h.replace('<em>', `<u class="pv${kill ? ' kill' : ''}" style="left:${(100 * (en.hp - loss) / en.max).toFixed(1)}%;width:${(100 * loss / en.max).toFixed(1)}%"></u><em>`) + (kill ? `<i class="pvk" aria-label="This kills it">${pxi('skull') || '☠'}</i>` : ''); }
 const bar = (v, max, cls, txt, key) => { const w = Math.max(0, Math.min(100, 100 * v / max));
   return `<div class="bar ${cls || ''}"${key ? ` data-k="${key}" data-p="${w}"` : ''}><b style="width:${w}%"></b><i style="width:${w}%"></i><em>${txt != null ? txt : v + ' / ' + max}</em></div>`; };
 // what will hurt you on its own before your next turn: the Demon's bleed plus your own Burn, Poison and a Doom about to land. Red when it, with the hits on their way, would kill you
@@ -5756,7 +5765,7 @@ function vFight() {
     const ac = dying ? ' dying' : act === 'atk' || act === 'big' || act === 'brk' ? ' act-atk' : act ? ' act-cast' : wasHit ? ' hit' : '';
     const at = spotOf(e, i, f), edge = at[0] > 76 ? ' er' : at[0] < 30 ? ' el' : '';
     return `<button class="en ${i === f.tgt && !dying ? 'tgt' : ''}${ac}${edge}" data-act="tgt" data-i="${i}" data-hold="en:${i}" style="left:${at[0]}%;top:${at[1]}%;z-index:${Math.round(at[1])}"><span class="intent i-${e.next.k}${e.next.sig && e.next.k !== 'charge' ? ' bsig' : ''}${e.sil && !['atk', 'big', 'brk', 'charge'].includes(e.next.k) ? ' isil' : ''}" title="${e.sil && !['atk', 'big', 'brk', 'charge'].includes(e.next.k) ? 'Silenced: this does nothing' : it[1]}">${ic(it[0])}${iv !== '' ? `<b class="iv">${iv}</b>` : ''}<span class="itx">${e.frozen ? pxi('st-frozen') : e.next.vf && !e.stag ? pxi(formIc(vfBad(e.next))) : e.next.sig ? e.next.sig + (e.brk && e.next.k !== 'charge' ? ` ${e.brk.got}/${e.brk.need}` : '') : e.next.st && !e.stag ? (it[0] === 'st-' + e.next.st[0] ? '' : PIC['st-' + e.next.st[0]] ? pxi('st-' + e.next.st[0]) : STATUS[e.next.st[0]].n) : ''}</span></span>
-      ${foeArt(e.id, e.ward || e.form)}<span class="elab">${e.boss || (FOES[e.id] || {}).final || (FOES[e.id] || {}).guard ? `<span class="ename">${e.n}</span>` : ''}${i === f.tgt ? traitTag(e, true) : ''}<span class="erow"><span class="etrs">${Object.entries(e.tr || {}).map(([k, v]) => `<i class="etr ${k} ${v > 0 ? 'wk' : 'rs'}" data-act="etrtip" data-i="${k}:${v}" role="button" aria-label="${v > 0 ? 'Weak to' : 'Resists'} ${TYN(k)}"><b>${v > 0 ? '▲' : '▼'}</b>${PIC[k] ? pxi(trK(k)) : ''}</i>`).join('')}</span>${bar(e.hp, e.max, '', e.hp, 'e' + S.fights + '_' + i)}</span><span class="tags">${tags}</span></span></button>`; }).join('');
+      ${foeArt(e.id, e.ward || e.form)}<span class="elab">${e.boss || (FOES[e.id] || {}).final || (FOES[e.id] || {}).guard ? `<span class="ename">${e.n}</span>` : ''}${i === f.tgt ? traitTag(e, true) : ''}<span class="erow"><span class="etrs">${Object.entries(e.tr || {}).map(([k, v]) => `<i class="etr ${k} ${v > 0 ? 'wk' : 'rs'}" data-act="etrtip" data-i="${k}:${v}" role="button" aria-label="${v > 0 ? 'Weak to' : 'Resists'} ${TYN(k)}"><b>${v > 0 ? '▲' : '▼'}</b>${PIC[k] ? pxi(trK(k)) : ''}</i>`).join('')}</span>${pvBar(e, i, f)}</span><span class="tags">${tags}</span></span></button>`; }).join('');
   const tags = Object.keys(p.st || {}).map(id => stBadge(p, id, p.st[id].f && p.st[id].f !== p.form)).join('') + (p.em ? ['holy', 'shadow'].filter(k => p.em[k]).map(k => badge('emp' + k, 'rage', '+50%', p.em[k], 'good ' + k)).join('') : '') + (p.nextFree ? badge('nextfree', 'cards', '0', 0, 'good ' + (p.nextFree === 'angel' ? 'holy' : 'shadow')) : '') + (p.free ? badge('freesw', 'st-free', '', 0, 'good') : '') + (p.furyT ? badge('fury', 'rage', '+3', p.furyT, 'good') : '') + (p.haloT ? badge('halo', 'st-manaup', '+2', p.haloT, 'good mn') : '') + (p.blessT ? badge('bless', 'st-bless', p.blessV, p.blessT, 'good') : '');
   const fx = p.fx; p.fx = null;
   const morph = S.morph; S.morph = false;
@@ -6570,8 +6579,8 @@ function vEDraft() { const d = S.draft || [], n = S.edeck.length, N = edraftN(),
 }
 function lbFetch() { if (!LB.url) return; const t = S.lbTab; LB.top(t).then(rows => { if (S.screen === 'board' && S.lbTab === t) { S.lbRows = rows; S.lbRowsTab = t; render(); } }); }
 function vBoard() { const tab = S.lbTab || 'endless', rows = (S.lbRowsTab === tab && S.lbRows) || LB.local()[tab] || [];
-  return `<div class="screen armory board"><div class="ahead">${hback(S.boardBack || 'deckcheck')}<div><h2>Leaderboard</h2><span class="agold">${LB.url ? 'Global' : ''}</span></div></div><div class="dtabs"><button class="dtab${tab === 'endless' ? ' on' : ''}" data-act="lbtab" data-i="endless">Endless</button><button class="dtab${tab === 'daily' ? ' on' : ''}" data-act="lbtab" data-i="daily">Daily</button></div><p class="mintro">${tab === 'endless' ? 'Rounds cleared' : 'Best scores'}</p><i class="pg-split"></i>
-    ${rows.length ? `<ol class="lb">${rows.map((r, i) => `<li class="${r.ts === S.lbMine ? 'mine' : ''}${i < 3 ? ' top' + (i + 1) : ''}"><b class="lbr">${i + 1}</b><span class="lbn">${escH(r.name)}<small>${escH(r.duo)} · ${new Date(r.ts).toLocaleDateString()}</small></span><b class="lbs">${r.score}<small>${tab === 'endless' ? 'rounds' : 'points'}</small></b></li>`).join('')}</ol>`
+  return `<div class="screen armory board"><div class="ahead">${hback(S.boardBack || 'deckcheck')}<div><h2>Leaderboard</h2><span class="agold">${rows[0] && rows[0].web ? 'Everyone' : 'This device'}</span></div></div><div class="dtabs"><button class="dtab${tab === 'endless' ? ' on' : ''}" data-act="lbtab" data-i="endless">Endless</button><button class="dtab${tab === 'daily' ? ' on' : ''}" data-act="lbtab" data-i="daily">Daily</button></div><p class="mintro">${tab === 'endless' ? 'Rounds cleared' : 'Best scores'}</p><i class="pg-split"></i>
+    ${rows.length ? `<ol class="lb">${rows.map((r, i) => `<li class="${r.ts === S.lbMine || r.web && r.me ? 'mine' : ''}${i < 3 ? ' top' + (i + 1) : ''}"><b class="lbr">${i + 1}</b><span class="lbn">${escH(r.web && r.me ? 'You' : r.name)}<small>${escH(r.duo)} · ${new Date(r.ts).toLocaleDateString()}</small></span><b class="lbs">${r.score}<small>${tab === 'endless' ? 'rounds' : 'points'}</small></b></li>`).join('')}</ol>`
       : `<p class="dim story">No ${tab === 'endless' ? 'Endless runs' : 'Daily scores'} yet.</p>`}
 </div>`;
 }
@@ -7307,7 +7316,8 @@ function vCamp() {
   const seat = +Object.keys(Camp.SEAT).find(k => Camp.SEAT[k] === META.duoSel) || 1;
   if (canUp || Object.keys(DUO().coll).some(vowDue)) alert[17] = 1; // the Forge is for cards now; gear upgrades live in Gear
   if (ALL_GEAR().some(gearNew)) alert[11] = 1; if (compNew()) alert[12] = 1; if (cardsNew()) alert[14] = 1;
-  CAMP_ST = {locked, alert, sel: seat, tags: Object.fromEntries([10, 11, 12, 13, 14, 15, 17].map(id => [id, CAMP_PLACES[id].n]))};
+  const nextUp = PLACE_ORDER.find(k => locked[k] && CAMP_PLACES[k].cond()) || [17, 11, 13, 12, 10].find(k => locked[k]), hide = {}; Object.keys(CAMP_PLACES).forEach(id => { if (locked[id] && +id !== nextUp) hide[id] = 1; }); // only the next place to open shows its lock
+  CAMP_ST = {locked, alert, hide, sel: seat, tags: Object.fromEntries([10, 11, 12, 13, 14, 15, 17].map(id => [id, CAMP_PLACES[id].n]))};
   const ncomp = Object.keys(COMPANIONS).filter(id => META.comps[id]).length, lvOf = id => META.duo[id] ? duoLevel(META.duo[id].xp).L : 1;
   const sub = {10: META.souls + ' souls', 11: CURIO_SLOTS.filter(sl => META.arm.eq[sl]).length + ' of 6 equipped', 12: ncomp + ' / ' + Object.keys(COMPANIONS).length + ' found', 13: META.marks + ' marks' + (canTal ? ' · ready' : ''),
     14: owned + ' / ' + total + ' cards', 15: 'Deck ' + (DUO().deckSel + 1), 17: (META.dust || 0) + ' bone dust' + (canUp ? ' · forge ready' : ''), 16: 'Begin a run', 1: 'Level ' + lvOf('fallen'), 2: 'Level ' + lvOf('ember'), 3: 'Coming soon'};
@@ -7316,7 +7326,7 @@ function vCamp() {
   return `<div class="screen camp-screen camp2">
     <div class="top hubtop">${kpill()}<span class="kpill kmarks" aria-label="${META.marks} marks">${pxi('marks')}<b>${META.marks}</b></span><span class="grow"></span>
       <button class="mini icon jbtn kib" data-act="journal" aria-label="Journal">${sprite('art-tome-angel')}${achUnclaimed().length + bountyUnclaimed().length ? '<i class="alert">' + (achUnclaimed().length + bountyUnclaimed().length) + '</i>' : ''}</button><button class="mini icon kib" data-act="help" aria-label="Rules">?</button><button class="mini icon kib" data-act="options" aria-label="Options">${pxi('gear')}</button></div>
-    <h1 class="sr-only">Bound Below</h1>${campToday()}
+    <h1 class="sr-only">Bound Below</h1>${campToday()}${nextUp ? `<p class="cnext">${pxi('lock') || '🔒'} <b>${CAMP_PLACES[nextUp].n}</b> · ${CAMP_PLACES[nextUp].cond && CAMP_PLACES[nextUp].cond() ? 'opens after your next run' : CAMP_PLACES[nextUp].hint.replace(/\.$/, '')}</p>` : ''}
     <div class="cspace"></div>
     <nav class="cnav" aria-label="The camp">${[1, 2, 3, 10, 11, 12, 13, 14, 15, 17].map(id => `<button data-act="camptap" data-i="${id}">${nm(id)}${locked[id] ? ' (locked)' : ''}</button>`).join('')}</nav>
     <button class="cgate btn pri${!META.runs ? ' first' : ''}" data-act="descent" aria-label="Venture forth with ${DUO_DEF().n}">${!META.runs ? '<i class="cstart">Start here</i>' : ''}<b>Venture Forth</b><small>${DUO_DEF().n} · Lv ${duoLevel(DUO().xp).L}</small></button></div>`;
@@ -7915,7 +7925,7 @@ function shadow(cx, cy, rx, ry, k = .5) { for (let y = -ry; y <= ry; y++) for (l
   const d = (x * x) / (rx * rx) + (y * y) / (ry * ry), i = Y * W + X; if (d <= 1 - dith(X, Y) * .45 && !grp[i]) for (let c = 0; c < 3; c++) base[i * 3 + c] *= k; } }
 // ---------- what can be clicked ----------
 let LK = {}, ALERT = {}, SEL = 0, HOVER = 0;
-const locked = id => !!LK[id];
+const locked = id => !!LK[id]; let HID = {};
 // remembered spots for animation
 const FIRE = [98, 243], SPOTS = {chim: [], torch: [], coal: [], gateT: []};
 // ---------- palettes ----------
@@ -8158,7 +8168,7 @@ function fx(t) { const tq = Math.floor(t / 120);
   // a bobbing marker over the chosen duo
   if (SEL && CENT[SEL]) { const [x, , top] = CENT[SEL], y = top - 6 + Math.round(Math.sin(t / 220)); g.fillStyle = '#07060a'; g.fillRect(x - 3, y - 1, 7, 4); g.fillStyle = '#f0d070'; g.fillRect(x - 2, y, 5, 1); g.fillRect(x - 1, y + 1, 3, 1); g.fillRect(x, y + 2, 1, 1); }
   // padlocks over locked places
-  Object.keys(LK).forEach(id => { id = +id; if (!locked(id)) return; const c = CENT[id]; if (!c) return; const [x, y] = c; g.fillStyle = '#07060a'; g.fillRect(x - 4, y - 6, 9, 11); g.fillStyle = '#c8bca8'; g.fillRect(x - 3, y - 1, 7, 5); g.fillStyle = '#8a7e6a'; g.fillRect(x - 3, y + 3, 7, 1); g.fillStyle = '#07060a'; g.fillRect(x, y, 1, 2);
+  Object.keys(LK).forEach(id => { id = +id; if (!locked(id) || HID[id]) return; const c = CENT[id]; if (!c) return; const [x, y] = c; g.fillStyle = '#07060a'; g.fillRect(x - 4, y - 6, 9, 11); g.fillStyle = '#c8bca8'; g.fillRect(x - 3, y - 1, 7, 5); g.fillStyle = '#8a7e6a'; g.fillRect(x - 3, y + 3, 7, 1); g.fillStyle = '#07060a'; g.fillRect(x, y, 1, 2);
     g.fillStyle = '#c8bca8'; g.fillRect(x - 2, y - 5, 1, 4); g.fillRect(x + 2, y - 5, 1, 4); g.fillRect(x - 1, y - 6, 3, 1); });
   // a pulsing marker over places with something new or something to spend
   Object.keys(ALERT).forEach(id => { const c = CENT[id]; if (!c || !ALERT[id] || locked(+id)) return; const x = c[0], y = (+id === 10 ? c[1] - 6 : c[2] - 9) + Math.round(Math.sin(t / 200) * 1.5);
@@ -8174,7 +8184,7 @@ function loop(t) { if (!on) return; if (t - last > 32) { last = t; draw(t); } re
 function sync(st) { const w = document.getElementById('campw'); if (!w) return; const show = !!st; if (st) LASTST = st; w.style.display = show ? '' : 'none';
   if (!show) { on = false; HOVER = 0; if (tip) tip.className = 'ctip'; bubble(0, 0, ''); return; }
   cv = document.getElementById('campc'); g = cv.getContext('2d'); tip = document.getElementById('ctip');
-  LK = st.locked; ALERT = st.alert; SEL = st.sel;
+  LK = st.locked; ALERT = st.alert; SEL = st.sel; HID = st.hide || {};
   if (!ARTOK) return;
   // the gate sits 28px lower wherever the button still fits under it (short phones keep it higher)
   { const r = cv.getBoundingClientRect(), s = Math.max(r.width / W, r.height / H), oy = (r.height - H * s) * CROPY; GDROP = Math.max(0, Math.min(28, Math.floor((r.height - oy - 64) / s - 357))); }
@@ -8185,7 +8195,7 @@ function sync(st) { const w = document.getElementById('campw'); if (!w) return; 
     gl.style.top = Math.min(innerHeight - gl.offsetHeight - 16, r.top + oy + (c[3] + 2) * sc) + 'px'; gl.style.transform = 'translate(-50%, 0)'; } // the button sits just below the gate
   // dim name tags under each place; brighter when it has something new
   const tg = document.getElementById('ctags'); if (tg && st.tags) { const r = cv.getBoundingClientRect(), wr = cv.parentNode.getBoundingClientRect(), sc = Math.max(r.width / W, r.height / H), ox = (r.width - W * sc) / 2, oy = (r.height - H * sc) * CROPY;
-    tg.innerHTML = Object.keys(st.tags).filter(id => CENT[id]).map(id => { const c = CENT[id], x = r.left - wr.left + ox + c[0] * sc, y = r.top - wr.top + oy + (c[3] + 1) * sc;
+    tg.innerHTML = Object.keys(st.tags).filter(id => CENT[id] && !HID[id]).map(id => { const c = CENT[id], x = r.left - wr.left + ox + c[0] * sc, y = r.top - wr.top + oy + (c[3] + 1) * sc;
       return `<span class="ctag${LK[id] ? ' lk' : ALERT[id] ? ' hot' : ''}" style="left:${x.toFixed(0)}px;top:${y.toFixed(0)}px">${st.tags[id]}</span>`; }).join(''); } }
 // object-fit: cover maps the canvas into its box; undo that to find the scene pixel
 function at(e) { const r = cv.getBoundingClientRect(), s = Math.max(r.width / W, r.height / H), ox = (r.width - W * s) / 2, oy = (r.height - H * s) * CROPY;
@@ -8743,6 +8753,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
+  {v: '0.129', d: '28 Nov', n: ["New players meet their duo and go straight into their first run", "The camp only shows places you can use, plus the next one to open", "A raised attack shows its damage on the target's life bar, with a skull if it kills", "Online leaderboard for Endless and the Daily", "Your companion stays tappable when an enemy's name drifts over it"]},
   {v: '0.128', d: '28 Nov', n: ["Loads about twice as fast: the art is packed smaller, pixel for pixel the same", "A title shows while the game loads, not a black screen", "Enemy debuff intents are bigger and easier to read", "Status turn counters no longer sit on enemy life bars", "End turn glows when nothing is left to play", "Doors fit on small phones again"]},
   {v: '0.127.1', d: '27 Nov', n: ["Salvage lists what you can salvage first, worn gear last"]},
   {v: '0.127', d: '27 Nov', n: ["Companion balance pass, each one tested on its own", "Ashwing is weaker: Overheat hurts 2 less, and its combo gives +1 energy only", "Omen's crit chance now grows with loyalty (7% to 19%)", "Cinder: more max mana, and Siphon and its combo give more mana", "Morrow: Block 2 per kill, rising with loyalty", "Gnaw: afflictions +1 to +3 with loyalty, and a bigger combo"]},
@@ -9682,8 +9693,10 @@ const ACT = {
   bclaim: d => { const b = bounties().find(x => x.id === d.i), B = BOUNTIES.find(x => x.id === d.i); if (!b || b.c || b.p < B.g) return; b.c = 1; META.souls = (META.souls || 0) + B.sl; toast(`Bounty claimed · +${soul()}${B.sl}`, 'buy'); sfx('coin'); buzz(20); save(); render(); },
   todaydaily: () => ACT.pdaily(), drftreroll: () => { if (S.rrAct === S.act || !S.draft) return; S.rrAct = S.act; S.draft = draftPicks(); S.draft.rv = true; render(); }, sharerun: () => shareRun(), giftopen: () => { if (!offerDue()) return; S.sheet = {offer: offerNext(), pend: 1}; render(); }, // the gift opens first and waits for a Claim tap, like bounties and achievements
   introskip: () => { if (!S.intro || S.intro.done) return; S.intro.done = true; render(); }, // a tap jumps to the end card
-  introgo: () => { const id = S.intro && S.intro.id; if (!id) return; (META.met = META.met || {})[id] = 1; META.duoSel = id; save(); S = {screen: 'camp'}; render(); setTimeout(campTalk, 600); },
-  enter: () => { S.title = null; audio(); render(); },
+  introgo: () => { const id = S.intro && S.intro.id; if (!id) return; (META.met = META.met || {})[id] = 1; META.duoSel = id; save(); S = {screen: 'camp'};
+    if (!(META.runs > 0) && !META.tut) { newRun(0, false, defLen(), []); return; } // first ever meeting: straight into the first run, the camp comes after
+    render(); setTimeout(campTalk, 600); },
+  enter: () => { S.title = null; audio(); const d = META.duoSel || 'fallen'; if (!(META.runs > 0) && !META.tut && !S.p && DUO_INTRO[d] && !duoMet(d)) return playIntro(d); render(); }, // a brand-new player meets the duo straight away
   newsall: () => { S.sheet = {news: 'all'}; render(); },
   offerclaim: () => { const d = claimOffer(); if (!d) return; buzz([20, 40, 20]); S.sheet = {offer: d, just: 1}; render(); },
   getsouls: () => { if (typeof TDRAFT !== 'undefined' && TDRAFT) { tdApply(); toast('Talents kept'); } const from = S.screen === 'market' || S.p ? null : S.screen; S = {screen: 'market', mtab: 'souls', soulsFrom: from}; render(); }, // the souls page returns to wherever it was opened from
@@ -9978,6 +9991,7 @@ if (location.hash === '#unlock') { Object.keys(DUOS).forEach(id => { (META.duosO
 // in headless test tools (navigator.webdriver) and when the player turns it off in Options. No names, no emails: a random id per device.
 var STATS_URL = 'https://script.google.com/macros/s/AKfycbzBoQ3yKAitFBUCKD69y6WfDnmLXK37T-YpL_kw0h1xCmzswDYlCRsXm5Z-XkVKOUlkDQ/exec';
 if (META.opt.stats == null) META.opt.stats = true; // on unless the player turns it off
+LB.url = STATS_URL || null; // the online board rides on the stats sheet (tools/stats/sheet-script.js doGet)
 const Stats = (() => { const QK = 'bound-below-stats-q', t0 = Date.now();
   const on = () => !!STATS_URL && !FAST && !navigator.webdriver && META.opt.stats !== false;
   const pid = () => META.pid || (META.pid = Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4));
