@@ -2671,6 +2671,46 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
 /* the confirm sheet text: centred block */
 .cfd{width:100%;max-width:30ch!important;margin:6px auto 0!important;text-align:center!important;text-wrap:balance} .cfsheet{text-align:center}
 /* KIT:end */
+/* ---------- deck builder v2 ---------- */
+#app .dk2 .dnmrow{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#app .dk2 .dnm{background:none;border:0;padding:4px 0;font:400 18px/1.1 var(--title);color:var(--gold);text-align:left;cursor:pointer;min-height:36px} #app .dk2 .dnm i{font-style:normal;font-size:12px;color:#8a7e6a}
+#app .dk2 .dnm small{display:block;font:400 12px/1.2 var(--body);color:#a69cad;margin-top:2px}
+#app .dchain{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:10px 9px;padding:10px 8px;background:rgba(8,6,10,.6);box-shadow:inset 0 0 0 1px rgba(168,130,58,.35)}
+#app .dchain::before,#app .dchain::after{content:'';position:absolute;left:14px;right:14px;height:9px;background:var(--k-chain) center/16px 9px repeat-x;image-rendering:pixelated;opacity:.75;pointer-events:none}
+#app .dchain::before{top:calc(10px + 25% - 9px)} #app .dchain::after{bottom:calc(10px + 25% - 9px)}
+#app .dchain.tb{box-shadow:inset 0 0 0 1px var(--bc),0 0 16px -4px var(--bc)}
+#app .sc{position:relative;z-index:1;display:flex;flex-direction:column;padding:0;border:0;background:#0e0c12;box-shadow:0 0 0 1px #07060a,0 0 0 2px #5a5048,0 2px 0 3px #000;cursor:pointer;aspect-ratio:5/7;min-width:0;overflow:hidden;-webkit-tap-highlight-color:transparent}
+#app .sc.r-rare{box-shadow:0 0 0 1px #07060a,0 0 0 2px #4a8ad8,0 2px 0 3px #000} #app .sc.r-epic{box-shadow:0 0 0 1px #07060a,0 0 0 2px #a060e0,0 2px 0 3px #000} #app .sc.r-legendary{box-shadow:0 0 0 1px #07060a,0 0 0 2px #e8b040,0 2px 0 3px #000}
+#app .sc.empty{background:rgba(255,255,255,.02);box-shadow:inset 0 0 0 1px rgba(168,130,58,.35);cursor:default}
+#app .sch{position:relative;flex:1;display:flex;align-items:flex-end;justify-content:flex-end;min-height:0;overflow:hidden}
+#app .sch.angel{background:linear-gradient(#3a3020,#1a160f)} #app .sch.demon{background:linear-gradient(#3a1612,#170a09);border-top:1px solid #07060a}
+#app .sch img{position:absolute;left:-6%;top:-4%;width:78%;height:108%;object-fit:cover;image-rendering:pixelated;opacity:.95}
+#app .sch .scc{position:absolute;left:2px;top:2px;min-width:14px;height:14px;font:700 11px/14px var(--num);font-style:normal;text-align:center;color:#fff;background:#07060a;box-shadow:0 0 0 1px #8a7e6a;border-radius:7px}
+#app .sch b{position:relative;display:flex;align-items:center;gap:1px;margin:0 2px 2px 0;padding:1px 3px;background:rgba(7,6,10,.82);font:400 13px/1 var(--num);color:#fff} #app .sch b .pi{width:11px;height:11px} #app .sch b em{font-style:normal}
+#app .sc .scmk{position:absolute;left:2px;bottom:calc(50% + 2px);display:flex;gap:1px;z-index:2} #app .sc .scmk i{font:400 9.5px/1 var(--num);font-style:normal;color:var(--bc);text-shadow:0 1px 0 #000,0 0 2px #000;padding:1px}
+#app .sc .scf{position:absolute;right:2px;top:2px;width:8px;height:8px;border-radius:50%;z-index:2} #app .sc .scf.hot{background:#ff9a3a;box-shadow:0 0 6px #ff9a3a} #app .sc .scf.cold{background:#6a6470}
+#app .sc .dcheck{position:absolute;right:2px;bottom:2px;z-index:3;font-size:11px;color:#8fe39a;text-shadow:0 1px 0 #000}
+#app .sc.in{opacity:.45} #app .sc.lift{outline:2px solid #f2d48a;outline-offset:2px;opacity:1;transform:translateY(-4px)}
+#app .sc.ww{outline:1px dashed #f2d48a;outline-offset:2px;animation:wwp 1.2s ease-in-out infinite alternate} @keyframes wwp{to{outline-color:rgba(242,212,138,.25)}}
+#app .sc.deal{animation:scdeal .45s cubic-bezier(.3,.7,.3,1.2) both;animation-delay:calc(var(--k,0) * 70ms)} @keyframes scdeal{from{opacity:0;transform:translateY(-30px) scale(.6) rotate(-8deg)}}
+#app .sc.clink,.sc.clink{animation:clink .35s ease-out} @keyframes clink{30%{transform:scale(1.12);filter:brightness(1.6)}}
+.flyc{box-shadow:0 8px 24px rgba(0,0,0,.6),0 0 0 2px #f2d48a!important}
+#app .bmeter{display:flex;flex-direction:column;gap:4px}
+#app .bmr{display:grid;grid-template-columns:84px auto 1fr;align-items:center;gap:8px} #app .bmr b{font:400 13px/1 var(--display);color:var(--bc)} #app .bmr small{font-size:12px;color:#a69cad;text-align:right} #app .bmr small.neg{color:#ff8a7a}
+#app .bpips{display:flex;gap:3px;align-items:center} #app .bpips i{width:10px;height:10px;transform:rotate(45deg);box-shadow:inset 0 0 0 1px var(--bc);opacity:.6} #app .bpips i.on{background:var(--bc);opacity:1} #app .bpips em{font:400 11px/1 var(--num);color:var(--bc);font-style:normal;margin-left:2px}
+#app .dtools{display:flex;gap:6px;flex-wrap:wrap} #app .dtools .btn{flex:1 1 0;min-width:0;min-height:44px;padding:4px 6px;font-size:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1} #app .dtools .btn small{font-size:11px;opacity:.75}
+#app .dk2 .bchips{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+#app .scgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;padding:4px 2px 12px} #app .dk2.lifted .scgrid{padding-bottom:300px}
+#app>.dlift,.dlift{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(460px,100%);z-index:60;padding:12px 14px max(14px,env(safe-area-inset-bottom));background:linear-gradient(#1a1520,#0c0a10);box-shadow:0 -2px 0 #a8823a,0 -12px 30px rgba(0,0,0,.7);display:flex;flex-direction:column;gap:8px;animation:dlup .22s ease-out}
+@keyframes dlup{from{transform:translate(-50%,40px);opacity:0}}
+#app .dlift .dlx{position:absolute;right:6px;top:4px;width:44px;height:44px;background:none;border:0;color:#a69cad;font-size:18px;cursor:pointer}
+#app .dlpair{display:grid;grid-template-columns:1fr 1fr;gap:10px} #app .dlside{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+#app .dlside .acard,#app .dlside .dlc{width:min(132px,100%)} #app .dlw{font-size:12px;line-height:1.3;color:#d8cfbc;text-align:center}
+#app .dlroles{display:flex;flex-wrap:wrap;gap:6px;justify-content:center} #app .dlrole{font-size:12px;color:var(--bc);padding:2px 6px;box-shadow:inset 0 0 0 1px var(--bc)}
+#app .dlrec{margin:0;text-align:center;font-size:12px;color:#a69cad}
+#app .dcode{display:flex;gap:6px} #app .dcode input{flex:1;min-width:0;min-height:40px;padding:0 8px;background:#0e0c12;border:1px solid #3a3446;color:#e8dcc4;font:400 14px/1 var(--num);letter-spacing:.04em}
+#app .emvp{margin:6px 0 2px;text-align:center;font-size:13px;color:#a69cad} #app .emvp b{color:var(--gold);font-weight:400}
+
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -2772,7 +2812,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy life and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.129.1-test'; // bump for every build you send to testers
+const VERSION = '0.130-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -4839,7 +4879,7 @@ function winChest() { countKills(); if (FAST || S.screen !== 'fight') return win
 function winFight() {
   chainStep();
   countKills();
-  { const k0 = F().kind; if (k0 === 'elite') bounty('elite'); if (k0 === 'boss') bounty('boss'); if (!F().hurt) bounty('nohit'); }
+  { const k0 = F().kind; if (S.p && (deckBuilds(S.p.deck.map(c => c.id)).filter(x => BUILDS[x[0]])[0] || [0, 0])[1] >= 4) bounty('build'); if (k0 === 'elite') bounty('elite'); if (k0 === 'boss') bounty('boss'); if (!F().hurt) bounty('nohit'); }
   if (S.tut > 1) tutDone();
   const k = F().kind, kx = Math.round(({boss:40, guardian:25, elite:15}[k] || 8) * (1 + .25 * ((S.act || 1) - 1)) * (F().bound ? 2 : 1)); S.xp += kx;
   const g = gold(1.2 * F().en.reduce((a, e) => a + e.max, 0) / 8 * ({boss:2, guardian:1.75, elite:1.5}[k] || 1) * (1 + 0.1 * (S.heat || 0)) * (F().bound ? 2 : 1));
@@ -6683,12 +6723,13 @@ const BOUNTIES = [
   {id:'crits', n:g => `Land ${g} critical hits`, g:5, sl:25}, {id:'switch', n:g => `Switch form ${g} times`, g:12, sl:20},
   {id:'elite', n:g => `Defeat ${g} elites`, g:2, sl:30}, {id:'boss', n:() => 'Defeat a boss', g:1, sl:40},
   {id:'nohit', n:g => `Win ${g} fights without a scratch`, g:2, sl:30}, {id:'bighit', n:g => `Deal ${g} or more damage in one hit`, g:25, sl:30, max:1},
-  {id:'cards', n:g => `Play ${g} cards`, g:40, sl:20}, {id:'multi', n:() => 'Kill two enemies with one card', g:1, sl:30}];
+  {id:'cards', n:g => `Play ${g} cards`, g:40, sl:20}, {id:'multi', n:() => 'Kill two enemies with one card', g:1, sl:30},
+  {id:'build', n:g => `Win ${g} fights with 4+ cards of one build`, g:3, sl:30}];
 function bounties() { const day = dayKey(); if (!META.bounty || META.bounty.day !== day) { const R = seeded(day * 13 + 7), pool = BOUNTIES.slice(), list = [];
     while (list.length < 3) list.push({id: pool.splice(Math.floor(R() * pool.length), 1)[0].id, p: 0, c: 0}); META.bounty = {day, list}; }
   return META.bounty.list; }
 // progress: add n (or, for "max" bounties, keep the best value)
-function bounty(id, n = 1) { if (FAST && !window.SIMB) return; const L = bounties(); L.forEach(b => { if (b.id !== id) return; const B = BOUNTIES.find(x => x.id === id); if (b.p >= B.g) return;
+function bounty(id, n = 1) { if (FAST && !window.SIMB || S && S.practice) return; const L = bounties(); L.forEach(b => { if (b.id !== id) return; const B = BOUNTIES.find(x => x.id === id); if (b.p >= B.g) return;
   b.p = B.max ? Math.max(b.p, n) : b.p + n; if (b.p >= B.g) { b.p = B.g; S.bountyDone = (S.bountyDone || []).concat(B.n(B.g)); if (S.screen === 'fight' && S.f && alive().length) fxe('call', {txt: 'Bounty complete!', small: 1}); else S.bountyNote = 1; } }); }
 const bountyUnclaimed = () => bounties().filter(b => { const B = BOUNTIES.find(x => x.id === b.id); return b.p >= B.g && !b.c; });
 // vengeance: whatever killed you is marked; next run you hit it harder and it pays souls
@@ -7612,30 +7653,107 @@ const cardTags = id => CARD_TAGS[id] || [];
 // the builds a deck leans into, most cards first
 function deckBuilds(d) { const n = {}; d.forEach(id => cardTags(id).forEach(t => { n[t] = (n[t] || 0) + 1; })); return Object.entries(n).sort((a, b) => b[1] - a[1]); }
 const buildChip = (t, n, on, act) => `<button class="bchip${on ? ' on' : ''}" ${act ? `data-act="${act}" data-i="${t}"` : 'tabindex="-1"'} style="--bc:${t === 'all' ? '#a89cb8' : BUILDS[t].c}"><i></i>${t === 'all' ? 'All' : BUILDS[t].n}${n != null ? ` <b>${n}</b>` : ''}</button>`;
+/* ---------- the deck builder: the Chain (your ten cards, both sides on every tile), the collection below, a lifted card read in full ---------- */
+// what a face does for a build: [fills (sets it up), spends (pays it off)]
+const ROLE = {
+  verdict: [e => e.judge || e.sinN || e.bellJ || e.bellS, e => e.verX || e.absX || e.perJ || e.perS || e.reapJ || e.reapS || e.markMv],
+  turncoat: [e => e.freeSw || e.nextFree || e.flip || e.emp || (e.st || []).some(s => s[3]), e => e.twin || e.perSw || e.swBlk || e.swDmg || e.blkSw || e.cross],
+  blood: [e => e.selfP || e.self, e => e.dmgL || e.healL || e.wound || e.ls || e.bp],
+  bulwark: [e => e.blk || e.keepBlk || e.blkX, e => e.blkdmg || e.heldX],
+  affliction: [e => (e.st || []).some(s => ['burn', 'poison', 'doom'].includes(s[0])) || e.exp || e.weak || e.leech || e.silence, e => e.detonate || e.spread || e.stX || e.perCurse || e.healCurse || e.xferAff],
+  inferno: [e => e.ht > 0 || e.heatDbl, e => e.ovh || e.ifOvh || e.sunheart || e.perHeat || e.heatBurst],
+  vent: [e => e.ht > 0 || e.keepBlk, e => e.vent || e.heatBurst || e.perHeat || e.ht < 0 || e.vaultB],
+  shatter: [e => (e.st || []).some(s => s[0] === 'chill') || e.freeze || e.weak, e => e.xFrozen || e.xChill || e.shpt],
+  burn: [e => (e.st || []).some(s => s[0] === 'burn') || e.tick === 'burn', e => e.detonate || e.burnUp || e.everburn || e.blkBurn || e.snuff],
+};
+const ROLES_C = {};
+function cardRoles(id) { if (ROLES_C[id]) return ROLES_C[id]; const out = {}, fs = [CARDS[id].a, CARDS[id].d];
+  cardTags(id).forEach(t => { const R = ROLE[t]; if (!R) return; out[t] = ((fs.some(R[0]) ? 'f' : '') + (fs.some(R[1]) ? 's' : '')) || 'f'; }); return ROLES_C[id] = out; }
+// card records: plays, output (damage + block + healing), runs and wins with it in the deck. Shown once a card has 10 plays.
+const CREC = () => META.crec || (META.crec = {});
+const crec = id => CREC()[id] || {p: 0, o: 0, r: 0, w: 0};
+const cAvg = id => { const r = crec(id); return r.p >= 10 ? r.o / r.p : null; };
+function cForm(id) { const a = cAvg(id); if (a == null) return 0; const L = DUO_DEF().cards.map(cAvg).filter(x => x != null).sort((x, y) => x - y); if (L.length < 6) return 0;
+  return a >= L[Math.floor(L.length * 2 / 3)] ? 1 : a < L[Math.floor(L.length / 3)] ? -1 : 0; }
+const ownedIds = () => DUO_DEF().cards.filter(id => DUO().coll[id]);
+const curDeckI = () => S.dsel != null && DUO().decks[S.dsel] ? S.dsel : DUO().deckSel;
+const curDeck = () => DUO().decks[curDeckI()] || (DUO().decks[curDeckI()] = []);
+const cName = id => CARDS[id].a.n === CARDS[id].d.n ? CARDS[id].a.n : CARDS[id].a.n + ' / ' + CARDS[id].d.n;
+const DECK_TITLE = {verdict: 'The Verdict Engine', turncoat: 'Turncoat Waltz', blood: 'Bloodletter', bulwark: 'The Bastion', affliction: 'Plaguebearer', inferno: 'Inferno', vent: 'Steam Engine', shatter: 'Shatterglass', burn: 'The Pyre'};
+function deckName(i) { const nm = (DUO().deckNames || [])[i]; if (nm) return nm; const b = deckBuilds(DUO().decks[i] || []).filter(x => BUILDS[x[0]]); return b[0] && b[0][1] >= 3 ? DECK_TITLE[b[0][0]] || 'Deck ' + (i + 1) : 'Deck ' + (i + 1); }
+const deckRec = i => (DUO().deckRec || {})[i] || {w: 0, r: 0};
+// one half of a split tile: art, cost and the main number of that face
+function faceBits(e, fm) { const m = acMain(e, fm, false), art = Pix.get('art-' + artFor(e) + '-' + artK(fm)), km = cardMain(e, false);
+  const icoK = (ARCH.COL[m.k] || ARCH.COL[m.k.replace('aoe_', '')] || [0, 0, 0, 0, 'sword'])[4];
+  let ico = {sword: 'sword', aoe: 'sword', shield: 'shield', heart: 'heart', drop: 'mana', cards: 'deck', bolt: 'energy', rage: 'st-might', flame: 'st-burn', skull: 'st-poison', glass: 'st-doom', thermo: 'heat', cube: 'st-frozen', snow: 'st-chill', swap: 'switch'}[icoK] || (PIC['st-' + m.k] ? 'st-' + m.k : 'star'), num = String(m.n == null ? '' : m.n);
+  if (!num.trim()) { const s = cardSecs(e, km && km.k, m.k, 9)[0]; if (s) { if (s[0]) ico = s[0]; num = String(s[1] || ''); } }
+  if (num.length > 4) num = ''; return {art, c: e.c, ico, num}; }
+function splitTile(id, o) { o = o || {}; const lv = cLv(id), A = faceOf(id, lv, 'angel').e, D = faceOf(id, lv, 'demon').e, fm = cForm(id);
+  const half = (e, f) => { const b = faceBits(e, f); return `<span class="sch ${f}">${b.art ? `<img src="${b.art.url}" alt="">` : ''}<i class="scc">${b.c}</i><b>${pxi(b.ico)}${b.num ? `<em>${b.num}</em>` : ''}</b></span>`; };
+  const marks = Object.entries(cardRoles(id)).slice(0, 2).map(([t, r]) => `<i style="--bc:${BUILDS[t].c}">${r.includes('f') ? '▲' : ''}${r.includes('s') ? '◆' : ''}</i>`).join('');
+  return `<button class="sc r-${cardRar(A)}${o.cls ? ' ' + o.cls : ''}" data-act="dlift" data-i="${id}"${o.slot != null ? ` data-slot="${o.slot}"` : ''}${o.style ? ` style="${o.style}"` : ''} aria-label="${cName(id)}">${half(A, 'angel')}${half(D, 'demon')}${marks ? `<span class="scmk">${marks}</span>` : ''}${fm ? `<i class="scf ${fm > 0 ? 'hot' : 'cold'}" aria-label="${fm > 0 ? 'In form' : 'Rarely pulls its weight'}"></i>` : ''}${o.badge || ''}</button>`; }
+// a lifted card: both faces in full with their words, its builds, its record, one button
+function liftPanel(id) { const lv = cLv(id), d = curDeck(), inD = d.includes(id), full = d.length >= DECK_SIZE, r = crec(id);
+  const rec = r.p >= 10 ? `Played ${r.p} · ${Math.round(r.o / r.p)} a play · won ${r.w} of ${r.r} runs` : r.p ? `Played ${r.p} · its record shows after 10 plays` : 'Not played yet';
+  const face = f => { const e = faceOf(id, lv, f).e; return `<div class="dlside"><span class="zlab ${f} k-${acKey(f)}">${FN(f)}</span>${archCard(e, f, false, {cls: 'dlc'})}<small class="dlw">${cardWords(e, false).join(' · ')}</small></div>`; };
+  const ro = Object.entries(cardRoles(id)).map(([t, x]) => `<span class="dlrole" style="--bc:${BUILDS[t].c}">${BUILDS[t].n}${x.includes('f') ? ' ▲ fills' : ''}${x.includes('s') ? ' ◆ spends' : ''}</span>`).join('');
+  return `<div class="dlift" role="dialog" aria-label="${cName(id)}"><button class="dlx" data-act="dliftx" aria-label="Close">✕</button><div class="dlpair">${face('angel')}${face('demon')}</div>${ro ? `<div class="dlroles">${ro}</div>` : ''}<p class="dlrec">${rec}</p>
+    <button class="btn${inD ? '' : ' pri'}" data-act="dtog" data-i="${id}" ${!inD && full ? 'disabled' : ''}>${inD ? 'Take out' : full ? 'Deck is full' : 'Add to deck'}</button></div>`; }
 function vDecks() {
-  const i = S.dsel != null && DUO().decks[S.dsel] ? S.dsel : DUO().deckSel, d = DUO().decks[i], face = S.face || 'angel', full = d.length >= DECK_SIZE;
-  const boxes = [0, 1, 2].map(k => { const dk = DUO().decks[k], ok = deckValid(dk);
-    return `<button class="dbox${k === i ? ' on' : ''}${ok ? '' : ' wip'}" data-act="dedit" data-i="${k}"><b>Deck ${k + 1}</b><small>${k === DUO().deckSel ? '✓' : dk.length + '/' + DECK_SIZE}</small></button>`; }).join('');
-  const pips = Array.from({length: DECK_SIZE}, (_, k) => `<i class="${k < d.length ? 'on' : ''}"></i>`).join('');
-  const chips = d.map(id => { const e = faceOf(id, cLv(id), face).e, art = Pix.get('art-' + artFor(e) + '-' + artK(face));
-    return `<button class="dmini ${face}" data-act="dtog" data-i="${id}" aria-label="Remove ${e.n}" title="${e.n}">${art ? `<img src="${art.url}" alt="">` : ''}<span>${e.c}</span><em class="dmx">✕</em></button>`; }).join('')
-    + Array.from({length: Math.max(0, DECK_SIZE - d.length)}, () => '<span class="dmini empty"></span>').join('');
-  const bf = S.bfilt && BUILDS[S.bfilt] ? S.bfilt : null, mine = [...new Set(DUO_DEF().cards.flatMap(cardTags))];
-  const cells = DUO_DEF().cards.filter(id => DUO().coll[id] && (!bf || cardTags(id).includes(bf))).map(id => {
-    const c = DUO().coll[id], inD = d.includes(id), canUp = canForge(c);
-    const need = forgeNeed(c), lvp = `<span class="frg"><i style="width:${Math.round(100 * Math.min(1, c.c / need))}%"></i></span><small>${Math.min(c.c, need)}/${need}</small>`;
-    return `<div class="cslot${inD ? ' indeck' : full ? ' locked' : ''}">${bigCard(id, 'dtog', id, 0, inD ? 'in' : '', inD ? '<span class="dcheck">✓</span>' : '')}
-      ${canUp ? `<button class="mini up glow dforge" data-act="forge">▲ Forge</button>` : ''}</div>`; }).join('');
-  const tabs = [0, 1, 2].map(k => `<button class="dtab${k === i ? ' on' : ''}" data-act="dedit" data-i="${k}">Deck ${k + 1}${k === DUO().deckSel ? ' ✓' : DUO().decks[k].length < DECK_SIZE ? ` <small>${DUO().decks[k].length}/${DECK_SIZE}</small>` : ''}</button>`).join('');
-  return `<div class="screen decks mk"><div class="ahead">${hback(S.fromCheck ? 'deckcheck' : 'camp')}${sprite('gear-decks', 'arack')}<div><h2>Decks</h2><span class="agold">${DECK_SIZE} per deck</span></div></div>
-    <div class="dtabs">${tabs}</div>${duoPick()}${faceBar()}
-    <div class="dstrip">${chips}</div>
-    <div class="dmeta"><span class="dbl"></span>
-      ${i === DUO().deckSel ? '<span class="duse">In use</span>' : `<button class="abtn eq" data-act="duse" data-i="${i}" ${deckValid(d) ? '' : 'disabled'}>Use for runs</button>`}</div>
+  const i = curDeckI(), d = curDeck(), lift = S.lift && DUO().coll[S.lift] ? S.lift : null; S.lift = lift;
+  const ww = new Set(lift ? ownedIds().filter(id => id !== lift && cardTags(id).some(t => cardTags(lift).includes(t))) : []), dealing = performance.now() - (S.dealt || -1e6) < 1500;
+  const tabs = [0, 1, 2].map(k => { const R = deckRec(k), n = DUO().decks[k].length; return `<button class="dtab${k === i ? ' on' : ''}" data-act="dedit" data-i="${k}">Deck ${k + 1}${k === DUO().deckSel ? ' ✓' : n < DECK_SIZE ? ` <small>${n}/${DECK_SIZE}</small>` : ''}</button>`; }).join(''), RC = deckRec(i);
+  const bl = deckBuilds(d).filter(x => BUILDS[x[0]]), top = bl[0] && bl[0][1] >= 3 ? bl[0][0] : null;
+  const chain = Array.from({length: DECK_SIZE}, (_, k) => d[k] ? splitTile(d[k], {slot: k, cls: 'inch' + (lift === d[k] ? ' lift' : '') + (ww.has(d[k]) ? ' ww' : '') + (dealing ? ' deal' : ''), style: `--k:${k}`}) : `<span class="sc empty" data-slot="${k}"></span>`).join('');
+  const meter = bl.slice(0, 3).map(([t, n]) => { let f = 0, s = 0; d.forEach(id => { const r = cardRoles(id)[t]; if (r) { if (r.includes('f')) f++; if (r.includes('s')) s++; } });
+    return `<div class="bmr" style="--bc:${BUILDS[t].c}"><b>${BUILDS[t].n}</b><span class="bpips">${[0, 1, 2, 3, 4].map(k => `<i class="${k < n ? 'on' : ''}"></i>`).join('')}${n > 5 ? `<em>+${n - 5}</em>` : ''}</span><small${s && !f ? ' class="neg"' : ''}>${s && !f ? 'Nothing fills it' : `fills ${f} · spends ${s}`}</small></div>`; }).join('');
+  const bf = S.bfilt && BUILDS[S.bfilt] ? S.bfilt : null, own = ownedIds(), tags = Object.keys(BUILDS).filter(t => own.some(id => cardTags(id).includes(t)));
+  const cells = own.filter(id => !bf || cardTags(id).includes(bf)).map(id => splitTile(id, {cls: (d.includes(id) ? 'in' : '') + (lift === id ? ' lift' : '') + (ww.has(id) ? ' ww' : ''), badge: d.includes(id) ? '<span class="dcheck">✓</span>' : ''})).join('');
+  const forge = Object.values(DUO().coll).some(canForge) ? '<button class="mini up glow" data-act="forge">▲ Forge</button>' : '';
+  return `<div class="screen decks dk2 mk${lift ? ' lifted' : ''}"><div class="ahead">${hback(S.fromCheck ? 'deckcheck' : 'camp')}${sprite('gear-decks', 'arack')}<div><h2>Decks</h2><span class="agold">${DECK_SIZE} cards</span></div></div>
+    <div class="dtabs">${tabs}</div>${duoPick()}
+    <div class="dnmrow"><button class="dnm" data-act="dname">${escH(deckName(i))} <i>✎</i>${RC.r ? `<small>Won ${RC.w} of ${RC.r}</small>` : ''}</button>${i === DUO().deckSel ? '<span class="duse">In use</span>' : `<button class="abtn eq" data-act="duse" data-i="${i}" ${deckValid(d) ? '' : 'disabled'}>Use for runs</button>`}</div>
+    <div class="dchain${top ? ' tb' : ''}" style="--bc:${top ? BUILDS[top].c : '#a8823a'}">${chain}</div>
+    ${meter ? `<div class="bmeter">${meter}</div>` : ''}
+    <div class="dtools"><button class="btn" data-act="dsug">Suggest</button><button class="btn" data-act="dprove" ${deckValid(d) ? '' : 'disabled'}>Proving Ground${(DUO().deckBest || {})[i] ? `<small>Best ${DUO().deckBest[i]}</small>` : ''}</button><button class="btn" data-act="dcode">Code</button>${S.undoDeck ? '<button class="btn" data-act="dundo">Undo</button>' : ''}</div>
     <i class="pg-split"></i>
-    <div class="cgrid">${cells}</div>
+    <div class="bchips">${buildChip('all', null, !bf, 'bfilt')}${tags.map(t => buildChip(t, null, bf === t, 'bfilt')).join('')}${forge}</div>
+    <div class="scgrid">${cells}</div>
 </div>`;
 }
+// a card added to the deck flies from where it was into its link of the Chain
+function flyCard(id, from) { if (!from) return; requestAnimationFrame(() => { const to = document.querySelector(`.dchain .sc[data-i="${id}"]`); if (!to) return; const r = to.getBoundingClientRect(), g = to.cloneNode(true);
+  if (REDUCED) { to.classList.add('clink'); sfx('chain'); return; }
+  g.classList.add('flyc'); Object.assign(g.style, {position: 'fixed', left: from.left + 'px', top: from.top + 'px', width: from.width + 'px', height: from.height + 'px', margin: 0, zIndex: 200, transition: 'left .38s cubic-bezier(.3,.7,.3,1),top .38s cubic-bezier(.3,.7,.3,1),width .38s,height .38s', pointerEvents: 'none'});
+  document.body.appendChild(g); to.style.visibility = 'hidden'; void g.offsetWidth; Object.assign(g.style, {left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px'});
+  setTimeout(() => { g.remove(); const t2 = document.querySelector(`.dchain .sc[data-i="${id}"]`); if (t2) { t2.style.visibility = ''; t2.classList.add('clink'); } sfx('chain'); buzz(15); }, 400); }); }
+// Suggest: a whole deck for a build (fillers and spenders in a working mix, two sturdy cards, the best of the rest), or one swap for a full deck
+const isDef = id => [CARDS[id].a, CARDS[id].d].some(e => (e.blk || 0) >= 6 || (e.heal || 0) >= 4);
+const cardVal = id => cLv(id) + (cAvg(id) != null ? Math.min(3, cAvg(id) / 6) : 0) + cForm(id) + (baseRar(id) === 'legendary' ? 2 : baseRar(id) === 'epic' ? 1 : 0);
+function bestBuild(own) { let best = null, bv = -1; Object.keys(BUILDS).forEach(t => { const L = own.filter(id => cardTags(id).includes(t)); if (L.length < 4) return; const v = L.map(cardVal).sort((a, b) => b - a).slice(0, 7).reduce((a, b) => a + b, 0) + L.length * .2; if (v > bv) { bv = v; best = t; } }); return best; }
+function suggestDeck(b, seed) { const own = ownedIds(); if (!BUILDS[b]) b = bestBuild(own); const out = (seed || []).filter(id => DUO().coll[id]).slice(0, DECK_SIZE), add = id => { if (id && !out.includes(id) && out.length < DECK_SIZE) out.push(id); }, by = (x, y) => cardVal(y) - cardVal(x);
+  const tag = b ? own.filter(id => cardTags(id).includes(b)).sort(by) : [], spends = id => (cardRoles(id)[b] || '').includes('s');
+  const defN = DUO_DEF().start.filter(isDef).length; /* as sturdy as the starter deck: Fallen 3, Ember 4 */
+  tag.filter(spends).slice(0, 3).forEach(add); tag.filter(id => !spends(id)).slice(0, Math.max(2, DECK_SIZE - defN - 3)).forEach(add);
+  own.filter(id => isDef(id) && !out.includes(id)).sort(by).slice(0, Math.max(0, defN - out.filter(isDef).length)).forEach(add);
+  tag.forEach(add); own.slice().sort(by).forEach(add);
+  const hits = id => [CARDS[id].a, CARDS[id].d].some(e => (e.dmg || 0) * (e.hits || 1) >= 6), hitN = DUO_DEF().start.filter(hits).length - 1; /* and nearly as many real hitters as the starter deck */
+  for (let g = 0; g < 4 && out.filter(hits).length < hitN; g++) { const inn = own.filter(id => !out.includes(id) && hits(id)).sort((x, y) => (cardTags(y).includes(b) - cardTags(x).includes(b)) || by(x, y))[0], k = out.map((id, j) => [id, j]).filter(([id]) => !hits(id) && !isDef(id) && !(cardRoles(id)[b] || '').includes('s')).sort((x, y) => cardVal(x[0]) - cardVal(y[0]))[0]; if (!inn || !k) break; out[k[1]] = inn; }
+  return out; }
+function swapTip(d) { const top = (deckBuilds(d).filter(x => BUILDS[x[0]])[0] || [])[0]; if (!top) return null; const on = id => cardTags(id).includes(top), nDef = d.filter(isDef).length;
+  const out = d.filter(id => !(isDef(id) && nDef <= 2)).sort((x, y) => (on(x) - on(y)) || cardVal(x) - cardVal(y))[0], inn = ownedIds().filter(id => !d.includes(id) && on(id)).sort((x, y) => cardVal(y) - cardVal(x))[0];
+  if (!out || !inn || (on(out) && cardVal(inn) <= cardVal(out) + .5)) return null;
+  return {out, inn, why: on(out) ? `${CARDS[inn].a.n} has done more` : `${CARDS[out].a.n} is off-build. ${CARDS[inn].a.n} feeds ${BUILDS[top].n}`}; }
+function vSuggest() { const d = curDeck(), own = ownedIds(), bl = Object.keys(BUILDS).filter(t => own.filter(id => cardTags(id).includes(t)).length >= 4), sw = d.length >= DECK_SIZE ? swapTip(d) : null;
+  return `<h2>Suggest</h2><i class="pg-split"></i>${sw ? `<p class="psec-h">One swap</p>${shopRow({icon: '⇄', n: `${CARDS[sw.out].a.n} → ${CARDS[sw.inn].a.n}`, d: sw.why, act: `<button class="abtn eq" data-act="dswap" data-i="${sw.out}|${sw.inn}">Swap</button>`})}` : ''}
+    <p class="psec-h">${d.length ? 'Rebuild' : 'Build'} this deck around</p><div class="bchips">${buildChip('all', null, false, 'dsugb').replace('>All', '>Best')}${bl.map(t => buildChip(t, null, false, 'dsugb')).join('')}</div>
+    <button class="alink" data-act="dsugb" data-i="daily">Today's Daily build</button>`; }
+// deck codes: the duo's letter and two base-36 digits per card
+const deckCode = d => 'BB-' + META.duoSel.slice(0, 1).toUpperCase() + '-' + d.map(id => DUO_DEF().cards.indexOf(id).toString(36).padStart(2, '0')).join('');
+function readCode(s) { const m = String(s || '').trim().toUpperCase().match(/^BB-([A-Z])-([0-9A-Z]+)$/); if (!m || m[1] !== META.duoSel.slice(0, 1).toUpperCase() || m[2].length % 2) return null;
+  return m[2].match(/../g).map(x => DUO_DEF().cards[parseInt(x, 36)]).filter(Boolean); }
+function vCodeSheet() { const d = curDeck(); return `<h2>Deck code</h2><i class="pg-split"></i>${d.length ? `<p class="psec-h">This deck</p><div class="dcode"><input readonly value="${deckCode(d)}" aria-label="Deck code"><button class="abtn eq" data-act="dcopy">Copy</button></div>` : ''}
+  <p class="psec-h">Load a code</p><div class="dcode"><input id="dcin" placeholder="BB-…" autocomplete="off" autocapitalize="characters" aria-label="Paste a deck code"><button class="abtn eq" data-act="dload">Load</button></div><p class="dim small">Cards you don't own yet are left out.</p>`; }
 // an icon for a glossary term, when the game has one for it
 const GLOSS_IC = {cure:'st-poison', block:'shield', breakall:'shield', lasting:'lock', toll:'heart', fester:'heart', banish:'skull', lifecost:'heart', detonate:'st-burn', spread:'st-poison', afflicted:'skull', purge:'st-judge', pour:'st-sin', undying:'heart', hourglass:'hourglass', vulnerableresists:'crit', switch:'switch', judgement:'st-judge', sin:'st-sin', heat:'heat', overheat:'heat', mark:'st-expose', lifesteal:'st-vamp', leech:'st-leech', silence:'st-silence', streak:'energy', pierce:'sword', shatter:'shield', break:'shield', mana:'mana', energy:'energy', physical:'sword'};
 const glossIc = k => { const n = k.toLowerCase().replace(/[^a-z]/g, ''), c = GLOSS_IC[n] || (PIC['st-' + n] ? 'st-' + n : PIC[n] ? n : null); return c && PIC[PIC_ALIAS[c] || c] ? pxi(c) + ' ' : ''; };
@@ -8754,6 +8872,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
+  {v: '0.130', d: '28 Nov', n: ["New deck builder: your ten cards sit in the Chain, and every card shows both sides", "Tap a card to read both faces, its builds and its record", "Builds show what fills and what spends, and cards that work together glow", "Suggest builds a deck for you, or offers one swap", "Proving Ground: test a deck on a straw dummy for three turns", "Cards keep records, and each run names its MVP", "Name your decks, see their wins, share them as codes", "New bounty: win fights with 4+ cards of one build"]},
   {v: '0.129.1', d: '28 Nov', n: ["The tutorial asks how fast enemy turns should play"]},
   {v: '0.129', d: '28 Nov', n: ["New players meet their duo and go straight into their first run", "The camp only shows places you can use, plus the next one to open", "A raised attack shows its damage on the target's life bar, with a skull if it kills", "Online leaderboard for Endless and the Daily", "Your companion stays tappable when an enemy's name drifts over it"]},
   {v: '0.128', d: '28 Nov', n: ["Loads about twice as fast: the art is packed smaller, pixel for pixel the same", "A title shows while the game loads, not a black screen", "Enemy debuff intents are bigger and easier to read", "Status turn counters no longer sit on enemy life bars", "End turn glows when nothing is left to play", "Doors fit on small phones again"]},
@@ -8810,7 +8929,7 @@ function endRecap() {
   if (!S.p || !S.p.deck) return ''; const R = S.rs || {}, fights = (R.fight || 0) + (R.elite || 0) + (R.guardian || 0) + (R.boss || 0), face = S.p.form || 'angel';
   const chips = S.p.deck.map(c => { const e = faceOf(c.id, c.lv || 1, face).e, art = Pix.get('art-' + artFor(e) + '-' + artK(face));
     return `<button class="dmini ${face}" data-act="peek" data-i="${c.id}" data-cid="${c.id}" aria-label="${e.n}. Hold to read" title="${e.n}">${art ? `<img src="${art.url}" alt="">` : ''}<span>${e.c}</span></button>`; }).join('');
-  return `<div class="erecap"><div class="erstats"><div><b>${fights}</b><small>fights won</small></div><div><b>${S.bigHit || 0}</b><small>biggest hit</small></div><div><b>${S.p.deck.length}</b><small>cards</small></div></div><div class="dstrip erdeck">${chips}</div></div>`;
+  return `<div class="erecap"><div class="erstats"><div><b>${fights}</b><small>fights won</small></div><div><b>${S.bigHit || 0}</b><small>biggest hit</small></div><div><b>${S.p.deck.length}</b><small>cards</small></div></div>${(m => m ? `<p class="emvp">MVP <b>${CARDS[m.id].a.n}</b> · ${m.v} total</p>` : '')(mvpOf())}<div class="dstrip erdeck">${chips}</div></div>`;
 }
 function vEnd() {
   const sa = Pix.get(DK('duo-angel')), sd = Pix.get(DK('duo-demon')), won = S.won;
@@ -8922,6 +9041,7 @@ function vSheet() {
     : S.sheet.chinfo ? vChainInfo()
     : S.sheet.pick ? vPick(S.sheet.pick) : S.sheet.foe ? vFoeInfo(S.sheet.foe)
     : S.sheet.comp ? vCompInfo(S.sheet.comp)
+    : S.sheet.sug ? vSuggest() : S.sheet.dcode ? vCodeSheet()
     : S.sheet.offer ? vOffer(S.sheet.offer, S.sheet.pend)     : S.sheet.news ? vNews(S.sheet.news === 'all', S.sheet.list)
     : S.sheet.fb ? `<h2>Send feedback</h2><p class="dim small">What happened? Device and version are added. Nothing personal.</p><i class="pg-split"></i>
         <textarea id="fbnote" class="fbta" rows="5" placeholder="e.g. The Merchant door froze after I bought a card…">${S.sheet.note || ''}</textarea>
@@ -8997,7 +9117,7 @@ function render() {
   // continuous CSS animations restart when innerHTML is replaced; a shared negative delay keeps them in phase
   $app.style.setProperty('--now', (-performance.now() / 1000).toFixed(3) + 's');
   $app.classList.remove('enter');
-  checkReveal(); $app.innerHTML = html + vDuo() + vSheet() + vConfirm() + vVow() + vForge() + vCacheOpen() + vReveal() + vIntro();
+  checkReveal(); $app.innerHTML = html + (S.screen === 'decks' && S.lift && !S.sheet ? liftPanel(S.lift) : '') + vDuo() + vSheet() + vConfirm() + vVow() + vForge() + vCacheOpen() + vReveal() + vIntro();
   $app.querySelectorAll('.screen, .sheet>div').forEach(paginate);
   $app.querySelectorAll('.screen .ahead').forEach(h => { if (!h.querySelector('.msouls,.kpill')) h.insertAdjacentHTML('beforeend', kpill()); });
   CardFX.sync();
@@ -9756,10 +9876,24 @@ const ACT = {
   compbring: d => { META.comp = COMPANIONS[d.i] && META.comps[d.i] ? d.i : null; save(); S.sheet = null; render(); },
   snd: () => { META.opt.sound = !META.opt.sound; save(); render(); },
   decks: () => { if (S.sheet && S.sheet.pick) S.sheet = null; S.fromCheck = S.screen === 'deckcheck'; S.dsel = S.dsel != null ? S.dsel : DUO().deckSel; S.screen = 'decks'; render(); },
-  dedit: d => { S.dsel = +d.i; render(); },
+  dedit: d => { S.dsel = +d.i; S.lift = null; S.undoDeck = null; render(); },
   duse: d => { if (deckValid(DUO().decks[+d.i])) { DUO().deckSel = +d.i; save(); } render(); },
   dtog: d => { if (!DUO().decks[S.dsel]) S.dsel = DUO().decks[DUO().deckSel] ? DUO().deckSel : 0; if (!DUO().decks[S.dsel]) DUO().decks[S.dsel] = []; const deck = DUO().decks[S.dsel], k = deck.indexOf(d.i);
-    if (k >= 0) deck.splice(k, 1); else if (deck.length < DECK_SIZE && DUO().coll[d.i]) deck.push(d.i); else return; save(); render(); },
+    const src = document.querySelector(`.scgrid .sc[data-i="${d.i}"]`), rr = src && src.getBoundingClientRect(); let added = false;
+    if (k >= 0) deck.splice(k, 1); else if (deck.length < DECK_SIZE && DUO().coll[d.i]) { deck.push(d.i); added = true; } else return; S.lift = null; S.undoDeck = null; save(); render(); if (added) flyCard(d.i, rr && rr.bottom > 0 && rr.top < innerHeight ? rr : null); else sfx('tap'); },
+  dlift: d => { S.lift = S.lift === d.i ? null : d.i; sfx('card'); render(); }, dliftx: () => { S.lift = null; render(); },
+  dsug: () => { S.lift = null; S.sheet = {sug: 1}; render(); },
+  dsugb: d => { const i = curDeckI(), old = DUO().decks[i].slice(), K = d.i === 'daily' ? dailyKit() : null, nd = K ? suggestDeck(K.tag, K.deck) : suggestDeck(d.i === 'all' ? null : d.i); if (!nd.length) return;
+    DUO().decks[i] = nd; S.undoDeck = {i, d: old}; S.dealt = performance.now(); S.sheet = null; save(); render(); sfx('chain'); setTimeout(() => { if (S.screen === 'decks') render(); }, 1600); },
+  dswap: d => { const [o, n] = String(d.i).split('|'), dk = curDeck(), k = dk.indexOf(o); if (k < 0 || dk.includes(n) || !DUO().coll[n]) return; S.undoDeck = {i: curDeckI(), d: dk.slice()}; dk[k] = n; S.sheet = null; save(); render(); requestAnimationFrame(() => { const t = document.querySelector(`.dchain .sc[data-i="${n}"]`); if (t) t.classList.add('clink'); }); sfx('chain'); },
+  dundo: () => { const u = S.undoDeck; if (u && DUO().decks[u.i]) { DUO().decks[u.i] = u.d; save(); } S.undoDeck = null; render(); },
+  dprove: () => { S.lift = null; startProving(); },
+  dcode: () => { S.lift = null; S.sheet = {dcode: 1}; render(); },
+  dcopy: () => { const c = deckCode(curDeck()); try { navigator.clipboard.writeText(c).then(() => toast('Copied'), () => toast(c)); } catch (e) { toast(c); } },
+  dload: () => { const el = document.getElementById('dcin'), ids = readCode(el && el.value); if (!ids || !ids.length) return toast('That code is not for ' + DUO_DEF().n);
+    const own = [...new Set(ids.filter(id => DUO().coll[id]))].slice(0, DECK_SIZE), i = curDeckI(); S.undoDeck = {i, d: DUO().decks[i].slice()}; DUO().decks[i] = own; S.sheet = null; S.dealt = performance.now(); save(); render();
+    if (own.length < ids.length) toast(`${ids.length - own.length} card${ids.length - own.length > 1 ? 's' : ''} you don't own yet left out`); },
+  dname: () => { const i = curDeckI(), v = prompt('Name this deck', deckName(i)); if (v == null) return; (DUO().deckNames = DUO().deckNames || [])[i] = v.trim().slice(0, 22); save(); render(); },
   upg: d => { const c = DUO().coll[d.i]; cRank(d.i); if (!canForge(c)) return render(); const from = rarLabel(d.i), nx = rankNextHTML(d.i, cLv(d.i)); c.c -= forgeNeed(c); c.r = (c.r || 0) + 1;
     save(); sfx('win'); buzz([30, 40, 80]); if (vowDue(d.i)) S.vowPick = {id: d.i, from}; else S.forge = {id: d.i, from, to: rarLabel(d.i), next: nx}; render(); },
   vowopen: d => { S.vowPick = {id: d.i, from: rarLabel(d.i)}; render(); }, vowlater: () => { S.vowPick = null; render(); },
@@ -10087,6 +10221,31 @@ const FTIPS = [
   return r0.apply(this, arguments); }; }
 // a page body with more below the fold fades at its bottom edge, so lists never look complete when they are not
 { const r0 = render; const mark = el => el.classList.toggle('more', el.scrollHeight - el.clientHeight - el.scrollTop > 6); render = function () { const out = r0.apply(this, arguments); document.querySelectorAll('#app .pg-body').forEach(el => { mark(el); if (!el._mk) { el._mk = 1; el.addEventListener('scroll', () => mark(el), {passive: true}); } }); return out; }; }
+// ---------- deck builder v2: card records, the MVP card, the Proving Ground ----------
+// a played card's output: damage dealt (enemy life and block lost), block gained, life healed. Real runs only.
+{ const pc = playCard; playCard = function (i) { const f = S.f, c = f && f.hand && f.hand[i]; if (!c || S.practice || FAST) return pc.apply(this, arguments);
+    const p = P(), hp0 = p.hp, b0 = p.blk, sum = L => L.reduce((a, e) => a + Math.max(0, e.hp) + (e.blk || 0), 0), e0 = sum(f.en), out = pc.apply(this, arguments);
+    try { const o = Math.max(0, e0 - sum(f.en)) + Math.max(0, p.blk - b0) + Math.max(0, p.hp - hp0), R = CREC()[c.id] || (CREC()[c.id] = {p: 0, o: 0, r: 0, w: 0}); R.p++; R.o += o; (S.mvp = S.mvp || {})[c.id] = (S.mvp[c.id] || 0) + o; } catch (x) {}
+    return out; }; }
+{ const nr = newRun; newRun = function () { const out = nr.apply(this, arguments); if (S && S.p && !S.daily && !S.endless) S.deckIdx = DUO().deckSel; return out; }; }
+{ const er = endRun; endRun = function (won) { if (S && S.practice) return practiceDone();
+    try { if (S && S.p && !FAST) { [...new Set(S.p.deck.map(c => c.id))].forEach(id => { const R = CREC()[id] || (CREC()[id] = {p: 0, o: 0, r: 0, w: 0}); R.r++; if (won) R.w++; });
+      if (S.deckIdx != null) { const D = DUO().deckRec || (DUO().deckRec = {}), R = D[S.deckIdx] || (D[S.deckIdx] = {w: 0, r: 0}); R.r++; if (won) R.w++; } } } catch (x) {}
+    return er.apply(this, arguments); }; }
+{ const qr = quitRun; quitRun = function () { if (S && S.practice) { S.sheet = null; busy = false; return practiceDone(); } return qr.apply(this, arguments); }; }
+const mvpOf = () => { const M = S.mvp || {}, id = Object.keys(M).sort((a, b) => M[b] - M[a])[0]; return id && M[id] > 0 && CARDS[id] ? {id, v: Math.round(M[id])} : null; };
+// the Proving Ground: the chosen deck against a straw dummy for three turns. Nothing is won or lost; each deck keeps its best damage.
+const PROVE_TURNS = 3;
+function startProving() { const i = curDeckI(), d = DUO().decks[i]; if (!deckValid(d)) return; const keep = DUO().deckSel; DUO().deckSel = i;
+  const T = META.tut, so = META.opt.stats; META.tut = true; META.opt.stats = false; newRun(0, false, 1, []); META.tut = T; META.opt.stats = so; /* a practice run sends no stats */ DUO().deckSel = keep;
+  S.practice = {i, t: 0, blk: 0}; S.tut = 0; S.boonPick = null; S.step = 1; S.comp = null;
+  const h0 = FOES.husk.hp; FOES.husk.hp = 900; try { startFight('fight', ['husk']); } finally { FOES.husk.hp = h0; } const e = F().en[0]; e.n = 'Straw Dummy'; e.dm = (e.dm || 1) * .6; e.tr = {}; /* spawned big, so no heal number */
+  S.screen = 'fight'; render(); }
+{ const et = endTurn; endTurn = async function () { const pr = S && S.practice; if (pr && !busy && S.screen === 'fight') pr.t++; const out = await et.apply(this, arguments); if (pr && S.practice === pr && pr.t >= PROVE_TURNS && S.screen === 'fight') practiceDone(); return out; }; }
+{ const pc = playCard; playCard = function (i) { const pr = S && S.practice; if (!pr) return pc.apply(this, arguments); const b0 = P().blk, out = pc.apply(this, arguments); try { pr.blk += Math.max(0, P().blk - b0); } catch (x) {} return out; }; }
+function practiceDone() { const pr = S.practice; if (!pr) return; const e = S.f && S.f.en && S.f.en[0], dmg = e ? Math.max(0, e.max - Math.max(0, e.hp)) : 0, B = DUO().deckBest || (DUO().deckBest = {}), best = dmg > (B[pr.i] || 0);
+  if (best) B[pr.i] = dmg; save(); dropRun(); Math.random = NATIVE_RANDOM; busy = false;
+  S = {screen: 'decks', dsel: pr.i, fromCheck: false, sheet: {msg: best ? 'New best!' : 'Proving Ground', body: `${dmg} damage and ${pr.blk} block in ${PROVE_TURNS} turns.${best ? '' : ` Best: ${B[pr.i] || 0}.`}`}}; render(); }
 addEventListener('pagehide', saveRun); document.addEventListener('visibilitychange', () => { if (document.hidden) saveRun(); });
 { let r = null; try { r = JSON.parse(localStorage.getItem(RUN_KEY) || 'null'); } catch (e) {}
   if (r && r.S && r.S.p) { S = r.S; uid = Math.max(uid, r.uid || 0); if (r.duo && DUOS[r.duo]) META.duoSel = r.duo; busy = false; S.opening = false;
