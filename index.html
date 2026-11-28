@@ -2838,7 +2838,7 @@ body.ddin #app .dk2 .dchain{border-image:var(--k-pri) 16 / 12px stretch;box-shad
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy life and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.130.4-test'; // bump for every build you send to testers
+const VERSION = '0.130.5-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -7619,7 +7619,7 @@ function wSlot(sl, id, fixed) { const it = id && ARM.find(x => x.id === id), inn
 function vDeckCheck() {
   const daily = S.dailySel, K = daily ? dailyKit() : null, i = S.dsel != null ? S.dsel : DUO().deckSel, d = K ? K.deck : DUO().decks[i], ok = deckValid(d), face = S.face || 'angel';
   const cs = K ? K.comp : COMPANIONS[META.comp] && META.comps[META.comp] ? META.comp : null, ncomp = Object.keys(META.comps).length, anyc = !!K || ARM.some(x => META.arm.own[x.id]);
-  const strip = faceStrip(d, id => K ? kitLv(id) : cLv(id), DECK_SIZE, 'peek');
+  const strip = faceStrip(d, id => K ? kitLv(id) : cLv(id), DECK_SIZE, 'peek').replace('class="fstrip"', 'class="fstrip f10"');
   const sa = Pix.get(DK('duo-angel')), sd = Pix.get(DK('duo-demon')), len = S.lenSel || defLen(), builds = deckBuilds(d).filter(x => BUILDS[x[0]]);
   const mode = S.endSel ? 'Endless' : daily ? (DAILY().streak ? DAILY().streak + ' day streak' : 'Same for everyone') : `${len} act${len > 1 ? 's' : ''}${S.heatSel ? ' · Dread ' + S.heatSel : ''}`;
   const sl = (a, b) => `<div class="wcol">${[a, b, b + 1].slice(0, 3).map(n => { const k = CURIO_SLOTS[n]; return wSlot(k, K ? K.gear[n] : META.arm.eq[k], !!K); }).join('')}</div>`;
@@ -8895,6 +8895,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
+  {v: '0.130.5', d: '28 Nov', n: ["Prepare: your deck is one row of small cards again, so nothing overlaps"]},
   {v: '0.130.4', d: '28 Nov', n: ["Prepare and the Endless draft show real card faces", "End of run shows just your MVP card"]},
   {v: '0.130.3', d: '28 Nov', n: ["Fixed: Flip and other deck taps no longer jump back to the top"]},
   {v: '0.130.2', d: '28 Nov', n: ["Status numbers on cards now sit in small plaques with their icon", "Deck screen frames match the rest of the game", "Build filters are one swipeable row"]},
