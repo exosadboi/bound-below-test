@@ -2723,6 +2723,9 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
 #app .sc.dghost{display:block;aspect-ratio:auto;background:none;box-shadow:none;overflow:visible;padding:0} .dghost{transform:rotate(-3deg) scale(1.08);filter:drop-shadow(0 10px 14px rgba(0,0,0,.8))} .dghost .dcheck{display:none}
 body.ddin #app .dk2 .dchain{box-shadow:inset 0 0 0 2px rgba(242,212,138,.7)} #app .dk2 .dchain.dhot{background:rgba(242,212,138,.14)}
 body.ddout.ddrop .dghost{filter:grayscale(1) brightness(.55) drop-shadow(0 10px 14px rgba(0,0,0,.8))}
+
+.fstrip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px 6px} .fstrip .acard{width:100%;margin:0} .fstrip.f10{grid-template-columns:repeat(10,minmax(0,1fr));gap:3px} .fstrip .fse{aspect-ratio:40/58;background:rgba(0,0,0,.35);box-shadow:inset 0 0 10px rgba(0,0,0,.8),inset 0 0 0 1px rgba(255,255,255,.07)}
+#app .emvp{display:flex;align-items:center;justify-content:center;gap:12px;margin:8px 0 2px} #app .emvp .acard{width:72px;flex:none;margin:0} #app .emvp p{margin:0;text-align:left;font-size:13px;line-height:1.5;color:#a69cad} #app .emvp b{color:var(--gold);font-weight:400}
 /* deck screen v0.130.2: kit frames instead of hairline boxes */
 #app .dk2 .dchain,#app .dk2 .dchain.tb{border:4px solid transparent;border-image:var(--k-inset) 10 / 10px stretch;padding:8px 10px;image-rendering:pixelated;background:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.6)),var(--tex-stone) 0 0/64px,#100d14;box-shadow:0 3px 0 rgba(0,0,0,.6)}
 body.ddin #app .dk2 .dchain{border-image:var(--k-pri) 16 / 12px stretch;box-shadow:0 0 16px -4px var(--holy),0 3px 0 rgba(0,0,0,.6)}
@@ -2835,7 +2838,7 @@ body.ddin #app .dk2 .dchain{border-image:var(--k-pri) 16 / 12px stretch;box-shad
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy life and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.130.3-test'; // bump for every build you send to testers
+const VERSION = '0.130.4-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -6633,12 +6636,13 @@ function vAct() {
   return `${topBar()}<div class="screen center"><div class="vista" data-glow="${next.glow}"></div><p class="cap">Act ${ROMAN[S.act + 1]} of ${S.runLen}</p><h2 class="acth">${next.n}</h2>
     <p class="dim story">${next.blurb}</p><p class="lvtag">You catch your breath: +30% life</p>${status()}${sfoot('<button class="btn pri descend" data-act="nextact">Descend</button>')}</div>`;
 }
+// a deck shown as small real card faces, five to a row, with empty wells up to n
+function faceStrip(ids, lvOf, n, act) { const f = S.face || 'angel'; return `<div class="fstrip">${ids.map(id => bigCard(id, act, id, lvOf(id))).join('')}${Array.from({length: Math.max(0, (n || 0) - ids.length)}, () => '<span class="fse"></span>').join('')}</div>`; }
 function vEDraft() { const d = S.draft || [], n = S.edeck.length, N = edraftN(), face = S.face || 'angel';
-  const strip = S.edeck.map(id => { const e = faceOf(id, cLv(id), face).e, art = Pix.get('art-' + artFor(e) + '-' + artK(face));
-    return `<span class="dmini ${face}" title="${e.n}">${art ? `<img src="${art.url}" alt="">` : ''}<span>${e.c}</span></span>`; }).join('') + Array.from({length: Math.max(0, N - n)}, () => '<span class="dmini empty"></span>').join('');
+  const strip = faceStrip(S.edeck, cLv, N).replace('class="fstrip"', 'class="fstrip f10"');
   return `${topBar()}<div class="screen"><h2 style="text-align:center">Draft your deck</h2><p class="dim small" style="text-align:center">From your library, one of three at a time. Card ${n + 1} of ${N}.</p>
     ${faceBar()}<i class="pg-split"></i><div class="cgrid">${d.map((id, i) => `<div class="cslot">${bigCard(id, 'edrft', i)}<span class="cap">${rkLabel(cRank(id))}</span></div>`).join('')}</div>
-    ${sfoot(`<div class="dstrip">${strip}</div>`)}</div>`;
+    ${sfoot(strip)}</div>`;
 }
 function lbFetch() { if (!LB.url) return; const t = S.lbTab; LB.top(t).then(rows => { if (S.screen === 'board' && S.lbTab === t) { S.lbRows = rows; S.lbRowsTab = t; render(); } }); }
 function vBoard() { const tab = S.lbTab || 'endless', rows = (S.lbRowsTab === tab && S.lbRows) || LB.local()[tab] || [];
@@ -7615,16 +7619,14 @@ function wSlot(sl, id, fixed) { const it = id && ARM.find(x => x.id === id), inn
 function vDeckCheck() {
   const daily = S.dailySel, K = daily ? dailyKit() : null, i = S.dsel != null ? S.dsel : DUO().deckSel, d = K ? K.deck : DUO().decks[i], ok = deckValid(d), face = S.face || 'angel';
   const cs = K ? K.comp : COMPANIONS[META.comp] && META.comps[META.comp] ? META.comp : null, ncomp = Object.keys(META.comps).length, anyc = !!K || ARM.some(x => META.arm.own[x.id]);
-  const strip = d.map(id => { const e = faceOf(id, K ? kitLv(id) : cLv(id), face).e, art = Pix.get('art-' + artFor(e) + '-' + artK(face));
-    return `<button class="dmini ${face}" data-act="peek" data-i="${id}" data-cid="${id}" aria-label="${e.n}. Hold to read" title="${e.n}">${art ? `<img src="${art.url}" alt="">` : ''}<span>${e.c}</span></button>`; }).join('')
-    + Array.from({length: Math.max(0, DECK_SIZE - d.length)}, () => '<span class="dmini empty"></span>').join('');
+  const strip = faceStrip(d, id => K ? kitLv(id) : cLv(id), DECK_SIZE, 'peek');
   const sa = Pix.get(DK('duo-angel')), sd = Pix.get(DK('duo-demon')), len = S.lenSel || defLen(), builds = deckBuilds(d).filter(x => BUILDS[x[0]]);
   const mode = S.endSel ? 'Endless' : daily ? (DAILY().streak ? DAILY().streak + ' day streak' : 'Same for everyone') : `${len} act${len > 1 ? 's' : ''}${S.heatSel ? ' · Dread ' + S.heatSel : ''}`;
   const sl = (a, b) => `<div class="wcol">${[a, b, b + 1].slice(0, 3).map(n => { const k = CURIO_SLOTS[n]; return wSlot(k, K ? K.gear[n] : META.arm.eq[k], !!K); }).join('')}</div>`;
   const cb = cs ? (COMPANIONS[cs].combo ? COMPANIONS[cs].combo.n : 'Starter') : '', cf = cs && Pix.get('comp-' + cs) ? (idleA('cf-' + cs) ? compAnim(cs) : idleFig(compFig(cs), Pix.get('comp-' + cs).url, {cut: .5, delay: -.7})) : '', comp = cs ? (K ? `<span class="wcomp">${cf}<b>${COMPANIONS[cs].n}</b><small>${cb}</small></span>` : `<button class="wcomp" data-act="pick" data-i="comp">${cf}<b>${COMPANIONS[cs].n}</b><small>${cb}</small></button>`) : ncomp && !K ? '<button class="wcomp" data-act="pick" data-i="comp"><b>Alone</b></button>' : '';
   const read = daily ? "Today's build" : S.endSel ? (DUO().endBest ? `Best: round ${DUO().endBest}` : 'Boss rush') : builds[0] ? BUILDS[builds[0][0]].n + ' build' : 'Your build', n = DUO().decks.length;
   const deck = S.endSel ? endlessPanel() : `<div class="wdeck">${K ? '' : `<div class="wdh"><button class="alink" data-act="dstep" data-i="-1" aria-label="Previous deck">‹</button><b>Deck ${i + 1} of ${n}${ok ? '' : ` <small class="neg">${d.length}/${DECK_SIZE}</small>`}</b><button class="alink" data-act="dstep" data-i="1" aria-label="Next deck">›</button><button class="alink" data-act="decks">Edit</button></div>`}
-    <div class="dstrip">${strip}</div></div>`;
+    ${strip}</div>`;
   return `<div class="screen prep mk${K ? ' wfixed' : ''}"><div class="ahead">${hback(!daily && !S.endSel && META.runs && hasRunSel() ? 'heatsel' : META.runs ? 'descent' : 'camp')}<div><h2>${daily ? 'Daily' : 'Prepare'}</h2><span class="agold">${mode}</span></div></div>
     ${VENG() && !K ? `<p class="pveng">Vengeance: +25% damage to ${FOES[VENG().id].n} this run</p>` : ''}
     ${K ? '' : duoPick()}
@@ -8893,6 +8895,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
+  {v: '0.130.4', d: '28 Nov', n: ["Prepare and the Endless draft show real card faces", "End of run shows just your MVP card"]},
   {v: '0.130.3', d: '28 Nov', n: ["Fixed: Flip and other deck taps no longer jump back to the top"]},
   {v: '0.130.2', d: '28 Nov', n: ["Status numbers on cards now sit in small plaques with their icon", "Deck screen frames match the rest of the game", "Build filters are one swipeable row"]},
   {v: '0.130.1', d: '28 Nov', n: ["Decks show real card faces again, with a Flip button for the other side", "Hold and drag cards into or out of your deck", "Your deck stays pinned while the collection scrolls", "Build counters removed: find the combos yourself", "Code is now Import", "Fixed: cards fly from your hand again when played"]},
@@ -8951,9 +8954,7 @@ function vOptions() {
 // the run in one glance: how many fights, the biggest hit, and the deck you ended with (hold a card to read it)
 function endRecap() {
   if (!S.p || !S.p.deck) return ''; const R = S.rs || {}, fights = (R.fight || 0) + (R.elite || 0) + (R.guardian || 0) + (R.boss || 0), face = S.p.form || 'angel';
-  const chips = S.p.deck.map(c => { const e = faceOf(c.id, c.lv || 1, face).e, art = Pix.get('art-' + artFor(e) + '-' + artK(face));
-    return `<button class="dmini ${face}" data-act="peek" data-i="${c.id}" data-cid="${c.id}" aria-label="${e.n}. Hold to read" title="${e.n}">${art ? `<img src="${art.url}" alt="">` : ''}<span>${e.c}</span></button>`; }).join('');
-  return `<div class="erecap"><div class="erstats"><div><b>${fights}</b><small>fights won</small></div><div><b>${S.bigHit || 0}</b><small>biggest hit</small></div><div><b>${S.p.deck.length}</b><small>cards</small></div></div>${(m => m ? `<p class="emvp">MVP <b>${CARDS[m.id].a.n}</b> · ${m.v} total</p>` : '')(mvpOf())}<div class="dstrip erdeck">${chips}</div></div>`;
+  return `<div class="erecap"><div class="erstats"><div><b>${fights}</b><small>fights won</small></div><div><b>${S.bigHit || 0}</b><small>biggest hit</small></div><div><b>${S.p.deck.length}</b><small>cards</small></div></div>${(m => m ? `<div class="emvp">${archCard(faceOf(m.id, (S.p.deck.find(c => c.id === m.id) || {}).lv || 1, face).e, face, false, {act: 'peek', i: m.id, cls: 'emc'})}<p>MVP <b>${CARDS[m.id].a.n}</b><br>${m.v} total</p></div>` : '')(mvpOf())}</div>`;
 }
 function vEnd() {
   const sa = Pix.get(DK('duo-angel')), sd = Pix.get(DK('duo-demon')), won = S.won;
