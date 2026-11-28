@@ -2713,7 +2713,8 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
 
 #app .dk2 .dpin{position:sticky;top:0;z-index:6;margin:0;padding:6px 0;background:#0b0a0e;box-shadow:0 8px 10px -6px #000}
 #app .dk2 .dchain{gap:6px 5px;padding:6px 9px} #app .dk2 .dchain .acard{width:100%}
-#app .dk2 .sc:not(.empty){display:block;aspect-ratio:auto;background:none;box-shadow:none;overflow:visible;padding:0;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:pan-y}
+#app .dk2 .sc:not(.empty){display:block;aspect-ratio:auto;background:none;box-shadow:none;overflow:visible;padding:0;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+#app .dk2 .sc img{-webkit-user-drag:none;user-drag:none;-webkit-touch-callout:none;pointer-events:none}
 #app .dk2 .sc.empty{aspect-ratio:40/58} #app .dk2 .sc.in{opacity:.4}
 #app .dk2 .dpinf{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 2px 0;font-size:12px;color:#8a7e6a}
 #app .dk2 .dflip{display:flex;align-items:center;gap:6px;min-height:36px;padding:2px 8px 2px 2px;background:rgba(10,8,12,.8);border:0;box-shadow:inset 0 0 0 1px #5a5048;color:#d8cfbc;cursor:pointer}
@@ -2838,7 +2839,7 @@ body.ddin #app .dk2 .dchain{border-image:var(--k-pri) 16 / 12px stretch;box-shad
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy life and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.130.5-test'; // bump for every build you send to testers
+const VERSION = '0.130.6-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -8895,6 +8896,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
+  {v: '0.130.6', d: '28 Nov', n: ["Fixed: dragging cards in Decks on phones"]},
   {v: '0.130.5', d: '28 Nov', n: ["Prepare: your deck is one row of small cards again, so nothing overlaps"]},
   {v: '0.130.4', d: '28 Nov', n: ["Prepare and the Endless draft show real card faces", "End of run shows just your MVP card"]},
   {v: '0.130.3', d: '28 Nov', n: ["Fixed: Flip and other deck taps no longer jump back to the top"]},
@@ -10088,7 +10090,7 @@ $app.addEventListener('contextmenu', ev => ev.preventDefault());
 // swipe sideways on a menu to move between its tabs
 { let sw = null;
   $app.addEventListener('touchstart', ev => { const t = ev.touches[0]; if (ev.touches.length !== 1 || S.screen === 'fight' || S.screen === 'camp' || S.sheet || S.confirm) return sw = null;
-    if (ev.target.closest('.chips,.dstrip,.bfilt,.hand,input,textarea,.cslots')) return sw = null; sw = {x: t.clientX, y: t.clientY, t: Date.now()}; }, {passive: true});
+    if (ev.target.closest('.chips,.dstrip,.bfilt,.hand,input,textarea,.cslots,[data-drag]')) return sw = null; sw = {x: t.clientX, y: t.clientY, t: Date.now()}; }, {passive: true});
   $app.addEventListener('touchend', ev => { if (!sw) return; const t = ev.changedTouches[0], dx = t.clientX - sw.x, dy = t.clientY - sw.y, d0 = sw; sw = null;
     if (Math.abs(dx) < 70 || Math.abs(dy) > Math.abs(dx) * .6 || Date.now() - d0.t > 600) return;
     if (S.screen === 'heatsel') { const bt = $app.querySelector(dx < 0 ? '.acar.next' : '.acar.prev'); if (bt && !bt.disabled) bt.click(); return; }
@@ -10276,7 +10278,9 @@ function practiceDone() { const pr = S.practice; if (!pr) return; const e = S.f 
 // deck builder drag: hold a card a moment, then drag it up into the Chain to add it, or out of the Chain to take it out. A quick swipe still scrolls.
 { let dd = null, block = 0;
   const startAt = (el, x, y, now) => { if (dd) return; dd = {el, id: el.dataset.i, inChain: !!el.closest('.dchain'), x, y, on: false, ready: !!now};
-    if (!now) dd.t = setTimeout(() => { if (dd && !dd.on) { dd.ready = true; Hold.hide(); el.classList.add('dgrab'); buzz(10); } }, 170); };
+    if (!now) dd.t = setTimeout(() => { if (dd && !dd.on) { dd.ready = true; Hold.hide(); el.classList.add('dgrab'); lock(true); buzz(10); } }, 170); };
+  /* a phone may already own the gesture for scrolling, so once the hold lands the page simply stops scrolling until the finger lifts */
+  const lock = on => { const sc = $app.querySelector('.screen.dk2'); if (!sc) return; if (on) { dd.sc = sc; dd.st = sc.scrollTop; sc.style.overflow = 'hidden'; sc.scrollTop = dd.st; } else sc.style.overflow = ''; };
   const begin = () => { const r = dd.el.getBoundingClientRect(), g = dd.el.cloneNode(true); g.classList.add('dghost'); g.classList.remove('dgrab', 'lift', 'ww', 'in', 'deal');
     Object.assign(g.style, {position: 'fixed', left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px', zIndex: 300, pointerEvents: 'none', margin: 0}); $app.appendChild(g); /* inside #app so the card styles reach it */
     Object.assign(dd, {g, ox: dd.x - r.left, oy: dd.y - r.top, on: true}); dd.el.classList.add('dsrc'); document.body.classList.add('ddrag', dd.inChain ? 'ddout' : 'ddin'); if (S.lift) { S.lift = null; const L = document.querySelector('.dlift'); if (L) L.remove(); } };
@@ -10285,7 +10289,7 @@ function practiceDone() { const pr = S.practice; if (!pr) return; const e = S.f 
     dd.g.style.left = (x - dd.ox) + 'px'; dd.g.style.top = (y - dd.oy) + 'px';
     const ch = $app.querySelector('.dchain'), r = ch && ch.getBoundingClientRect(), over = !!r && x >= r.left - 10 && x <= r.right + 10 && y >= r.top - 16 && y <= r.bottom + 16; dd.over = over;
     if (ch) ch.classList.toggle('dhot', over && !dd.inChain); document.body.classList.toggle('ddrop', dd.inChain ? !over : over); return true; };
-  const end = () => { if (!dd) return; clearTimeout(dd.t); const d = dd; dd = null; d.el.classList.remove('dgrab', 'dsrc'); document.body.classList.remove('ddrag', 'ddout', 'ddin', 'ddrop'); const ch = $app.querySelector('.dchain'); if (ch) ch.classList.remove('dhot'); if (!d.on) return;
+  const end = () => { if (!dd) return; clearTimeout(dd.t); const d = dd; dd = null; if (d.sc) d.sc.style.overflow = ''; d.el.classList.remove('dgrab', 'dsrc'); document.body.classList.remove('ddrag', 'ddout', 'ddin', 'ddrop'); const ch = $app.querySelector('.dchain'); if (ch) ch.classList.remove('dhot'); if (!d.on) return;
     block = performance.now() + 400; noClickUntil = block; const g = d.g, deck = curDeck(), add = !d.inChain && d.over && !deck.includes(d.id) && deck.length < DECK_SIZE && !!DUO().coll[d.id], out = d.inChain && !d.over;
     if (add) deck.push(d.id); else if (out) { const k = deck.indexOf(d.id); if (k >= 0) deck.splice(k, 1); }
     if (add || out) { S.undoDeck = null; save(); render(); sfx(add ? 'chain' : 'tap'); buzz(15); }
@@ -10295,7 +10299,7 @@ function practiceDone() { const pr = S.practice; if (!pr) return; const e = S.f 
     g.style.transition = 'opacity .2s,transform .2s'; g.style.opacity = 0; g.style.transform = 'scale(.6)'; setTimeout(() => g.remove(), 210); };
   const target = ev => S.screen === 'decks' && !S.sheet && ev.target.closest ? ev.target.closest('.dk2 [data-drag]') : null;
   $app.addEventListener('touchstart', ev => { const el = target(ev); if (el && ev.touches.length === 1) startAt(el, ev.touches[0].clientX, ev.touches[0].clientY, false); }, {passive: true});
-  addEventListener('touchmove', ev => { if (dd && move(ev.touches[0].clientX, ev.touches[0].clientY) && ev.cancelable) ev.preventDefault(); }, {passive: false});
+  addEventListener('touchmove', ev => { if (dd && move(ev.touches[0].clientX, ev.touches[0].clientY)) { if (ev.cancelable) ev.preventDefault(); if (dd && dd.sc) dd.sc.scrollTop = dd.st; } }, {passive: false});
   addEventListener('touchend', () => end()); addEventListener('touchcancel', () => { if (dd && dd.on) dd.over = dd.inChain; end(); });
   $app.addEventListener('mousedown', ev => { if (performance.now() - (window.__lastTouch || 0) < 800) return; const el = target(ev); if (el && !ev.button) startAt(el, ev.clientX, ev.clientY, true); });
   addEventListener('touchstart', () => { window.__lastTouch = performance.now(); }, {passive: true, capture: true});
