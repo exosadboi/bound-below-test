@@ -144,7 +144,7 @@ svg.ic{width:1em;height:1em;fill:currentColor;vertical-align:-.12em;flex:none}
 @keyframes fl{0%{opacity:1;transform:translate(-50%,0) scale(1.6)}20%{transform:translate(-50%,-6px) scale(1)}100%{opacity:0;transform:translate(-50%,-40px) scale(1)}}
 .en.hit .shape{animation:enhit .35s ease-out}
 @keyframes enhit{0%{filter:brightness(3.5)}25%{transform:translateX(-6px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}100%{filter:none;transform:none}}
-#app.shake{animation:appshake .32s ease-out}
+#app.shake{animation:appshake .24s ease-out}
 @keyframes appshake{20%{transform:translate(-6px,3px)}40%{transform:translate(5px,-4px)}60%{transform:translate(-4px,2px)}80%{transform:translate(2px,-1px)}}
 .card.ghost{position:fixed;z-index:8;max-width:none;pointer-events:none;box-shadow:0 0 18px var(--form)}
 .burst{position:absolute;inset:0;pointer-events:none}
@@ -2839,7 +2839,7 @@ body.ddin #app .dk2 .dchain{border-image:var(--k-pri) 16 / 12px stretch;box-shad
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy life and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.130.7-test'; // bump for every build you send to testers
+const VERSION = '0.130.8-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -5554,7 +5554,7 @@ function cardSecs(e, k, mk, cap) { cap = cap || 2; const o = [], add = (i, t, po
 const CardFace = (() => {
   const W = 160, H = 220, OX = 16, OY = 18, IMG = {}, ART = {}, CACHE = new Map(), GLOW = {}; let frames = false, fonts = false, ico = null; // the 64x92 body sits at (8,9) of the 80x110 frame canvas, drawn at 2x
   const RING = {angel: '#e2c676', demon: '#d4442f', fire: '#ff8a3a', frost: '#8fd0ff'}; const TINT = {heat: '#ffe08a', 'st-burn': '#ff8a5a', 'st-chill': '#e4f6ff', 'st-frozen': '#6ec0ff'}; // Heat white-gold, Burn red-orange, Chill frost-white, Freeze deep ice blue
-  const redo = () => { CACHE.clear(); if (typeof render === 'function' && frames && fonts) try { render(); } catch (x) {} };
+  const redo = () => { CACHE.forEach(u => { if (u.startsWith('blob:')) setTimeout(() => URL.revokeObjectURL(u), 8000); }); CACHE.clear(); if (typeof render === 'function' && frames && fonts) try { render(); } catch (x) {} };
   if (typeof CARD_FRAMES === 'object') { const ks = []; for (const fk in CARD_FRAMES) for (const r in CARD_FRAMES[fk]) ks.push([fk, r]); let n = ks.length;
     ks.forEach(([fk, r]) => { const im = new Image(); im.onload = () => { IMG[fk + r] = im; if (!--n) { frames = true; redo(); } }; im.src = CARD_FRAMES[fk][r]; }); }
   ico = new Image(); ico.onload = redo; ico.src = PIC_URL;
@@ -5562,7 +5562,9 @@ const CardFace = (() => {
   const fontsOk = () => { if (!fonts) { fonts = true; redo(); } }; setTimeout(fontsOk, 1200);
   try { if (document.fonts && document.fonts.load) Promise.all([document.fonts.load('16px "Bound Below Pixel"', 'Aa5▲'), document.fonts.load('16px "Bound Below Title"')]).then(fontsOk, fontsOk); else fontsOk(); } catch (x) { fontsOk(); }
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { CACHE.clear(); redo(); }, () => {});
-  let rt = 0; const art = url => { if (!url) return null; if (ART[url]) return ART[url].complete ? ART[url] : null; const im = new Image(); im.onload = () => { clearTimeout(rt); rt = setTimeout(redo, 30); }; im.src = url; ART[url] = im; return null; };
+  let rt = 0; const NEED = new Set(); const art = (url, quiet) => { if (!url) return null; if (!quiet) NEED.add(url); if (ART[url]) return ART[url].complete ? ART[url] : null; const im = new Image(); im.onload = () => { if (!NEED.has(url)) return; clearTimeout(rt); rt = setTimeout(reart, 30); }; im.src = url; ART[url] = im; return null; }; /* only art a visible face was waiting on redraws the screen; background preloads stay silent */
+  /* new art only redraws faces that were drawn without it (they are never cached), so the rest of the cache survives */
+  const reart = () => { if (typeof render === 'function' && frames && fonts) try { render(); } catch (x) {} };
   // pixel text: drawn on its own layer, outlined, then alpha-hardened so it stays as crisp as the art
   // text is drawn at the full export size, then alpha-hardened, so it keeps clean pixel edges in any font and at any tilt; z scales it from the card's 1x size
   function texts(list, z, o) { const X = UP, c = document.createElement('canvas'); c.width = W * X; c.height = H * X; const g = c.getContext('2d'); g.textBaseline = 'middle'; g.scale(X, X);
@@ -5615,7 +5617,9 @@ const CardFace = (() => {
     (s.bad || []).forEach((n, j) => { const x = 91, y = 40 + j * 17; g.fillStyle = '#08060a'; g.fillRect(x - 1, y - 1, 18, 18); g.fillStyle = '#1c1622'; g.fillRect(x, y, 16, 16); icon(n, x, y); }); // keyword badges down the right of the art
     g.restore(); return up(c, o => { texts(T, 1, o); texts(T2, 2, o); }); }
   // export at 4x with hard pixels: the hand fan rotates cards, and the browser smooths rotated images, which blurs 1x pixel art
-  const UP = 4, up = (c, after) => { const o = document.createElement('canvas'); o.width = c.width * UP; o.height = c.height * UP; const og = o.getContext('2d'); og.imageSmoothingEnabled = false; og.drawImage(c, 0, 0, o.width, o.height); if (after) after(og); return o.toDataURL(); };
+  const UP = 4, up = (c, after) => { const o = document.createElement('canvas'); o.width = c.width * UP; o.height = c.height * UP; const og = o.getContext('2d'); og.imageSmoothingEnabled = false; og.drawImage(c, 0, 0, o.width, o.height); if (after) after(og); return blobUrl(o.toDataURL()); };
+  /* faces go into the page as short blob: links, not 50 KB data strings: the deck screen alone was rebuilding 4 MB of markup on every tap */
+  const blobUrl = d => { try { const b = atob(d.slice(d.indexOf(',') + 1)), a = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) a[i] = b.charCodeAt(i); return URL.createObjectURL(new Blob([a], {type: 'image/png'})); } catch (x) { return d; } };
   // a cosmetic frame recolours the painted frame by brightness (dark panels stay); a card at the top rank gets a gold edge round its outline
   const FRAME_RAMP = {obsidian: ['#07060a', '#141228', '#3a2050', '#7a4ab0', '#e0c8ff'], bone: ['#16131b', '#4e4554', '#9a8a6a', '#e4d8bc', '#fffaf0'],
     blood: ['#0e0406', '#2a0c0e', '#7a1c18', '#d4442f', '#ffaa60'], verdigris: ['#06100e', '#12302a', '#2a6a58', '#5ab090', '#c8f0d8'],
@@ -5638,7 +5642,7 @@ const CardFace = (() => {
     g.putImageData(d, 0, 0); g.globalCompositeOperation = 'destination-out'; // keep the glow off the cost, name and numbers
     g.beginPath(); g.arc(64 + OX, 22 + OY, 15, 0, 7); g.fill(); g.fillRect(22 + OX, 34 + OY, 84, 132);
     return (GLOW[key] = up(c)); }
-  return {ok: () => frames && fonts && ico.complete && ico.naturalWidth > 0, swatch: fr => { if (!frames) return ''; const im = frameImg('angel', 'rare', fr), c = document.createElement('canvas'); c.width = im.width; c.height = im.height; c.getContext('2d').drawImage(im, 0, 0); return c.toDataURL(); }, url: s => { const k = JSON.stringify(s); let u = CACHE.get(k); if (!u) { try { u = draw(s); } catch (x) { CardFace.bad = String(x); return ''; } CACHE.set(k, u); } return u; }, glow};
+  return {ok: () => frames && fonts && ico.complete && ico.naturalWidth > 0, swatch: fr => { if (!frames) return ''; const im = frameImg('angel', 'rare', fr), c = document.createElement('canvas'); c.width = im.width; c.height = im.height; c.getContext('2d').drawImage(im, 0, 0); return c.toDataURL(); }, url: s => { const k = JSON.stringify(s.art ? Object.assign({}, s, {art: s.art.length + ':' + s.art.slice(-48)}) : s); let u = CACHE.get(k); if (!u) { const ok = !s.art || !!art(s.art); try { u = draw(s); } catch (x) { CardFace.bad = String(x); return ''; } if (ok) CACHE.set(k, u); else if (u.startsWith('blob:')) setTimeout(() => URL.revokeObjectURL(u), 8000); } return u; }, pre: url => !url || !!art(url, 1), glow};
 })();
 const cardRar = e => (e && (e.rar || e.br)) || 'common'; // every card is common until the rarity system arrives
 const cidAttr = (e, opt) => e.pic ? ` data-cid="${e.pic.slice(0, -2)}"${opt.lv || e.rk != null ? ` data-lv="${opt.lv || e.rk + 1}"` : ''}` : ''; // what a long press on this card should show
@@ -8896,6 +8900,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
+  {v: '0.130.8', d: '28 Nov', n: ["Shorter screen shake on big hits", "Decks and Flip open much faster", "Card art loading no longer redraws every card"]},
   {v: '0.130.7', d: '28 Nov', n: ["Fixed: the card you drag in Decks was invisible", "Holding a card lifts it under your finger"]},
   {v: '0.130.6', d: '28 Nov', n: ["Fixed: dragging cards in Decks on phones"]},
   {v: '0.130.5', d: '28 Nov', n: ["Prepare: your deck is one row of small cards again, so nothing overlaps"]},
@@ -9134,6 +9139,7 @@ function paginate(root) {
   kids.forEach(c => { if (c === foot) return; if (c === split) { inHead = false; c.remove(); return; } (inHead ? head : body).appendChild(c); });
   root.classList.add('page'); if (head.childNodes.length) root.insertBefore(head, foot); root.insertBefore(body, foot); if (foot) foot.classList.add('pg-foot'); else root.classList.add('nofoot');
 }
+let SHK_AT = 0;
 function render() {
   const v = {act:vAct, shop:vShop, journal:vJournal, edraft:vEDraft, board:vBoard, draft:vDraft, boon:vBoon, camp:vCamp, armory:vArmory, companions:vCompanions, market:vMarket, forge:vForgeHub, options:vOptions, deckcheck:vDeckCheck, descent:vDescent, heatsel:vHeatSel, decks:vDecks, codex:vCodex, talents:vTalents, doors:vDoors, fight:vFight, reward:vReward, loot:vLoot, hood:vHood, chance:vChance, end:vEnd,
     rest: vRest}[S.screen];
@@ -9142,7 +9148,7 @@ function render() {
   const ob = $app.querySelector('.pg-body') || $app.querySelector('.screen.dk2'); if (ob && $app.dataset.sk) SCROLL[$app.dataset.sk] = ob.scrollTop;
   $app.dataset.form = S.p ? S.p.form : 'angel'; $app.dataset.duo = META.duoSel;
   ['obsidian', 'bone'].forEach(k => $app.classList.toggle('cfr-' + k, COS().frame === k));
-  if (S.shake) { S.shake = false; $app.classList.remove('shake'); void $app.offsetWidth; $app.classList.add('shake'); }
+  if (S.shake) { S.shake = false; const nw = performance.now(); if (nw - SHK_AT > 400) { SHK_AT = nw; $app.classList.remove('shake'); void $app.offsetWidth; $app.classList.add('shake'); } } /* one shake per beat: multi-hits and hit-all cards used to chain several into a long rumble */
   // continuous CSS animations restart when innerHTML is replaced; a shared negative delay keeps them in phase
   $app.style.setProperty('--now', (-performance.now() / 1000).toFixed(3) + 's');
   $app.classList.remove('enter');
@@ -10307,6 +10313,14 @@ function practiceDone() { const pr = S.practice; if (!pr) return; const e = S.f 
   addEventListener('mousemove', ev => { if (dd && !('ontouchstart' in window && performance.now() - (window.__lastTouch || 0) < 800)) move(ev.clientX, ev.clientY); });
   addEventListener('mouseup', () => { if (dd && performance.now() - (window.__lastTouch || 0) >= 800) end(); });
   $app.addEventListener('click', ev => { if (performance.now() < block) { ev.stopPropagation(); ev.preventDefault(); } }, true); }
+// warm the card-face cache in spare moments: the first Decks open and the first Flip used to draw ~80 faces in one go
+{ const idle = f => (window.requestIdleCallback ? requestIdleCallback(f, {timeout: 1500}) : setTimeout(f, 60));
+  let q = null, tries = 0; const step = () => { try { if (!CardFace.ok() || typeof DUO !== 'function') { if (++tries < 40) setTimeout(() => idle(step), 500); return; }
+      if (!q) q = Object.keys(DUO().coll || {}).flatMap(id => ['angel', 'demon'].map(f => [id, f]));
+      const t0 = performance.now(); let n = 0;
+      while (q.length && n < 4 && performance.now() - t0 < 10) { const [id, f, k] = q.shift(); if (!CARDS[id]) continue; const e = faceOf(id, cLv(id), f).e; const pa = Pix.get('art-' + artFor(e) + '-' + artK(f)); if (!pa || !CardFace.pre(pa.url)) { if ((k || 0) < 30) q.push([id, f, (k || 0) + 1]); n++; continue; } archCard(e, f, false, {}); n++; } /* art loads on first ask: retry it later */
+      if (q.length) idle(step); } catch (x) {} };
+  setTimeout(() => idle(step), 2500); }
 addEventListener('pagehide', saveRun); document.addEventListener('visibilitychange', () => { if (document.hidden) saveRun(); });
 { let r = null; try { r = JSON.parse(localStorage.getItem(RUN_KEY) || 'null'); } catch (e) {}
   if (r && r.S && r.S.p) { S = r.S; uid = Math.max(uid, r.uid || 0); if (r.duo && DUOS[r.duo]) META.duoSel = r.duo; busy = false; S.opening = false;
