@@ -2723,6 +2723,16 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
 #app .sc.dghost{display:block;aspect-ratio:auto;background:none;box-shadow:none;overflow:visible;padding:0} .dghost{transform:rotate(-3deg) scale(1.08);filter:drop-shadow(0 10px 14px rgba(0,0,0,.8))} .dghost .dcheck{display:none}
 body.ddin #app .dk2 .dchain{box-shadow:inset 0 0 0 2px rgba(242,212,138,.7)} #app .dk2 .dchain.dhot{background:rgba(242,212,138,.14)}
 body.ddout.ddrop .dghost{filter:grayscale(1) brightness(.55) drop-shadow(0 10px 14px rgba(0,0,0,.8))}
+/* deck screen v0.130.2: kit frames instead of hairline boxes */
+#app .dk2 .dchain,#app .dk2 .dchain.tb{border:4px solid transparent;border-image:var(--k-inset) 10 / 10px stretch;padding:8px 10px;image-rendering:pixelated;background:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.6)),var(--tex-stone) 0 0/64px,#100d14;box-shadow:0 3px 0 rgba(0,0,0,.6)}
+body.ddin #app .dk2 .dchain{border-image:var(--k-pri) 16 / 12px stretch;box-shadow:0 0 16px -4px var(--holy),0 3px 0 rgba(0,0,0,.6)}
+#app .dk2 .dchain.dhot{background:linear-gradient(rgba(242,212,138,.12),rgba(242,212,138,.12)),var(--tex-stone) 0 0/64px,#100d14}
+#app .dk2 .sc.empty{background:rgba(0,0,0,.35);box-shadow:inset 0 0 10px rgba(0,0,0,.8),inset 0 0 0 1px rgba(255,255,255,.07)}
+#app .dk2 .bchips{flex:none;min-height:36px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none} #app .dk2 .bchips::-webkit-scrollbar{display:none} #app .dk2 .bchips .bchip{flex:none}
+#app .dk2 .sc.lift{outline:0;transform:translateY(-4px);filter:drop-shadow(0 0 5px rgba(242,212,138,.8))}
+#app .dk2 .sc.ww{outline:0;animation:wwg 1.2s ease-in-out infinite alternate} @keyframes wwg{from{filter:drop-shadow(0 0 1px rgba(242,212,138,.2))}to{filter:drop-shadow(0 0 6px rgba(242,212,138,.7))}}
+#app .dk2 .dflip{min-height:44px;border:4px solid transparent;border-image:var(--k-btn) 16 fill / 16px stretch;image-rendering:pixelated;background:none;box-shadow:none;color:#f2d48a;font-family:var(--display);padding:0 10px 0 2px}
+.bchip{min-height:34px;padding:4px 7px;background:none;box-shadow:none;color:#8a7e6a} .bchip i{opacity:.55} .bchip.on{background:none;box-shadow:inset 0 -2px 0 var(--bc);color:#f2e6cc} .bchip.on i{opacity:1}
 
 </style>
 
@@ -2825,7 +2835,7 @@ body.ddout.ddrop .dghost{filter:grayscale(1) brightness(.55) drop-shadow(0 10px 
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy life and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.130.1-test'; // bump for every build you send to testers
+const VERSION = '0.130.2-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -5585,7 +5595,7 @@ const CardFace = (() => {
     if (aw && 20 + nw + aw > 76) { aw = 0; secs = [['', 'ALL']].concat(secs); } // no room beside the number: ALL becomes the first chip
     const pw = s.post ? 19 : 0, PW = 16 + 4 + nw + aw + pw, MID = '17px ' + FN2;
     // side effects: chips at 1.5x (between the main number's 2x and the old 1x), one row if they fit, else one row each
-    tm.font = MID; const one = ([i, t, p]) => (i ? 18 : 0) + tm.measureText(t).width + (p ? 18 : 0), sum = list => list.reduce((a, c) => a + one(c), 0) + 10 * (list.length - 1), ROWW = s.cn ? 60 : 74;
+    tm.font = MID; const one = ([i, t, p]) => (i ? 18 : 0) + tm.measureText(t).width + (p ? 18 : 0), sum = list => list.reduce((a, c) => a + one(c), 0) + 10 * (list.length - 1), ROWW = 74;
     secs = secs.map(c => c[0] && one(c) > 72 && /[A-Z]{3}/.test(c[1]) ? ['', c[1], c[2]] : c); // a word too long beside its icon stands alone; numbers keep the icon and squeeze
     const rows = (() => { if (!secs.length) return []; if (sum(secs) <= ROWW) return [secs]; const R = []; secs.forEach(c => { const L = R[R.length - 1]; if (L && sum(L.concat([c])) <= ROWW) L.push(c); else R.push([c]); }); return R.length > 2 ? [R[0], [].concat(...R.slice(1))] : R; })(); // at most two chip rows: the panel has room for no more
     const chip = ([i, t, p], x, cy) => { const tw = tm.measureText(t).width, sx = Math.min(1, (72 - (i ? 18 : 0) - (p ? 18 : 0)) / tw);
@@ -5594,9 +5604,9 @@ const CardFace = (() => {
     icon(s.ico, x0, rowY - 8); (big2 ? T2 : T).push({s: s.num, x: x0 + 20, y: rowY + 1, f: NF, c: TINT[s.ico] || '#ffffff', a: 'left'}); if (aw) T.push({s: 'ALL', x: x0 + 20 + nw + pw + 3, y: rowY + 3, f: ALLF, c: '#ffd08a', a: 'left'});
     if (s.post) icon(s.post, x0 + 20 + nw + 3, rowY - 8); // "= [shield]": damage equal to your block
     tm.font = MID; rows.forEach((r, j) => { let x = Math.round(64 - Math.min(72, sum(r)) / 2); r.forEach(c => { chip(c, x, chipY[j]); x += Math.min(72, one(c)) + 10; }); });
-    if (s.cn) s.cn.forEach((c, j) => { if (!c) return; const x = j ? 101 : 20, y = 171, wd = Math.max(0, c[1].replace(/^\+/, '').length - 1) * 3; const pill = (r, col) => { g.fillStyle = col; g.beginPath(); g.arc(x - wd, y, r, 0, 7); g.arc(x + wd, y, r, 0, 7); g.fill(); g.fillRect(x - wd, y - r, wd * 2, r * 2); };
-      pill(11, '#08060a'); pill(9.5, ring); pill(8, '#16101c'); // two-digit numbers get a wider badge
-      icon(c[0], j ? x - 22 : x + 6, y - 21); T2.push({s: c[1].replace(/^\+/, ''), x, y: y + 1, f: (c[1].length > 2 ? '6.5px ' : '8px ') + FN2, c: '#ffffff'}); });
+    if (s.cn) s.cn.forEach((c, j) => { if (!c) return; const t = c[1].replace(/^\+/, ''); tm.font = MID; const tw = Math.ceil(tm.measureText(t).width), pw = 22 + tw, h = 18, y = 163, x = j ? 108 - pw : 20; /* corner plaques: icon and number together on the bottom rail */
+      g.fillStyle = '#08060a'; g.fillRect(x - 1, y - 1, pw + 2, h + 2); g.fillStyle = ring; g.fillRect(x, y, pw, h); g.fillStyle = '#16101c'; g.fillRect(x + 1, y + 1, pw - 2, h - 2); g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(x + 1, y + 1, pw - 2, 1);
+      icon(c[0], x + 2, y + 1); T.push({s: t, x: x + 18, y: y + 10, f: MID, c: TINT[c[0]] || '#ffffff', a: 'left'}); });
     s.ex.forEach(([k, v], j) => { const x = 80 + j * 28, y = cy - 8; icon(k === 'life' ? 'heart' : 'mana', x, y); T.push({s: String(v), x: x + 17, y: y + 8, f: EXTRA, c: k === 'life' ? '#ffb0a0' : '#bcd4ff', a: 'left'}); });
     (s.bad || []).forEach((n, j) => { const x = 91, y = 40 + j * 17; g.fillStyle = '#08060a'; g.fillRect(x - 1, y - 1, 18, 18); g.fillStyle = '#1c1622'; g.fillRect(x, y, 16, 16); icon(n, x, y); }); // keyword badges down the right of the art
     g.restore(); return up(c, o => { texts(T, 1, o); texts(T2, 2, o); }); }
@@ -8883,6 +8893,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
+  {v: '0.130.2', d: '28 Nov', n: ["Status numbers on cards now sit in small plaques with their icon", "Deck screen frames match the rest of the game", "Build filters are one swipeable row"]},
   {v: '0.130.1', d: '28 Nov', n: ["Decks show real card faces again, with a Flip button for the other side", "Hold and drag cards into or out of your deck", "Your deck stays pinned while the collection scrolls", "Build counters removed: find the combos yourself", "Code is now Import", "Fixed: cards fly from your hand again when played"]},
   {v: '0.130', d: '28 Nov', n: ["New deck builder: your ten cards sit in the Chain, and every card shows both sides", "Tap a card to read both faces, its builds and its record", "Builds show what fills and what spends, and cards that work together glow", "Suggest builds a deck for you, or offers one swap", "Proving Ground: test a deck on a straw dummy for three turns", "Cards keep records, and each run names its MVP", "Name your decks, see their wins, share them as codes", "New bounty: win fights with 4+ cards of one build"]},
   {v: '0.129.1', d: '28 Nov', n: ["The tutorial asks how fast enemy turns should play"]},
