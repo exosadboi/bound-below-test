@@ -2721,7 +2721,7 @@ body:has(#app .sheet, #holdz.on, #app .forge) #cfx{display:none}
 #app .dk2 .dflip img{width:30px;height:30px;border-radius:50%;object-fit:cover;image-rendering:pixelated;box-shadow:0 0 0 2px #c9a95a} #app .dk2 .dflip.f-demon img{box-shadow:0 0 0 2px #c0392b} #app .dk2 .dflip small{font-size:12px}
 #app .dk2 .scgrid.cgrid{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px 6px}
 .sc.dgrab{transform:scale(1.06);transition:transform .12s} .sc.dsrc{opacity:.25!important}
-#app .sc.dghost{display:block;aspect-ratio:auto;background:none;box-shadow:none;overflow:visible;padding:0} .dghost{transform:rotate(-3deg) scale(1.08);filter:drop-shadow(0 10px 14px rgba(0,0,0,.8))} .dghost .dcheck{display:none}
+#app .sc.dghost{display:block;aspect-ratio:auto;background:none;box-shadow:none;overflow:visible;padding:0} .dghost{transform:rotate(-4deg) scale(1.15);filter:drop-shadow(0 12px 16px rgba(0,0,0,.85)) drop-shadow(0 0 6px rgba(242,212,138,.6));animation:dpick .16s ease-out} @keyframes dpick{from{transform:rotate(0) scale(1)}} .dghost .dcheck{display:none} #app .dghost .acard{width:100%;margin:0}
 body.ddin #app .dk2 .dchain{box-shadow:inset 0 0 0 2px rgba(242,212,138,.7)} #app .dk2 .dchain.dhot{background:rgba(242,212,138,.14)}
 body.ddout.ddrop .dghost{filter:grayscale(1) brightness(.55) drop-shadow(0 10px 14px rgba(0,0,0,.8))}
 
@@ -2839,7 +2839,7 @@ body.ddin #app .dk2 .dchain{border-image:var(--k-pri) 16 / 12px stretch;box-shad
               A season pass would add a track of cosmetics here, earned from runs and Dailies.
    BALANCE    TUNE (enemy life and damage), heatHp/heatDmg (the heat curve, endless past 10), HEAT (heat modifiers).
    ===================================================================================================== */
-const VERSION = '0.130.6-test'; // bump for every build you send to testers
+const VERSION = '0.130.7-test'; // bump for every build you send to testers
 const FEEDBACK_EMAIL = ''; // set this to receive tester reports by email; empty means testers copy the report instead
 const FAST = location.hash === '#fast';
 const MR = Math.random.bind(Math); // visuals use this so seeding Math.random (the Daily Descent) only affects the game itself
@@ -8896,6 +8896,7 @@ const optRow = (k, n, d) => `<button class="orow" data-act="opt" data-i="${k}" r
 // What's new: one entry per tester update, newest first, in plain player words (one short line each).
 // Testers see the entries they haven't seen once, at the camp; Options › What's new shows them all. Add an entry with every build.
 var CHANGELOG = [
+  {v: '0.130.7', d: '28 Nov', n: ["Fixed: the card you drag in Decks was invisible", "Holding a card lifts it under your finger"]},
   {v: '0.130.6', d: '28 Nov', n: ["Fixed: dragging cards in Decks on phones"]},
   {v: '0.130.5', d: '28 Nov', n: ["Prepare: your deck is one row of small cards again, so nothing overlaps"]},
   {v: '0.130.4', d: '28 Nov', n: ["Prepare and the Endless draft show real card faces", "End of run shows just your MVP card"]},
@@ -10278,12 +10279,12 @@ function practiceDone() { const pr = S.practice; if (!pr) return; const e = S.f 
 // deck builder drag: hold a card a moment, then drag it up into the Chain to add it, or out of the Chain to take it out. A quick swipe still scrolls.
 { let dd = null, block = 0;
   const startAt = (el, x, y, now) => { if (dd) return; dd = {el, id: el.dataset.i, inChain: !!el.closest('.dchain'), x, y, on: false, ready: !!now};
-    if (!now) dd.t = setTimeout(() => { if (dd && !dd.on) { dd.ready = true; Hold.hide(); el.classList.add('dgrab'); lock(true); buzz(10); } }, 170); };
+    if (!now) dd.t = setTimeout(() => { if (dd && !dd.on) { dd.ready = true; Hold.hide(); lock(true); begin(); sfx('tap'); buzz(12); } }, 170); };
   /* a phone may already own the gesture for scrolling, so once the hold lands the page simply stops scrolling until the finger lifts */
   const lock = on => { const sc = $app.querySelector('.screen.dk2'); if (!sc) return; if (on) { dd.sc = sc; dd.st = sc.scrollTop; sc.style.overflow = 'hidden'; sc.scrollTop = dd.st; } else sc.style.overflow = ''; };
   const begin = () => { const r = dd.el.getBoundingClientRect(), g = dd.el.cloneNode(true); g.classList.add('dghost'); g.classList.remove('dgrab', 'lift', 'ww', 'in', 'deal');
     Object.assign(g.style, {position: 'fixed', left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px', zIndex: 300, pointerEvents: 'none', margin: 0}); $app.appendChild(g); /* inside #app so the card styles reach it */
-    Object.assign(dd, {g, ox: dd.x - r.left, oy: dd.y - r.top, on: true}); dd.el.classList.add('dsrc'); document.body.classList.add('ddrag', dd.inChain ? 'ddout' : 'ddin'); if (S.lift) { S.lift = null; const L = document.querySelector('.dlift'); if (L) L.remove(); } };
+    Object.assign(dd, {g, ox: dd.x - r.left, oy: dd.y - r.top, on: true, over: dd.inChain}); /* held but not moved yet: letting go puts it back */ dd.el.classList.add('dsrc'); document.body.classList.add('ddrag', dd.inChain ? 'ddout' : 'ddin'); if (S.lift) { S.lift = null; const L = document.querySelector('.dlift'); if (L) L.remove(); } };
   const move = (x, y) => { if (!dd) return false;
     if (!dd.on) { if (!dd.ready) { if (Math.hypot(x - dd.x, y - dd.y) > 8) { clearTimeout(dd.t); dd = null; } return false; } if (Math.hypot(x - dd.x, y - dd.y) < 3) return true; begin(); }
     dd.g.style.left = (x - dd.ox) + 'px'; dd.g.style.top = (y - dd.oy) + 'px';
